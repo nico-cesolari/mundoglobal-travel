@@ -25,6 +25,8 @@ export type SmartImageProps = {
   rounded?: boolean | number;
   className?: string;
   preset?: keyof typeof import("./imagePresets").IMAGE_PRESETS;
+  objectPosition?: string;
+  minSourceWidth?: number;
   onClick?: () => void;
 };
 
@@ -55,7 +57,7 @@ function smartNeedsContain(safeArea: SafeArea | undefined, imageRatio: number, b
 export function SmartImage({
   src, alt, ratio, focalPoint = { x: 50, y: 50 }, safeArea,
   fit = "smart", sizes, srcSet, avifSrcSet, webpSrcSet, blurDataURL, priority = false, rounded = true, className = "",
-  preset, onClick
+  preset, objectPosition, minSourceWidth, onClick
 }: SmartImageProps) {
   const presetConfig = preset ? IMAGE_PRESETS[preset] : undefined;
   const resolvedRatio = ratio === "auto" ? "auto" : (ratio ?? presetConfig?.ratio ?? "4/3");
@@ -110,17 +112,23 @@ export function SmartImage({
     setNaturalSize({ width: 0, height: 0 });
   }, [src]);
 
-  useEffect(() => {
-    if (naturalSize.width > 0 && naturalSize.width < 800) {
-      console.warn(`MundoGlobal Travel: imagen de baja resolución (${naturalSize.width}px): ${src}`);
-    }
-  }, [naturalSize.width, src]);
+  const warningWidth = minSourceWidth ?? 800;
 
+  useEffect(() => {
+    if (naturalSize.width > 0 && naturalSize.width < warningWidth) {
+      console.warn(`MundoGlobal Travel: imagen de baja resolución (${naturalSize.width}px, mínimo recomendado ${warningWidth}px): ${src}`);
+    }
+  }, [naturalSize.width, src, warningWidth]);
+
+  const imageRatio = naturalSize.width / Math.max(1, naturalSize.height);
+  const boxRatio = boxSize.width / Math.max(1, boxSize.height);
   const lowResolution = naturalSize.width > 0 && naturalSize.height > 0 && Math.max(boxSize.width / naturalSize.width, boxSize.height / naturalSize.height) > 1;
-  const shouldContain = fit === "contain" || lowResolution || (fit === "smart" && smartNeedsContain(
+  const belowRequestedWidth = Boolean(minSourceWidth && naturalSize.width > 0 && naturalSize.width < minSourceWidth);
+  const tooNarrowForWideFrame = imageRatio > 0 && imageRatio < 1.2 && boxRatio >= 1.5;
+  const shouldContain = fit === "contain" || lowResolution || belowRequestedWidth || tooNarrowForWideFrame || (fit === "smart" && smartNeedsContain(
     safeArea,
-    naturalSize.width / Math.max(1, naturalSize.height),
-    boxSize.width / Math.max(1, boxSize.height),
+    imageRatio,
+    boxRatio,
     focal
   ));
   const ratioStyle = resolvedRatio === "auto" ? undefined : { aspectRatio: resolvedRatio.replace("/", " / ") };
@@ -130,7 +138,7 @@ export function SmartImage({
   return <div
     ref={node => { wrapperRef.current = node; }}
     className={`smart-image ${loaded ? "is-loaded" : ""} ${failed ? "has-failed" : ""} ${shouldContain ? "uses-contain" : ""} ${lowResolution ? "is-low-resolution" : ""} ${className}`}
-    style={{ ...ratioStyle, ...roundedStyle, ["--smart-focal-x"]: `${focal.x}%`, ["--smart-focal-y"]: `${focal.y}%` } as CSSProperties}
+    style={{ ...ratioStyle, ...roundedStyle, ["--smart-focal-x"]: `${focal.x}%`, ["--smart-focal-y"]: `${focal.y}%`, ["--smart-object-position"]: objectPosition ?? `${focal.x}% ${focal.y}%` } as CSSProperties}
     onClick={onClick}
     role={onClick ? "button" : undefined}
     tabIndex={onClick ? 0 : undefined}
