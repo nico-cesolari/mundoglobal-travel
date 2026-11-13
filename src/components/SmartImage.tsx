@@ -17,6 +17,8 @@ export type SmartImageProps = {
   fit?: ImageFit;
   sizes?: string;
   srcSet?: string;
+  avifSrcSet?: string;
+  webpSrcSet?: string;
   priority?: boolean;
   rounded?: boolean | number;
   className?: string;
@@ -50,7 +52,7 @@ function smartNeedsContain(safeArea: SafeArea | undefined, imageRatio: number, b
 
 export function SmartImage({
   src, alt, ratio, focalPoint = { x: 50, y: 50 }, safeArea,
-  fit = "smart", sizes, srcSet, priority = false, rounded = true, className = "",
+  fit = "smart", sizes, srcSet, avifSrcSet, webpSrcSet, priority = false, rounded = true, className = "",
   preset, onClick
 }: SmartImageProps) {
   const presetConfig = preset ? IMAGE_PRESETS[preset] : undefined;
@@ -107,21 +109,25 @@ export function SmartImage({
     {!loaded && !failed && <span className="smart-image-skeleton" aria-hidden="true"/>}
     {shouldContain && !failed && <img className="smart-image-backdrop" src={src} alt="" aria-hidden="true" loading={priority ? "eager" : "lazy"} decoding="async"/>}
     {failed ? <span className="smart-image-fallback" role="img" aria-label={alt || "Imagen no disponible"}><ImageOff size={24}/><small>Imagen no disponible</small></span> :
-      <img
-        className="smart-image-main"
-        src={src}
-        srcSet={canUseSrcSet ? srcSet : undefined}
-        sizes={resolvedSizes}
-        alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        fetchPriority={priority ? "high" : "auto"}
-        onLoad={event => {
-          setNaturalSize({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight });
-          setLoaded(true);
-        }}
-        onError={() => { setFailed(true); setLoaded(true); }}
-      />}
+      <picture className="smart-image-picture">
+        {avifSrcSet && <source type="image/avif" srcSet={avifSrcSet} sizes={resolvedSizes}/>}
+        {webpSrcSet && <source type="image/webp" srcSet={webpSrcSet} sizes={resolvedSizes}/>}
+        <img
+          className="smart-image-main"
+          src={src}
+          srcSet={canUseSrcSet ? srcSet : undefined}
+          sizes={resolvedSizes}
+          alt={alt}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={priority ? "high" : "auto"}
+          onLoad={event => {
+            setNaturalSize({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight });
+            setLoaded(true);
+          }}
+          onError={() => { setFailed(true); setLoaded(true); }}
+        />
+      </picture>}
   </div>;
 }
 
