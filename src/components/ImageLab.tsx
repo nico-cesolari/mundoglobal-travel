@@ -20,7 +20,7 @@ export default function ImageLab() {
           <div className="image-lab-presets">
             {presets.map(preset => <div className="image-lab-item" key={preset}>
               <span>{preset}</span>
-              <SmartImage src={sample.src} alt={sample.name} preset={preset} focalPoint={sample.focalPoint} safeArea={sample.safeArea} priority={preset === "hero"}/>
+              <SmartImage src={sample.src} alt={sample.name} preset={preset} focalPoint={sample.focalPoint} priority={preset === "hero"}/>
             </div>)}
           </div>
         </article>)}
