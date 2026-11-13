@@ -66,6 +66,7 @@ export function SmartImage({
   const focal = { x: clamp(focalPoint.x), y: clamp(focalPoint.y) };
   const [boxSize, setBoxSize] = useState({ width: 0, height: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     const element = wrapperRef.current;
@@ -79,6 +80,24 @@ export function SmartImage({
   }, [wrapperRef]);
 
   useEffect(() => {
+    const image = imageRef.current;
+    if (!image) return;
+
+    // A cached image may complete before the effect runs. Read its current
+    // state instead of always resetting the loaded UI and showing the skeleton.
+    if (image.complete) {
+      if (image.naturalWidth > 0) {
+        setNaturalSize({ width: image.naturalWidth, height: image.naturalHeight });
+        setFailed(false);
+        setLoaded(true);
+      } else {
+        setNaturalSize({ width: 0, height: 0 });
+        setFailed(true);
+        setLoaded(true);
+      }
+      return;
+    }
+
     setLoaded(false);
     setFailed(false);
     setNaturalSize({ width: 0, height: 0 });
@@ -117,6 +136,7 @@ export function SmartImage({
         {avifSrcSet && <source type="image/avif" srcSet={avifSrcSet} sizes={resolvedSizes}/>}
         {webpSrcSet && <source type="image/webp" srcSet={webpSrcSet} sizes={resolvedSizes}/>}
         <img
+          ref={imageRef}
           className="smart-image-main"
           src={src}
           srcSet={canUseSrcSet ? srcSet : undefined}
