@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import { SmartImage, type FocalPoint } from "./SmartImage";
 import "./focal-point-editor.css";
 
@@ -10,7 +11,7 @@ const formats = [
 ];
 
 export default function FocalPointEditor({ src, name, focalPoint = {x:50,y:50}, onChange }: Props) {
-  const choosePoint = (event: React.MouseEvent<HTMLDivElement>) => {
+  const choosePoint = (event: MouseEvent<HTMLDivElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     onChange({
       x: Math.round(Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100))),
