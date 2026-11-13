@@ -1768,3 +1768,28 @@ select:focus-visible{
   .destinations-section .destination-grid.destination-reference{grid-template-columns:1fr}
 }
 
+/* SmartImage: layout, focal point, overlays y presets */
+.package-photo>.smart-image,.destination-photo>.smart-image,.hero-art>.smart-image,.detail-hero>.smart-image{
+  position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:inherit;
+}
+.package-photo,.destination-photo,.hero-art,.detail-hero{position:relative;overflow:hidden}
+.package-photo>.smart-image,.destination-photo>.smart-image{z-index:0}
+.package-photo .offer-tag,.package-photo .heart,.destination-photo .heart,.destination-photo .destination-badge{z-index:4}
+.package-photo::after,.destination-photo::after{content:"";position:absolute;inset:45% 0 0;z-index:3;pointer-events:none;background:linear-gradient(transparent,rgba(0,0,0,.18))}
+.package-photo .offer-tag,.package-photo .heart,.destination-photo .heart,.destination-photo .destination-badge{z-index:5}
+.destination-photo>.smart-image{height:100%}
+.hero-art>.hero-smart-image{border-radius:0}
+.detail-hero{isolation:isolate}
+.detail-hero>.detail-smart-image{z-index:-1;border-radius:inherit}
+.detail-hero::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(3,24,67,.82),rgba(3,24,67,.08));pointer-events:none}
+.detail-hero>.detail-hero-copy{position:relative;z-index:1;max-width:520px}
+.employee-package-list .employee-package-smart-image{width:58px;height:48px;flex:0 0 58px;aspect-ratio:auto;border-radius:8px}
+.checkout-destination .checkout-smart-image{width:100px;height:72px;flex:0 0 100px;aspect-ratio:auto;border-radius:10px}
+.checkout-destination>div:not(.smart-image){display:flex;flex-direction:column;gap:5px}
+.smart-image.is-low-resolution .smart-image-main{width:auto;height:auto;max-width:100%;max-height:100%;inset:0;margin:auto;object-fit:contain}
+.smart-image.uses-contain .smart-image-main{object-fit:contain}
+.smart-image-backdrop{pointer-events:none}
+@media(max-width:767px){
+  .package-photo>.smart-image{height:100%}
+  .employee-package-list .employee-package-smart-image{width:58px;height:48px}
+}
