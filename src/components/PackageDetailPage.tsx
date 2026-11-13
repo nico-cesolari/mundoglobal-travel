@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent, TouchEvent } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
-  ArrowLeft, ArrowRight, BedDouble, CalendarDays, Check, CheckCircle2, ChevronDown,
-  ChevronLeft, ChevronRight, Clock3, Compass, FileText, Headphones, Heart, Info,
+  ArrowRight, BedDouble, CalendarDays, Check, CheckCircle2,
+  ChevronLeft, ChevronRight, Clock3, Compass, FileText, Headphones, Info,
   MapPin, MessageCircle, Phone, Plane, Share2, ShieldCheck, Sparkles, Star, X
 } from "lucide-react";
 import { SmartImage } from "./SmartImage";
@@ -67,6 +68,7 @@ type Props = {
   packages: PackageDetailData[];
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  onHome: () => void;
   onOpenPackage: (item: PackageDetailData) => void;
   onConsultAvailability: (payload: InquiryPayload) => void;
   onContact: () => void;
@@ -131,6 +133,7 @@ export function PackageDetailPage({
   packages,
   isFavorite,
   onToggleFavorite,
+  onHome,
   onOpenPackage,
   onConsultAvailability,
   onContact
@@ -157,7 +160,6 @@ export function PackageDetailPage({
   const otherPackages = packages.filter(item => item.id !== packageData.id && item.image);
   const hasFlight = includes.some(item => (item.icon || "").toLowerCase() === "plane");
   const hasHotel = includes.some(item => ["hotel", "bed"].includes((item.icon || "").toLowerCase()));
-  const totalLabel = priceLabel && travelerCount > 0 ? money((packageData.price || 0) * travelerCount, packageData.currency || "USD") : "";
 
   useEffect(() => {
     const description = packageData.description || `Conocé el paquete ${packageData.name} de MundoGlobal Travel.`;
@@ -295,7 +297,7 @@ export function PackageDetailPage({
     <div className="package-detail-grid">
       <header className="package-detail-heading">
         <div className="package-breadcrumb" aria-label="Migas de pan">
-          <button onClick={() => window.history.length > 1 ? window.history.back() : undefined}>Inicio</button><ChevronRight size={13}/>
+          <button onClick={onHome}>Inicio</button><ChevronRight size={13}/>
           <span>Paquetes</span><ChevronRight size={13}/>
           <strong>{packageData.name}</strong>
         </div>
@@ -336,13 +338,12 @@ export function PackageDetailPage({
       {renderBookingCard()}
 
       {(() => {
-        const summary = [
-          packageData.tripType ? { icon: Compass, label: "Tipo de viaje", value: packageData.tripType } : null,
-          packageData.mode ? { icon: BedDouble, label: "Régimen", value: packageData.mode } : null,
-          nights || days ? { icon: CalendarDays, label: "Duración", value: nights && days ? `${nights} noches / ${days} días` : nights ? `${nights} noches` : `${days} días` } : null
-        ].filter((item): item is { icon: typeof Compass; label: string; value: string } => Boolean(item));
+        const summary: { icon: LucideIcon; label: string; value: string }[] = [];
+        if (packageData.tripType) summary.push({ icon: Compass, label: "Tipo de viaje", value: packageData.tripType });
+        if (packageData.mode) summary.push({ icon: BedDouble, label: "Régimen", value: packageData.mode });
+        if (nights || days) summary.push({ icon: CalendarDays, label: "Duración", value: nights && days ? `${nights} noches / ${days} días` : nights ? `${nights} noches` : `${days} días` });
         return summary.length > 0 ? <section className={`package-quick-summary summary-count-${summary.length}`} aria-label="Resumen del paquete">
-          {summary.map((item, index) => {
+          {summary.map(item => {
             const Icon = item.icon;
             return <div className="package-quick-summary-item" key={item.label}><span><Icon size={19}/></span><div><small>{item.label}</small><b>{item.value}</b></div></div>;
           })}
