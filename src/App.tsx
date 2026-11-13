@@ -91,7 +91,6 @@ const enrichPackage = (item: Package): Package => {
 const demoIncomeEntries: IncomeEntry[] = [
   { id: 1, reference: "MG-20481", client: "María González", destination: "Cancún", departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", amount: 2598, method: "Tarjeta de crédito", status: "Acreditado", date: "13/11/2026" },
   { id: 2, reference: "MG-20480", client: "Lucas Fernández", destination: "Roma", departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", amount: 1479, method: "Transferencia", status: "Pendiente", date: "12/11/2026" },
-  { id: 3, reference: "MG-20479", client: "Sofía Martínez", destination: "Salvador de Bahía", departureCity: "Córdoba, Argentina", departureDate: "2027-02-10", returnDate: "2027-02-15", amount: 2198, method: "Mercado Pago", status: "Acreditado", date: "11/11/2026" },
   { id: 4, reference: "MG-20478", client: "Tomás Romero", destination: "Camboriú", departureCity: "Villa María, Córdoba, Argentina", departureDate: "2027-01-08", returnDate: "2027-01-14", amount: 899, method: "Tarjeta de débito", status: "Pendiente", date: "10/11/2026" }
 ];
 const loadSavedPackages = (): Package[] => {
