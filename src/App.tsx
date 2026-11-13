@@ -62,7 +62,6 @@ export default function App() {
   const locationOptions = ["Buenos Aires, Argentina", "Córdoba, Argentina", "Villa María, Córdoba, Argentina", "Leones, Córdoba, Argentina", "Mendoza, Argentina", "Bariloche, Argentina", "Salta, Argentina", "Iguazú, Misiones, Argentina", "Montevideo, Uruguay", "Punta del Este, Uruguay", "Santiago, Chile", "Río de Janeiro, Brasil", "São Paulo, Brasil", "Salvador de Bahía, Brasil", "Florianópolis, Brasil", "Camboriú, Brasil", "El Chaltén, Santa Cruz, Argentina", "Cancún, México", "Ciudad de México, México", "Punta Cana, República Dominicana", "Nueva York, Estados Unidos", "Miami, Estados Unidos", "Madrid, España", "Barcelona, España", "Roma, Italia", "París, Francia", "Londres, Reino Unido"];
   const [category, setCategory] = useState("Todos");
   const [activeService, setActiveService] = useState("Paquetes");
-  const [accommodation, setAccommodation] = useState("Todos");
   const today = new Date();
   const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   const [date, setDate] = useState(todayISO);
@@ -123,10 +122,24 @@ export default function App() {
   const go = (p: Page) => { setPage(p); setMobileMenu(false); if (p !== "results") setActiveNav(p === "home" ? "Inicio" : p === "support" ? "Contacto" : ""); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const openPackage = (p: Package) => { setSelected(p); go("detail"); };
   const toggleFavorite = (id: number) => { setAnimatingFavorite(id); window.setTimeout(() => setAnimatingFavorite(current => current === id ? null : current), 480); setFavorites(v => { const next = v.includes(id) ? v.filter(x => x !== id) : [...v, id]; setToast(next.includes(id) ? "¡Paquete guardado en tus favoritos!" : "Paquete quitado de favoritos."); return next; }); };
-  const submitSearch = () => { if (isSearching) return; setIsSearching(true); const term = [origin.trim(), query.trim()].filter(Boolean).join(" → ") || "Todos los destinos"; const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6); setRecentSearches(next); localStorage.setItem("mgt-recent-searches", JSON.stringify(next)); setSearchSubmitted(true); setActiveNav("Paquetes"); window.setTimeout(() => { setIsSearching(false); go("results"); }, 650); };
+  const submitSearch = () => {
+    if (isSearching) return;
+    if (!origin.trim()) { setToast("Elegí una ciudad de origen para continuar."); return; }
+    if (!query.trim()) { setToast("Elegí un destino para continuar."); return; }
+    if (origin.trim().toLowerCase() === query.trim().toLowerCase()) { setToast("El origen y el destino deben ser diferentes."); return; }
+    if (!date || !returnDate || returnDate < date) { setToast("Revisá las fechas de ida y vuelta."); return; }
+    setIsSearching(true);
+    const term = [origin.trim(), query.trim()].join(" → ");
+    const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6);
+    setRecentSearches(next);
+    localStorage.setItem("mgt-recent-searches", JSON.stringify(next));
+    setSearchSubmitted(true);
+    setActiveNav("Paquetes");
+    window.setTimeout(() => { setIsSearching(false); go("results"); }, 650);
+  };
   const filtered = useMemo(() => employeePackages.filter(p =>
     (category === "Todos" || p.category === category) &&
-    (`${p.name} ${p.country}`.toLowerCase().includes(query.trim().toLowerCase())) &&
+    (`${p.name} ${p.country}`.toLowerCase().includes(query.trim().split(",")[0].trim().toLowerCase())) &&
     p.price >= minPrice &&
     p.price <= maxPrice &&
     (!onlyOffers || p.tag === "¡Oferta!") &&
@@ -241,44 +254,48 @@ export default function App() {
   </article>;
 
   const renderSearchBar = () => {
-    const displayDate = (value: string) => {
-      if (!value) return "Elegí fecha";
-      const [year, month, day] = value.split("-").map(Number);
-      return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short" }).replace(".", "");
-    };
-    const matches = locationOptions.filter(place => place.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 7);
+    const matches = locationOptions.filter(place => place.toLowerCase().includes((activeLocationField === "origin" ? origin : query).trim().toLowerCase())).slice(0, 7);
     return <div className="search-panel">
+      <div className={`search-field location-field origin-search-field ${activeLocationField === "origin" ? "location-focused" : ""}`}>
+        <span className="field-icon"><MapPin size={18}/></span>
+        <span className="search-field-copy">
+          <small>Origen</small>
+          <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder="¿Desde dónde salís?" autoComplete="off" aria-label="Ciudad de origen"/>
+          {activeLocationField === "origin" && origin.trim().length > 0 && <div className="location-suggestions">
+            {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setOrigin(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
+          </div>}
+        </span>
+      </div>
       <div className={`search-field location-field destination-search-field ${activeLocationField === "destination" ? "location-focused" : ""}`}>
         <span className="field-icon"><MapPin size={18}/></span>
         <span className="search-field-copy">
           <small>Destino</small>
-          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="¿A dónde querés ir?" autoComplete="off" />
+          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="¿A dónde querés ir?" autoComplete="off" aria-label="Ciudad de destino"/>
           {activeLocationField === "destination" && query.trim().length > 0 && <div className="location-suggestions">
             {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setQuery(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
           </div>}
         </span>
       </div>
-      <div className="search-field date-range-field">
+      <label className="search-field date-search-field">
         <span className="field-icon"><CalendarDays size={18}/></span>
         <span className="search-field-copy">
-          <small>Fechas</small>
-          <strong>{displayDate(date)} – {displayDate(returnDate)}</strong>
-          <span className="date-range-inputs">
-            <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate < nextDate) setReturnDate(nextDate); }} aria-label="Fecha de ida"/>
-            <input type="date" value={returnDate} min={date} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
-          </span>
-        </span>
-      </div>
-      <label className="search-field select-search-field">
-        <span className="field-icon"><Users size={18}/></span>
-        <span className="search-field-copy"><small>Pasajeros</small>
-          <select value={travelers} onChange={e => setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select>
+          <small>Fecha de ida</small>
+          <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate < nextDate) setReturnDate(nextDate); }} aria-label="Fecha de ida"/>
         </span>
       </label>
-      <label className="search-field select-search-field accommodation-field">
-        <span className="field-icon"><BedDouble size={18}/></span>
-        <span className="search-field-copy"><small>Alojamiento</small>
-          <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>Hotel 3 estrellas</option><option>Hotel 4 estrellas</option><option>Hotel 5 estrellas</option><option>All Inclusive</option></select>
+      <label className="search-field date-search-field">
+        <span className="field-icon"><CalendarDays size={18}/></span>
+        <span className="search-field-copy">
+          <small>Fecha de vuelta</small>
+          <input type="date" value={returnDate} min={date} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
+        </span>
+      </label>
+      <label className="search-field select-search-field passengers-search-field">
+        <span className="field-icon"><Users size={18}/></span>
+        <span className="search-field-copy"><small>Pasajeros</small>
+          <select value={travelers} onChange={e => setTravelers(Number(e.target.value))} aria-label="Cantidad de pasajeros">
+            {Array.from({length: 9}, (_, index) => index + 1).map(count => <option key={count} value={count}>{count} {count === 1 ? "pasajero" : "pasajeros"}</option>)}
+          </select>
         </span>
       </label>
       <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
