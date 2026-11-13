@@ -2219,7 +2219,7 @@ body{
 }
 
 /* Los principales bloques comparten un único eje y un máximo común */
-.nav-wrap,.hero-shell,.destinations-section,.section{
+.nav-wrap,.hero-shell,.destinations-section,.section,.page-container{
   box-sizing:border-box;
   width:100%;
   max-width:1280px;
@@ -2227,7 +2227,7 @@ body{
   margin-right:auto;
 }
 @media(min-width:768px){
-  .nav-wrap,.hero-shell,.destinations-section,.section{
+  .nav-wrap,.hero-shell,.destinations-section,.section,.page-container{
     padding-left:24px;
     padding-right:24px;
   }
@@ -2236,7 +2236,7 @@ body{
   .nav-wrap{padding-left:16px;padding-right:16px}
   .hero-shell{width:calc(100% - 24px);padding-left:0;padding-right:0}
   .destinations-section{width:calc(100% - 32px);padding-left:0;padding-right:0}
-  .section{padding-left:16px;padding-right:16px}
+  .section,.page-container{padding-left:16px;padding-right:16px}
 }
 .hero-shell>.search-panel{
   box-sizing:border-box;
