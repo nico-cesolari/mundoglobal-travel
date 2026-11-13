@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight, ArrowLeft, Plane, Globe2, Search, CalendarDays, Users, Tag,
   Heart, Star, ShieldCheck, Headphones, CreditCard, Menu, X, UserRound,
-  ChevronDown, MapPin, Clock3, Check, CheckCircle2, Hotel, Stethoscope,
+  ChevronDown, MapPin, Clock3, Check, CheckCircle2, Hotel, BedDouble, Stethoscope,
   Luggage, CarFront, LockKeyhole, Mail, Eye, EyeOff, MessageCircle, Bell, SlidersHorizontal,
   Facebook, Instagram, Youtube, Linkedin, Ticket, LogOut, CircleHelp, Sparkles, Phone
 } from "lucide-react";
@@ -249,7 +249,7 @@ export default function App() {
         </span>
       </label>
       <label className="search-field select-search-field accommodation-field">
-        <span className="field-icon"><Hotel size={18}/></span>
+        <span className="field-icon"><BedDouble size={18}/></span>
         <span className="search-field-copy"><small>Alojamiento</small>
           <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>Hotel 3 estrellas</option><option>Hotel 4 estrellas</option><option>Hotel 5 estrellas</option><option>All Inclusive</option></select>
         </span>
