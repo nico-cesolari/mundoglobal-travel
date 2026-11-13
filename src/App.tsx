@@ -65,8 +65,6 @@ const enrichPackage = (item: Package): Package => {
   ] : []);
   const infoSections = item.infoSections ?? [
     ...(item.description ? [{ icon: "info", title: "Todos los detalles", description: item.description }] : []),
-    { icon: "file", title: "Requisitos y documentación", description: "La documentación de ingreso puede depender de tu nacionalidad y de las condiciones vigentes del destino. Consultá con un asesor antes de viajar." },
-    { icon: "compass", title: "Recomendaciones", description: "Antes de viajar, confirmá horarios, equipaje, políticas del alojamiento y servicios contratados con el equipo de MundoGlobal Travel." },
     ...(item.departureCity && item.departureDate && item.returnDate ? [{ icon: "calendar", title: "Fechas y condiciones", description: `Salida desde ${item.departureCity}. Ida ${formatTravelDate(item.departureDate)} y regreso ${formatTravelDate(item.returnDate)}. El precio corresponde a esta salida publicada.` }] : [])
   ];
   return {
