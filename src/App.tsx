@@ -199,7 +199,7 @@ export default function App() {
   </footer>;
 
   const PackageCard = ({ p, featured = false }: {p: Package; featured?: boolean}) => <article className={`package-card ${featured ? "featured" : ""}`}>
-    <div className="package-photo" style={{backgroundImage:`url(${p.image})`}}>
+    <div className="package-photo"><img className="offer-image" src={p.image} alt={p.name} loading="lazy" onError={e=>{e.currentTarget.style.visibility="hidden";}}/>
       <span className="offer-tag">¡Oferta!</span>
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
@@ -242,7 +242,7 @@ export default function App() {
   ];
   const activePromotion = heroPromotions[heroSlide];
   const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
-    <div className="hero-art" aria-hidden="true"/>
+    <div className="hero-art" aria-hidden="true"><img src="/images/hero-mundo.png" alt="" fetchPriority="high" /></div>
     <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está<br/>esperando <em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
   </div>{renderSearchBar()}</section>
   <section className="section destinations-section">
