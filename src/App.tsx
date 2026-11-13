@@ -15,6 +15,7 @@ type Package = {
   id: number; name: string; country: string; category: string; price: number;
   oldPrice: number; rating: number; reviews: string; days: number; image: string;
   focalPoint?: { x: number; y: number }; safeArea?: { x: number; y: number; w: number; h: number };
+  imagePosition?: string;
   tag?: string; description: string;
 };
 const packages: Package[] = [
@@ -341,9 +342,65 @@ export default function App() {
 
   const renderResults = () => <main className="page-container"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span> Paquetes</div><div className="page-title-row"><div><span className="kicker">ENCONTRÁ TU PRÓXIMA AVENTURA</span><h1>Paquetes de viaje</h1><p>Experiencias completas, pensadas para que solo te ocupes de disfrutar.</p></div><span className="results-count">{filtered.length} experiencias</span></div><div className="results-search">{renderSearchBar()}</div><div className="results-layout"><aside className="filters"><h3><SlidersHorizontal size={18}/> Filtrar resultados</h3><b>Tipo de viaje</b>{["Todos","Playas","Ciudades","Cultura","Aventuras"].map(c=><button key={c} className={category===c?"filter-active":""} onClick={()=>setCategory(c)}>{c}<span>{c==="Todos"?packages.length:packages.filter(p=>p.category===c).length}</span></button>)}<div className="filter-divider"/><b>Buscar destino o país</b><input className="filter-text-input" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Ej. Cancún, Brasil, Italia..." aria-label="Buscar destino o país"/><div className="filter-divider"/><b>Rango de precio por persona</b><p className="filter-hint">Ingresá los importes en USD.</p><div className="filter-price-fields"><label>Desde<input type="number" min="0" step="50" value={minPrice} onChange={e=>setMinPrice(Math.max(0,Number(e.target.value)||0))}/></label><label>Hasta<input type="number" min={minPrice} step="50" value={maxPrice} onChange={e=>setMaxPrice(Math.max(minPrice,Number(e.target.value)||0))}/></label></div><input className="price-range" type="range" min={Math.max(0,minPrice)} max="2000" step="50" value={Math.min(maxPrice,2000)} onChange={e=>setMaxPrice(Math.max(minPrice,Number(e.target.value)))} aria-label="Precio máximo"/><div className="filter-divider"/><b>Preferencias</b><label className="check-label"><input type="checkbox" checked={onlyOffers} onChange={e=>setOnlyOffers(e.target.checked)}/> Solo ofertas</label><label className="check-label"><input type="checkbox" checked={topRatedOnly} onChange={e=>setTopRatedOnly(e.target.checked)}/> Mejor valorados (4.8+)</label><button className="filter-reset" onClick={()=>{setCategory("Todos");setQuery("");setMinPrice(0);setMaxPrice(2000);setOnlyOffers(false);setTopRatedOnly(false);setSortBy("recommended");}}>Limpiar todos los filtros</button></aside><div className="results-content"><div className="sort-row"><span>{filtered.length} paquetes encontrados</span><select aria-label="Ordenar paquetes" value={sortBy} onChange={e=>setSortBy(e.target.value)}><option value="recommended">Recomendados</option><option value="price">Menor precio</option><option value="rating">Mejor calificación</option></select></div><div className="results-grid">{sortedPackages.map(p=>renderPackageCard(p))}</div>{filtered.length===0&&<div className="empty-state"><Search size={34}/><h3>No encontramos resultados</h3><p>Probá con otro destino o categoría.</p><button className="primary-btn" onClick={()=>{setQuery("");setOrigin("");setCategory("Todos");setMinPrice(0);setMaxPrice(2000);setOnlyOffers(false);setTopRatedOnly(false);setSortBy("recommended");}}>Limpiar filtros</button></div>}</div></div></main>;
 
-  const Detail = () => <main className="page-container"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span><button onClick={()=>go("results")}>Paquetes</button><span>/</span>{selected.name}</div><div className="detail-hero"><SmartImage className="detail-smart-image" src={selected.image} alt={selected.name} preset="card-wide" ratio="auto" focalPoint={{x:52,y:48}}/><div className="detail-hero-copy"><span className="eyebrow"><MapPin size={14}/> {selected.country} · {selected.category}</span><h1>{selected.name}</h1><p>{selected.description}</p><span className="detail-rating"><Star size={16} fill="currentColor"/> {selected.rating} ({selected.reviews} opiniones)</span></div></div><div className="detail-layout"><div className="detail-main"><h2>Tu viaje, todo resuelto</h2><p className="muted">Un paquete integral con los servicios esenciales para viajar tranquilo.</p><div className="included-grid"><div><span><Plane/></span><b>Vuelos incluidos</b><p>Ida y vuelta en aerolínea comercial. Equipaje de mano incluido.</p></div><div><span><Hotel/></span><b>Hotel All Inclusive</b><p>{selected.days - 1} noches de alojamiento con comidas y bebidas incluidas.</p></div><div><span><Stethoscope/></span><b>Asistencia al viajero</b><p>Cobertura médica, traslados y asistencia ante contingencias.</p></div></div><h2>Tu experiencia incluye</h2><ul className="included-list"><li><CheckCircle2/> Vuelos de ida y vuelta</li><li><CheckCircle2/> Traslados aeropuerto – hotel – aeropuerto</li><li><CheckCircle2/> Alojamiento en resort seleccionado</li><li><CheckCircle2/> Asistencia al viajero durante toda la estadía</li><li><CheckCircle2/> Soporte digital 24/7</li></ul><div className="notice"><ShieldCheck/><span><b>Viajá con tranquilidad</b><small>Todos nuestros paquetes cuentan con asistencia y soporte durante el viaje.</small></span></div></div><aside className="booking-card"><span className="discount">Hasta {discount(selected)}% OFF</span><div className="price-line"><strong>{money(selected.price)}</strong><del>{money(selected.oldPrice)}</del></div><small>por persona · impuestos incluidos</small><div className="booking-divider"/><label>Fecha de salida<input type="date" value={date} min={todayISO} onChange={e=>setDate(e.target.value)}/></label><label>Pasajeros<select value={travelers} onChange={e=>setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select></label><div className="booking-total"><span>Total estimado</span><b>{money(selected.price*travelers)}</b></div><button className="primary-btn full" onClick={()=>go(user?"checkout":"login")}>Reservar paquete <ArrowRight size={17}/></button><p className="booking-safe"><LockKeyhole size={14}/> Reserva segura · Sin cargos ocultos</p></aside></div></main>;
-
-  const Login = ({register=false}:{register?:boolean}) => <main className="auth-page"><div className="auth-promo"><div className="auth-promo-content"><span className="eyebrow"><Plane size={14}/> MundoGlobal Travel</span><h1>{register?"Tu próxima aventura empieza acá":"Tu próxima aventura empieza acá"}</h1><p>Entrá a tu cuenta para ver tus reservas, guardar favoritos y acceder a ofertas exclusivas.</p><ul><li><Check/> Reservá en hasta 12 cuotas sin interés</li><li><Check/> Ofertas exclusivas para socios</li><li><Check/> Soporte 24/7 en tu idioma</li></ul><div className="promo-globe"><Globe2 size={220}/></div></div></div><div className="auth-form-side"><div className="auth-form"><div className="auth-avatar"><UserRound/></div><h1>{register?"Crear cuenta":"Iniciá sesión"}</h1><p>{register?"Registrate y empezá a planificar tu próximo viaje.":"Bienvenido de nuevo. Ingresá tus datos para continuar."}</p><form onSubmit={e=>{e.preventDefault();const fd=new FormData(e.currentTarget);login(String(fd.get("email")),String(fd.get("name") || ""));}}>{register&&<><label>Nombre completo<input name="name" required placeholder="Tu nombre"/></label></>}<label>Correo electrónico<div className="input-icon"><Mail/><input name="email" type="email" required placeholder="tu@email.com"/></div></label><label>Contraseña<div className="input-icon"><LockKeyhole/><input name="password" type={showPassword?"text":"password"} required minLength={4} placeholder="Ingresá tu contraseña"/><button type="button" onClick={()=>setShowPassword(!showPassword)}>{showPassword?<EyeOff/>:<Eye/>}</button></div></label>{!register&&<div className="auth-options"><label className="remember"><input type="checkbox" defaultChecked/> Recordarme</label><button type="button" className="text-link" onClick={()=>setToast("Función de recuperación simulada para la demostración.")}>¿Olvidaste tu contraseña?</button></div>}<button className="primary-btn full auth-submit">{register?"Crear mi cuenta":"Iniciar sesión"} <ArrowRight size={17}/></button></form><div className="auth-switch">{register?"¿Ya tenés cuenta?":"¿No tenés cuenta?"} <button onClick={()=>go(register?"login":"register")}>{register?"Iniciá sesión":"Registrate"}</button></div><div className="secure-box"><ShieldCheck/><span><b>Conexión segura</b><small>Tus datos de demostración se guardan localmente.</small></span></div></div></div></main>;
+  const Detail = () => <main className="page-container detail-page">
+    <div className="breadcrumb"><button onClick={() => go("home")}>Inicio</button><span>/</span><button onClick={() => go("results")}>Paquetes</button><span>/</span>{selected.name}</div>
+    <div className="detail-hero">
+      <SmartImage
+        className="detail-smart-image"
+        src={selected.image}
+        alt={selected.name}
+        preset="card-wide"
+        ratio="auto"
+        fit="smart"
+        focalPoint={selected.focalPoint ?? {x:50,y:60}}
+        objectPosition={selected.imagePosition ?? "center 60%"}
+        sizes="100vw"
+        minSourceWidth={1200}
+        priority
+      />
+      <div className="detail-hero-copy">
+        <span className="eyebrow"><MapPin size={14}/> {selected.country} · {selected.category}</span>
+        <h1>{selected.name}</h1>
+        <p>{selected.description}</p>
+        <span className="detail-rating">
+          <Star size={16} fill="currentColor"/>
+          <strong>{selected.rating.toFixed(1)}</strong>
+          <span>{selected.reviews === "0" ? "Nuevo" : `(${selected.reviews} opiniones)`}</span>
+        </span>
+      </div>
+    </div>
+    <div className="detail-layout">
+      <div className="detail-main">
+        <h2>Tu viaje, todo resuelto</h2>
+        <p className="muted">Un paquete integral con los servicios esenciales para viajar tranquilo.</p>
+        <div className="included-grid">
+          <div><span><Plane/></span><b>Vuelos incluidos</b><p>Ida y vuelta en aerolínea comercial. Equipaje de mano incluido.</p></div>
+          <div><span><Hotel/></span><b>Hotel All Inclusive</b><p>{selected.days - 1} noches de alojamiento con comidas y bebidas incluidas.</p></div>
+          <div><span><Stethoscope/></span><b>Asistencia al viajero</b><p>Cobertura médica, traslados y asistencia ante contingencias.</p></div>
+        </div>
+        <h2>Tu experiencia incluye</h2>
+        <ul className="included-list">
+          <li><CheckCircle2/> Vuelos de ida y vuelta</li>
+          <li><CheckCircle2/> Traslados aeropuerto – hotel – aeropuerto</li>
+          <li><CheckCircle2/> Alojamiento en resort seleccionado</li>
+          <li><CheckCircle2/> Asistencia al viajero durante toda la estadía</li>
+          <li><CheckCircle2/> Soporte digital 24/7</li>
+        </ul>
+        <div className="notice"><ShieldCheck/><span><b>Viajá con tranquilidad</b><small>Todos nuestros paquetes cuentan con asistencia y soporte durante el viaje.</small></span></div>
+      </div>
+      <aside className="booking-card">
+        <span className="discount">Hasta {discount(selected)}% OFF</span>
+        <div className="price-line"><strong>{money(selected.price)}</strong><del>{money(selected.oldPrice)}</del></div>
+        <small>por persona · impuestos incluidos</small>
+        <div className="booking-divider"/>
+        <label>Fecha de salida<input type="date" value={date} min={todayISO} onChange={e=>setDate(e.target.value)}/></label>
+        <label>Pasajeros<select value={travelers} onChange={e=>setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select></label>
+        <div className="booking-total"><span>Total estimado</span><b>{money(selected.price*travelers)}</b></div>
+        <button className="primary-btn full" onClick={()=>go(user?"checkout":"login")}>Reservar paquete <ArrowRight size={17}/></button>
+        <p className="booking-safe"><LockKeyhole size={14}/> Reserva segura · Sin cargos ocultos</p>
+      </aside>
+    </div>
+  </main>;
 
   const EmployeeLogin = () => <main className="auth-page employee-auth"><div className="auth-promo"><div className="auth-promo-content"><span className="eyebrow"><LockKeyhole size={14}/> Portal interno</span><h1>Gestioná cada viaje desde un solo lugar.</h1><p>Un espacio de trabajo para el equipo de MundoGlobal Travel: paquetes, consultas y reservas.</p><ul><li><Check/> Administración de paquetes</li><li><Check/> Atención de consultas</li><li><Check/> Seguimiento de reservas</li></ul><div className="promo-globe"><Globe2 size={220}/></div></div></div><div className="auth-form-side"><div className="auth-form"><div className="auth-avatar"><LockKeyhole/></div><span className="kicker">ACCESO DEL PERSONAL</span><h1>Portal de empleados</h1><p>Ingresá con tus credenciales internas para continuar.</p><form onSubmit={e=>{e.preventDefault();const fd=new FormData(e.currentTarget);employeeLogin(String(fd.get("email")),String(fd.get("password")));}}><label>Correo corporativo<div className="input-icon"><Mail/><input name="email" type="email" required placeholder="empleado@mundoglobal.com"/></div></label><label>Contraseña<div className="input-icon"><LockKeyhole/><input name="password" type="password" required placeholder="Contraseña"/></div></label><button className="primary-btn full auth-submit">Ingresar al panel <ArrowRight size={17}/></button></form><div className="demo-warning employee-demo"><CircleHelp/> Acceso de prueba: empleado@mundoglobal.com · MundoGlobal2026</div><div className="auth-switch"><button onClick={()=>go("home")}>Volver al sitio público</button></div></div></div></main>;
 
