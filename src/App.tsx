@@ -196,11 +196,12 @@ export default function App() {
   const [maxPrice, setMaxPrice] = useState(2000);
   const [onlyOffers, setOnlyOffers] = useState(false);
   const [topRatedOnly, setTopRatedOnly] = useState(false);
-  const [staffMessages, setStaffMessages] = useState([
+  const [staffMessages, setStaffMessages] = useState<Array<{ id: number; name: string; subject: string; body: string; status: string; reply?: string }>>(() => { try { const saved = localStorage.getItem("mgt-staff-messages"); if (saved) return JSON.parse(saved); } catch { /* Se utilizan las conversaciones de muestra. */ } return [
     { id: 1, name: "María González", subject: "Consulta por paquete a Cancún", body: "Hola, ¿el paquete incluye equipaje para despachar?", status: "Pendiente" },
     { id: 2, name: "Lucas Fernández", subject: "Cambio de fecha", body: "Necesitaría saber si puedo modificar la fecha de salida de mi viaje.", status: "Pendiente" },
-    { id: 3, name: "Sofía Martínez", subject: "Medios de pago", body: "¿Puedo abonar una parte con tarjeta y otra por transferencia?", status: "Respondido" }
-  ]);
+    { id: 3, name: "Sofía Martínez", subject: "Medios de pago", body: "¿Puedo abonar una parte con tarjeta y otra por transferencia?", status: "Respondido", reply: "¡Hola, Sofía! Sí, podés combinar los medios de pago. Te ayudamos a coordinarlo con un asesor." }
+  ]; });
+  const [activeStaffMessageId, setActiveStaffMessageId] = useState(1);
 
   useEffect(() => {
     writeDraft("mgt-draft-employee-message", employeeMessage);
@@ -248,6 +249,7 @@ export default function App() {
   }, [employeePackages]);
   useEffect(() => { localStorage.setItem("mgt-favorites", JSON.stringify(favorites)); }, [favorites]);
   useEffect(() => { localStorage.setItem("mgt-income-entries", JSON.stringify(incomeEntries)); }, [incomeEntries]);
+  useEffect(() => { localStorage.setItem("mgt-staff-messages", JSON.stringify(staffMessages)); }, [staffMessages]);
 
   useEffect(() => {
     const handlePackageRoute = () => {
@@ -413,7 +415,7 @@ export default function App() {
         <button className={activeNav === "Contacto" ? "active" : ""} onClick={() => { setActiveNav("Contacto"); go("support"); }}>Contacto</button>
       </nav>
       <div className="nav-actions">
-        <button className="account-pill" onClick={() => go(user ? "account" : "login")}><UserRound size={16}/>{user || "Iniciar sesión"}{user && <ChevronDown size={14}/>}</button>
+        {page === "employee" ? <span className="employee-role-pill"><UserRound size={16}/> Empleado <i/></span> : <button className="account-pill" onClick={() => go(user ? "account" : "login")}><UserRound size={16}/>{user || "Iniciar sesión"}{user && <ChevronDown size={14}/>}</button>}
         {page === "detail" && !routeNotFound && <button className="nav-book-now" onClick={() => document.querySelector<HTMLButtonElement>(".package-consult-button")?.click()}>Reservar ahora</button>}
         <button className="menu-toggle" onClick={() => setMobileMenu(!mobileMenu)}>{mobileMenu ? <X/> : <Menu/>}</button>
       </div>
@@ -591,7 +593,7 @@ export default function App() {
   const renderEmployeeLogin = () => <main className="auth-page employee-auth"><div className="auth-promo"><div className="auth-promo-content"><span className="eyebrow"><LockKeyhole size={14}/> Portal interno</span><h1>Gestioná cada viaje desde un solo lugar.</h1><p>Un espacio de trabajo para el equipo de MundoGlobal Travel: paquetes, consultas y reservas.</p><ul><li><Check/> Administración de paquetes</li><li><Check/> Atención de consultas</li><li><Check/> Seguimiento de reservas</li></ul><div className="promo-globe"><Globe2 size={220}/></div></div></div><div className="auth-form-side"><div className="auth-form"><div className="auth-avatar"><LockKeyhole/></div><span className="kicker">ACCESO DEL PERSONAL</span><h1>Portal de empleados</h1><p>Ingresá con tus credenciales internas para continuar.</p><form onSubmit={e=>{e.preventDefault();employeeLogin(employeeEmailDraft,employeePasswordDraft);}}><label>Correo corporativo<div className="input-icon"><Mail/><input name="email" type="email" value={employeeEmailDraft} onChange={e=>setEmployeeEmailDraft(e.target.value)} autoComplete="username" required placeholder="empleado@mundoglobal.com"/></div></label><label>Contraseña<div className="input-icon"><LockKeyhole/><input name="password" type="password" value={employeePasswordDraft} onChange={e=>setEmployeePasswordDraft(e.target.value)} autoComplete="current-password" required placeholder="Contraseña"/></div></label><button className="primary-btn full auth-submit">Ingresar al panel <ArrowRight size={17}/></button></form><div className="demo-warning employee-demo"><CircleHelp/> Acceso de prueba: empleado@mundoglobal.com · MundoGlobal2026</div><div className="auth-switch"><button onClick={()=>go("home")}>Volver al sitio público</button></div></div></div></main>;
 
   const renderEmployeePanel = () => <main className="page-container employee-page">
-    <div className="employee-top"><div><span className="kicker">MUNDO GLOBAL TRAVEL · OPERACIONES</span><h1>Centro de operaciones</h1><p>Hola, {employee}. Administrá ventas, productos, proveedores y atención al viajero.</p></div><button className="outline-btn" onClick={()=>{setEmployee("");localStorage.removeItem("mgt-employee-session");setEmployeePasswordDraft("");go("employee-login");}}><LogOut size={16}/> Cerrar sesión</button></div>
+    <div className="employee-top"><div><span className="kicker">MUNDO GLOBAL TRAVEL · OPERACIONES</span><h1>Centro de operaciones</h1><p>Hola, {employee}. Administrá ventas, productos y atención al viajero.</p></div><button className="outline-btn" onClick={()=>{setEmployee("");localStorage.removeItem("mgt-employee-session");setEmployeePasswordDraft("");go("employee-login");}}><LogOut size={16}/> Cerrar sesión</button></div>
     <div className="employee-layout">
       <aside className="employee-sidebar">
         <b>Gestión de la agencia</b>
@@ -680,7 +682,7 @@ export default function App() {
         </>}
         {employeeTab==="messages"&&<>
           <div className="employee-section-title"><div><h2>Atención al cliente</h2><p>Respondé consultas sobre destinos, pagos, servicios y reservas.</p></div><span className="demo-label">BANDEJA LOCAL</span></div>
-          <div className="employee-message-list">{staffMessages.map(m=><article key={m.id}><div className="employee-message-head"><div><b>{m.name}</b><small>{m.subject}</small></div><span className={m.status==="Pendiente"?"message-pending":"message-done"}>{m.status}</span></div><p>{m.body}</p><textarea value={employeeMessage} onChange={e=>setEmployeeMessage(e.target.value)} placeholder="Escribí una respuesta para el cliente..." rows={2}/><button className="primary-btn" disabled={!employeeMessage.trim()} onClick={()=>{setStaffMessages(v=>v.map(x=>x.id===m.id?{...x,status:"Respondido"}:x));setEmployeeMessage("");setToast("Respuesta registrada en la simulación.");}}>Registrar respuesta <ArrowRight size={14}/></button></article>)}</div>
+          <div className="employee-chat-layout"><aside className="employee-chat-inbox"><div className="employee-chat-inbox-title"><b>Conversaciones</b><span>{staffMessages.length}</span></div>{staffMessages.map(m=><button type="button" key={m.id} className={`employee-chat-contact ${activeStaffMessageId===m.id?"selected":""}`} onClick={()=>{setActiveStaffMessageId(m.id);setEmployeeMessage("");}}><span className="employee-chat-avatar">{m.name.split(" ").map(part=>part[0]).slice(0,2).join("")}</span><span className="employee-chat-contact-copy"><b>{m.name}</b><small>{m.reply || m.body}</small></span><span className={`employee-chat-status ${m.status==="Pendiente"?"unread":""}`}>{m.status==="Pendiente"?"Nuevo":"✓"}</span></button>)}</aside><section className="employee-chat-window">{staffMessages.filter(m=>m.id===activeStaffMessageId).map(m=><div className="employee-chat-conversation" key={m.id}><header className="employee-chat-conversation-head"><span className="employee-chat-avatar">{m.name.split(" ").map(part=>part[0]).slice(0,2).join("")}</span><div><b>{m.name}</b><small>{m.subject}</small></div><span className={m.status==="Pendiente"?"message-pending":"message-done"}>{m.status}</span></header><div className="employee-chat-history"><div className="employee-chat-date">Hoy</div><div className="employee-chat-bubble incoming">{m.body}<small>10:32</small></div>{m.reply&&<div className="employee-chat-bubble outgoing">{m.reply}<small>10:35 · ✓✓</small></div>}</div><form className="employee-chat-compose" onSubmit={e=>{e.preventDefault();if(!employeeMessage.trim())return;setStaffMessages(v=>v.map(x=>x.id===m.id?{...x,status:"Respondido",reply:employeeMessage.trim()}:x));setEmployeeMessage("");setToast("Mensaje enviado en la simulación.");}}><textarea value={employeeMessage} onChange={e=>setEmployeeMessage(e.target.value)} placeholder="Escribí un mensaje..." rows={1}/><button type="submit" disabled={!employeeMessage.trim()} aria-label="Enviar mensaje"><ArrowRight size={18}/></button></form></div>)}</section></div>
         </>}
         {employeeTab==="bookings"&&<>
           <div className="employee-section-title"><div><h2>Reservas y pasajeros</h2><p>Revisá operaciones, importes y estado de los pagos.</p></div><span className="demo-label">RESERVAS DE PRUEBA</span></div>
