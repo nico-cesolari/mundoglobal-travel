@@ -32,30 +32,9 @@ export type SmartImageProps = {
 
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
 
-function smartNeedsContain(safeArea: SafeArea | undefined, imageRatio: number, boxRatio: number, focalPoint: FocalPoint) {
-  if (!safeArea || !imageRatio || !boxRatio) return false;
-  let visibleX = 1;
-  let visibleY = 1;
-  if (imageRatio > boxRatio) visibleX = boxRatio / imageRatio;
-  else visibleY = imageRatio / boxRatio;
-  const cropX = (1 - visibleX) * clamp(focalPoint.x) / 100;
-  const cropY = (1 - visibleY) * clamp(focalPoint.y) / 100;
-  const left = safeArea.x / 100;
-  const top = safeArea.y / 100;
-  const right = left + safeArea.w / 100;
-  const bottom = top + safeArea.h / 100;
-  const visibleLeft = cropX;
-  const visibleTop = cropY;
-  const visibleRight = cropX + visibleX;
-  const visibleBottom = cropY + visibleY;
-  const intersectionW = Math.max(0, Math.min(right, visibleRight) - Math.max(left, visibleLeft));
-  const intersectionH = Math.max(0, Math.min(bottom, visibleBottom) - Math.max(top, visibleTop));
-  const originalArea = Math.max(0.0001, (right - left) * (bottom - top));
-  return 1 - (intersectionW * intersectionH) / originalArea > 0.1;
-}
 
 export function SmartImage({
-  src, alt, ratio, focalPoint = { x: 50, y: 50 }, safeArea,
+  src, alt, ratio, focalPoint = { x: 50, y: 50 },
   fit = "smart", sizes, srcSet, avifSrcSet, webpSrcSet, blurDataURL, priority = false, rounded = true, className = "",
   preset, objectPosition, minSourceWidth, onClick
 }: SmartImageProps) {
@@ -120,18 +99,9 @@ export function SmartImage({
     }
   }, [naturalSize.width, src, warningWidth]);
 
-  const imageRatio = naturalSize.width / Math.max(1, naturalSize.height);
-  const boxRatio = boxSize.width / Math.max(1, boxSize.height);
   const lowResolution = naturalSize.width > 0 && naturalSize.height > 0 && Math.max(boxSize.width / naturalSize.width, boxSize.height / naturalSize.height) > 1;
   const smallSourceImage = naturalSize.width > 0 && naturalSize.width < 600;
-  const shouldContain = fit === "contain" || (fit === "smart" && (
-    smallSourceImage || smartNeedsContain(
-      safeArea,
-      imageRatio,
-      boxRatio,
-      focal
-    )
-  ));
+  const shouldContain = smallSourceImage && fit !== "cover";
   const ratioStyle = resolvedRatio === "auto" ? undefined : { aspectRatio: resolvedRatio.replace("/", " / ") };
   const roundedStyle = typeof rounded === "number" ? { borderRadius: rounded } : rounded ? undefined : { borderRadius: 0 };
   const canUseSrcSet = Boolean(srcSet);
