@@ -254,3 +254,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;out
 .mercado-logo{background:#e7f6ff;color:#0878b9;font-size:10px}
 .transfer-visual{background:#eef3fa;color:#38608e}
 @media(max-width:650px){.payment-method-grid{gap:8px}.payment-method{padding:10px}.payment-method.chosen{padding:9px}.payment-method>b{font-size:10px}}
+
+/* Indicador activo: pegado visualmente al texto del menú */
+.nav-links button{padding-bottom:2px}
+.nav-links button.active:after{bottom:-1px}
+@media(max-width:650px){
+  .nav-links button{padding-bottom:7px}
+  .nav-links button.active:after{bottom:1px}
+}
