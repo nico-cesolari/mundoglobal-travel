@@ -265,7 +265,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;out
 
 
 /* Buscador de origen y destino con autocompletado */
-.search-panel{grid-template-columns:1.05fr 1.05fr .9fr .72fr auto;gap:0}
+.search-panel{grid-template-columns:1fr 1fr 1fr 1fr .72fr auto;gap:0}
 .location-field{position:relative;z-index:5}
 .location-field>span{position:relative}
 .location-field input{min-width:0}
