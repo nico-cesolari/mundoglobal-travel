@@ -29,3 +29,12 @@ export const IMAGE_VARIANT_WIDTHS = [400, 640, 800, 1200, 1600] as const;
  * guessed query parameters to local assets.
  */
 export type ImageVariantAdapter = (src: string, width: number, focalPoint: { x: number; y: number }) => string;
+
+export function createImageSrcSet(
+  src: string,
+  adapter: ImageVariantAdapter,
+  focalPoint: { x: number; y: number } = { x: 50, y: 50 },
+  widths: readonly number[] = IMAGE_VARIANT_WIDTHS
+) {
+  return widths.map(width => `${adapter(src, width, focalPoint)} ${width}w`).join(", ");
+}
