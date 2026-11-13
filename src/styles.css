@@ -1797,10 +1797,12 @@ select:focus-visible{
 
 /* Ajuste exclusivo del encuadre del avión en el hero */
 .hero-reference .hero-art img{
-  object-position:70% 15%!important;
+  object-position:70% 0%!important;
+  transform:translateY(48px) scale(1.1)!important;
 }
 @media(max-width:1023px){
   .hero-reference .hero-art img{
-    object-position:75% 12%!important;
+    object-position:75% 0%!important;
+    transform:translateY(36px) scale(1.04)!important;
   }
 }
