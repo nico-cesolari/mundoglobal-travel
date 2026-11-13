@@ -457,3 +457,378 @@ select:focus-visible{
 .destination-reference .destination-photo img{object-position:center}
 @media(max-width:800px){.hero-reference .hero-art img{object-fit:contain;object-position:right bottom}}
 @media(max-width:520px){.hero-reference .hero-art img{object-fit:contain;object-position:center bottom}}
+
+
+/* Hero principal MundoGlobal Travel: composición fotográfica a ancho completo */
+.hero-shell{position:relative;padding:0 0 44px;overflow:visible}
+.hero-reference{
+  position:relative;
+  height:520px;
+  min-height:500px;
+  border-radius:28px;
+  overflow:hidden;
+  isolation:isolate;
+  background:#1649b9;
+}
+.hero-reference:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(90deg,rgba(11,43,126,.97) 0%,rgba(20,69,169,.91) 34%,rgba(30,79,216,.66) 57%,rgba(30,79,216,.12) 100%);
+}
+.hero-reference:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(0deg,rgba(8,32,91,.2),transparent 42%);
+}
+.hero-reference .hero-art{
+  position:absolute;
+  z-index:0;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  overflow:hidden;
+  background:none!important;
+  mix-blend-mode:normal;
+}
+.hero-reference .hero-art img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover!important;
+  object-position:center center!important;
+  filter:none;
+}
+.hero-reference .hero-copy{
+  position:relative;
+  z-index:2;
+  max-width:690px;
+  width:58%;
+  padding:58px 6.2% 46px;
+  animation:hero-copy-in .55s ease both;
+}
+.hero-reference .hero-trust-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 12px;
+  border:1px solid rgba(255,255,255,.19);
+  border-radius:999px;
+  background:rgba(9,35,104,.48);
+  color:#fff;
+  font-size:13px;
+  line-height:1;
+  font-weight:650;
+  letter-spacing:0;
+}
+.hero-reference .hero-trust-badge svg{color:#f5b93a;flex:0 0 auto}
+.hero-reference h1{
+  margin:23px 0 15px;
+  color:#fff;
+  font-size:clamp(48px,5vw,64px);
+  font-weight:750;
+  line-height:1.05;
+  letter-spacing:-.8px;
+}
+.hero-reference h1 em{
+  position:relative;
+  display:inline-block;
+  color:#f5b93a;
+  font-style:normal;
+  white-space:nowrap;
+}
+.hero-reference h1 em:after{
+  content:"";
+  position:absolute;
+  left:2%;
+  right:-3%;
+  bottom:-9px;
+  height:11px;
+  border-bottom:4px solid #f5b93a;
+  border-radius:0 0 55% 48%;
+  transform:rotate(-4deg);
+  opacity:.98;
+}
+.hero-reference .hero-copy>p{
+  max-width:520px;
+  margin:0 0 23px;
+  color:rgba(255,255,255,.91);
+  font-size:17px;
+  line-height:1.55;
+  font-weight:400;
+}
+.hero-reference .hero-buttons{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hero-reference .yellow-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  min-height:48px;
+  padding:0 20px;
+  border:1px solid #f5b93a;
+  border-radius:12px;
+  background:#f5b93a;
+  color:#14264a;
+  font-size:14px;
+  font-weight:800;
+  box-shadow:0 8px 20px rgba(4,25,74,.18);
+}
+.hero-reference .yellow-btn:hover{background:#ffca50;transform:translateY(-2px)}
+.hero-reference .ghost-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-height:48px;
+  padding:0 18px;
+  border:1px solid rgba(255,255,255,.48);
+  border-radius:12px;
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  font-size:14px;
+  font-weight:650;
+  backdrop-filter:blur(8px);
+}
+.hero-reference .ghost-btn:hover{background:rgba(255,255,255,.15);transform:translateY(-2px)}
+.hero-service-tabs{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:24px;
+  flex-wrap:wrap;
+}
+.hero-service-tabs button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:40px;
+  padding:0 15px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:transparent;
+  color:rgba(255,255,255,.91);
+  font-size:13px;
+  font-weight:600;
+  transition:background .18s ease,color .18s ease,transform .18s ease;
+}
+.hero-service-tabs button svg{stroke-width:1.8}
+.hero-service-tabs button:hover{background:rgba(255,255,255,.12)}
+.hero-service-tabs button.active{
+  background:#fff;
+  color:#17315f;
+  box-shadow:0 5px 16px rgba(5,25,72,.15);
+}
+.hero-shell>.search-panel{
+  position:relative;
+  z-index:5;
+  display:grid;
+  grid-template-columns:minmax(180px,1.25fr) minmax(170px,1.1fr) minmax(135px,.9fr) minmax(145px,1fr) 142px;
+  align-items:center;
+  gap:0;
+  width:min(94%,1320px);
+  min-height:104px;
+  margin:-43px auto 0;
+  padding:14px 17px;
+  border:1px solid rgba(225,232,244,.9);
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 16px 42px rgba(16,45,94,.16);
+}
+.search-panel .search-field{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+  min-height:64px;
+  margin:0;
+  padding:9px 16px;
+  border:0;
+  border-right:1px solid #e8edf5;
+  background:transparent;
+}
+.search-panel .search-field:last-of-type{border-right:0}
+.search-panel .field-icon{
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border-radius:50%;
+  background:#eaf2ff;
+  color:#2f63cf;
+}
+.search-panel .search-field-copy{
+  position:relative;
+  display:flex;
+  flex:1;
+  min-width:0;
+  flex-direction:column;
+  gap:5px;
+}
+.search-panel .search-field small{
+  color:#68758b;
+  font-size:11px;
+  line-height:1.2;
+  font-weight:600;
+}
+.search-panel .search-field input:not([type=date]),
+.search-panel .search-field select{
+  width:100%;
+  min-width:0;
+  padding:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#172b4d;
+  font-size:14px;
+  line-height:1.35;
+  font-weight:750;
+  box-shadow:none!important;
+}
+.search-panel .search-field input::placeholder{color:#71809a;font-weight:600}
+.search-panel .search-field select{appearance:none;cursor:pointer}
+.search-panel .date-range-field strong{
+  color:#172b4d;
+  font-size:14px;
+  line-height:1.35;
+  font-weight:750;
+  white-space:nowrap;
+}
+.date-range-inputs{
+  position:absolute;
+  inset:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  opacity:0;
+  z-index:3;
+}
+.date-range-inputs input{
+  display:block;
+  width:100%;
+  min-width:0;
+  height:100%;
+  cursor:pointer;
+}
+.search-panel .location-suggestions{
+  top:calc(100% + 17px);
+  left:-10px;
+  width:max(100%,270px);
+  z-index:35;
+}
+.search-panel .search-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:100%;
+  min-height:52px;
+  margin:0;
+  padding:0 18px;
+  border:0;
+  border-radius:13px;
+  background:#2f4fd0;
+  color:#fff;
+  font-size:14px;
+  font-weight:750;
+  box-shadow:0 8px 18px rgba(47,79,208,.27);
+}
+.search-panel .search-button:hover{background:#2443c0;transform:translateY(-1px)}
+.search-panel .search-button svg{width:18px;height:18px}
+.results-search .search-panel{
+  grid-template-columns:minmax(180px,1.25fr) minmax(170px,1.1fr) minmax(135px,.9fr) minmax(145px,1fr) 142px;
+  width:100%;
+  margin:0 0 20px;
+}
+@media(max-width:1050px){
+  .hero-reference{height:490px;min-height:470px}
+  .hero-reference .hero-copy{width:64%;padding:52px 5.5% 42px}
+  .hero-reference h1{font-size:clamp(46px,5.3vw,58px)}
+  .hero-shell>.search-panel,.results-search .search-panel{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0;
+    padding:12px;
+  }
+  .search-panel .search-field:nth-of-type(2){border-right:0}
+  .search-panel .search-field:nth-of-type(4){border-right:0}
+  .search-panel .search-button{grid-column:1/-1;margin:8px 4px 2px;width:calc(100% - 8px)}
+}
+@media(max-width:650px){
+  .hero-shell{padding:0 12px 30px}
+  .hero-reference{
+    height:auto;
+    min-height:0;
+    border-radius:22px;
+  }
+  .hero-reference:before{
+    background:linear-gradient(90deg,rgba(8,34,105,.96) 0%,rgba(13,49,132,.88) 62%,rgba(15,59,147,.58) 100%);
+  }
+  .hero-reference:after{background:linear-gradient(0deg,rgba(7,28,83,.22),transparent 55%)}
+  .hero-reference .hero-art img{
+    object-position:62% center!important;
+    opacity:.78;
+  }
+  .hero-reference .hero-copy{
+    width:100%;
+    max-width:100%;
+    padding:32px 23px 39px;
+  }
+  .hero-reference .hero-trust-badge{font-size:11px;padding:7px 10px}
+  .hero-reference h1{
+    max-width:440px;
+    margin:20px 0 14px;
+    font-size:clamp(39px,10vw,49px);
+    line-height:1.06;
+    letter-spacing:-.55px;
+  }
+  .hero-reference h1 em:after{bottom:-7px;height:8px;border-bottom-width:3px}
+  .hero-reference .hero-copy>p{max-width:390px;font-size:14px;line-height:1.55;margin-bottom:19px}
+  .hero-reference .hero-buttons{gap:9px}
+  .hero-reference .yellow-btn,.hero-reference .ghost-btn{min-height:44px;padding:0 13px;font-size:12px}
+  .hero-service-tabs{gap:4px;margin-top:20px}
+  .hero-service-tabs button{min-height:37px;padding:0 10px;gap:6px;font-size:11px}
+  .hero-service-tabs button svg{width:14px;height:14px}
+  .hero-shell>.search-panel,.results-search .search-panel{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:0;
+    width:100%;
+    min-height:0;
+    margin:-17px auto 0;
+    padding:10px 13px;
+    border-radius:19px;
+  }
+  .results-search .search-panel{margin:0 0 18px}
+  .search-panel .search-field{
+    min-height:62px;
+    padding:9px 5px;
+    border-right:0!important;
+    border-bottom:1px solid #edf0f5;
+  }
+  .search-panel .search-field:last-of-type{border-bottom:0}
+  .search-panel .field-icon{width:35px;height:35px;flex-basis:35px}
+  .search-panel .search-field small{font-size:10px}
+  .search-panel .search-field input:not([type=date]),.search-panel .search-field select,
+  .search-panel .date-range-field strong{font-size:13px}
+  .search-panel .search-button{
+    grid-column:auto;
+    width:100%;
+    min-height:47px;
+    margin:9px 0 1px;
+    font-size:13px;
+  }
+}
+@media(max-width:380px){
+  .hero-reference .hero-copy{padding:27px 17px 34px}
+  .hero-reference h1{font-size:37px}
+  .hero-reference .hero-buttons{align-items:stretch}
+  .hero-reference .yellow-btn,.hero-reference .ghost-btn{flex:1;padding:0 9px;font-size:11px}
+  .hero-service-tabs button{padding:0 8px;font-size:10px}
+}
