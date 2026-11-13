@@ -2294,3 +2294,5 @@ select:focus-visible{
  .employee-quote-edit-footer{align-items:flex-start;flex-direction:column}
  .employee-quote-edit-footer .primary-btn{width:100%;justify-content:center}
 }
+.employee-add-form{grid-template-columns:minmax(125px,1.2fr) minmax(100px,.9fr) minmax(90px,.8fr) minmax(65px,.55fr) minmax(105px,.9fr) auto}
+.employee-add-form select{min-width:0;height:38px;padding:0 10px;border:1px solid #dce5f2;border-radius:9px;background:#fff;color:#344768;font:inherit;font-size:10px}
