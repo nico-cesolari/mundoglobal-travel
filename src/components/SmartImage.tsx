@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ImageOff } from "lucide-react";
 import "./smart-image.css";
+import { IMAGE_PRESETS } from "./imagePresets";
 
 export type FocalPoint = { x: number; y: number };
 export type SafeArea = { x: number; y: number; w: number; h: number };
@@ -48,12 +49,12 @@ function smartNeedsContain(safeArea: SafeArea | undefined, imageRatio: number, b
 }
 
 export function SmartImage({
-  src, alt, ratio = "4/3", focalPoint = { x: 50, y: 50 }, safeArea,
+  src, alt, ratio, focalPoint = { x: 50, y: 50 }, safeArea,
   fit = "smart", sizes, srcSet, priority = false, rounded = true, className = "",
   preset, onClick
 }: SmartImageProps) {
-  const presetConfig = preset ? (awaitlessPreset(preset)) : undefined;
-  const resolvedRatio = ratio === "auto" ? (presetConfig?.ratio ?? "auto") : ratio;
+  const presetConfig = preset ? IMAGE_PRESETS[preset] : undefined;
+  const resolvedRatio = ratio === "auto" ? "auto" : (ratio ?? presetConfig?.ratio ?? "4/3");
   const resolvedSizes = sizes ?? presetConfig?.sizes ?? "100vw";
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -85,7 +86,8 @@ export function SmartImage({
     }
   }, [naturalSize.width, src]);
 
-  const shouldContain = fit === "contain" || (fit === "smart" && smartNeedsContain(
+  const lowResolution = naturalSize.width > 0 && boxSize.width > naturalSize.width;
+  const shouldContain = fit === "contain" || lowResolution || (fit === "smart" && smartNeedsContain(
     safeArea,
     naturalSize.width / Math.max(1, naturalSize.height),
     boxSize.width / Math.max(1, boxSize.height)
@@ -96,7 +98,7 @@ export function SmartImage({
 
   return <div
     ref={node => { wrapperRef.current = node; }}
-    className={`smart-image ${loaded ? "is-loaded" : ""} ${failed ? "has-failed" : ""} ${shouldContain ? "uses-contain" : ""} ${className}`}
+    className={`smart-image ${loaded ? "is-loaded" : ""} ${failed ? "has-failed" : ""} ${shouldContain ? "uses-contain" : ""} ${lowResolution ? "is-low-resolution" : ""} ${className}`}
     style={{ ...ratioStyle, ...roundedStyle, ["--smart-focal-x" as string]: `${focal.x}%`, ["--smart-focal-y" as string]: `${focal.y}%` }}
     onClick={onClick}
     role={onClick ? "button" : undefined}
@@ -123,16 +125,3 @@ export function SmartImage({
   </div>;
 }
 
-function awaitlessPreset(name: keyof typeof import("./imagePresets").IMAGE_PRESETS) {
-  // Kept as a small local fallback so SmartImage has no runtime dependency on a loader.
-  const presets: Record<string, { ratio: ImageRatio; sizes: string }> = {
-    "card-square": { ratio: "1/1", sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" },
-    "card-standard": { ratio: "4/3", sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" },
-    "card-wide": { ratio: "16/9", sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" },
-    "card-short": { ratio: "21/9", sizes: "(max-width: 640px) 100vw, 50vw" },
-    "card-tall": { ratio: "3/4", sizes: "(max-width: 640px) 75vw, 33vw" },
-    hero: { ratio: "auto", sizes: "100vw" },
-    thumb: { ratio: "1/1", sizes: "96px" }
-  };
-  return presets[name];
-}
