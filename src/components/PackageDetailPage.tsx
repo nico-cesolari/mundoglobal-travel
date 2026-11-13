@@ -73,6 +73,7 @@ type Props = {
   favoriteIds: number[];
   onTogglePackageFavorite: (id: number) => void;
   onHome: () => void;
+  onPackages: () => void;
   onOpenPackage: (item: PackageDetailData) => void;
   onConsultAvailability: (payload: InquiryPayload) => void;
   onContact: () => void;
@@ -140,6 +141,7 @@ export function PackageDetailPage({
   favoriteIds,
   onTogglePackageFavorite,
   onHome,
+  onPackages,
   onOpenPackage,
   onConsultAvailability,
   onContact
@@ -314,7 +316,7 @@ export function PackageDetailPage({
       <header className="package-detail-heading">
         <div className="package-breadcrumb" aria-label="Migas de pan">
           <button onClick={onHome}>Inicio</button><ChevronRight size={13}/>
-          <span>Paquetes</span><ChevronRight size={13}/>
+          <button onClick={onPackages}>Paquetes</button><ChevronRight size={13}/>
           <strong>{packageData.name}</strong>
         </div>
         <div className="package-title-row">
