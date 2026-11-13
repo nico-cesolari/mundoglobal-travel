@@ -3,7 +3,7 @@ import {
   ArrowRight, ArrowLeft, Plane, Globe2, Search, CalendarDays, Users, Tag,
   Heart, Star, ShieldCheck, Headphones, CreditCard, Menu, X, UserRound,
   ChevronDown, MapPin, Clock3, Check, CheckCircle2, Hotel, Stethoscope,
-  Luggage, LockKeyhole, Mail, Eye, EyeOff, MessageCircle, Bell, SlidersHorizontal,
+  Luggage, CarFront, LockKeyhole, Mail, Eye, EyeOff, MessageCircle, Bell, SlidersHorizontal,
   Facebook, Instagram, Youtube, Linkedin, Ticket, LogOut, CircleHelp, Sparkles, Phone
 } from "lucide-react";
 
@@ -276,7 +276,7 @@ export default function App() {
         <button type="button" role="tab" aria-selected={activeService === "Paquetes"} className={activeService === "Paquetes" ? "active" : ""} onClick={() => setActiveService("Paquetes")}><Globe2 size={16}/> Paquetes</button>
         <button type="button" role="tab" aria-selected={activeService === "Vuelos"} className={activeService === "Vuelos" ? "active" : ""} onClick={() => setActiveService("Vuelos")}><Plane size={16}/> Vuelos</button>
         <button type="button" role="tab" aria-selected={activeService === "Hoteles"} className={activeService === "Hoteles" ? "active" : ""} onClick={() => setActiveService("Hoteles")}><Hotel size={16}/> Hoteles</button>
-        <button type="button" role="tab" aria-selected={activeService === "Autos"} className={activeService === "Autos" ? "active" : ""} onClick={() => setActiveService("Autos")}><Luggage size={16}/> Autos</button>
+        <button type="button" role="tab" aria-selected={activeService === "Autos"} className={activeService === "Autos" ? "active" : ""} onClick={() => setActiveService("Autos")}><CarFront size={16}/> Autos</button>
       </div>
     </div>
   </div>{renderSearchBar()}</section>  <section className="section destinations-section">
