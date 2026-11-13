@@ -20,7 +20,7 @@ type Package = {
   tag?: string; description: string;
   servicePrices?: { flight: number; hotel: number; assistance: number };
 };
-type IncomeEntry = { id: number; reference: string; client: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; };
+type IncomeEntry = { id: number; reference: string; client: string; destination?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; };
 const packages: Package[] = [
   { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
   { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "/images/salvador.jpg", focalPoint: {x:50,y:50}, description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
@@ -42,10 +42,10 @@ const money = (n: number) => `USD ${n.toLocaleString("es-AR")}`;
 const discount = (p: Package) => Math.round((1 - p.price / p.oldPrice) * 100);
 const buildServicePrices = (price: number) => { const flight = Math.max(1, Math.round(price * 0.38)); const hotel = Math.max(1, Math.round(price * 0.54)); return { flight, hotel, assistance: Math.max(1, price - flight - hotel) }; };
 const demoIncomeEntries: IncomeEntry[] = [
-  { id: 1, reference: "MG-20481", client: "María González", amount: 2598, method: "Tarjeta de crédito", status: "Acreditado", date: "13/11/2026" },
-  { id: 2, reference: "MG-20480", client: "Lucas Fernández", amount: 1479, method: "Transferencia", status: "Pendiente", date: "12/11/2026" },
-  { id: 3, reference: "MG-20479", client: "Sofía Martínez", amount: 2198, method: "Mercado Pago", status: "Acreditado", date: "11/11/2026" },
-  { id: 4, reference: "MG-20478", client: "Tomás Romero", amount: 899, method: "Tarjeta de débito", status: "Pendiente", date: "10/11/2026" }
+  { id: 1, reference: "MG-20481", client: "María González", destination: "Cancún", amount: 2598, method: "Tarjeta de crédito", status: "Acreditado", date: "13/11/2026" },
+  { id: 2, reference: "MG-20480", client: "Lucas Fernández", destination: "Roma", amount: 1479, method: "Transferencia", status: "Pendiente", date: "12/11/2026" },
+  { id: 3, reference: "MG-20479", client: "Sofía Martínez", destination: "Salvador de Bahía", amount: 2198, method: "Mercado Pago", status: "Acreditado", date: "11/11/2026" },
+  { id: 4, reference: "MG-20478", client: "Tomás Romero", destination: "Camboriú", amount: 899, method: "Tarjeta de débito", status: "Pendiente", date: "10/11/2026" }
 ];
 const loadSavedPackages = (): Package[] => {
   const saved = localStorage.getItem("mgt-packages");
@@ -74,6 +74,7 @@ export default function App() {
   const [offerPackageId, setOfferPackageId] = useState(2);
   const [offerPercent, setOfferPercent] = useState("15");
   const [offerEndDate, setOfferEndDate] = useState(() => readDraft("mgt-draft-offer-end"));
+  const [quoteDrafts, setQuoteDrafts] = useState<Record<number, { flight: string; hotel: string; assistance: string }>>(() => { const saved = readDraft("mgt-draft-quote-values"); if (saved) { try { return JSON.parse(saved) as Record<number, { flight: string; hotel: string; assistance: string }>; } catch { /* Cotizaciones calculadas desde el precio del paquete. */ } } return {}; });
   const [employeeMessage, setEmployeeMessage] = useState(() => readDraft("mgt-draft-employee-message"));
   const [newPackageName, setNewPackageName] = useState(() => readDraft("mgt-draft-package-name"));
   const [newPackagePrice, setNewPackagePrice] = useState(() => readDraft("mgt-draft-package-price"));
@@ -161,12 +162,13 @@ export default function App() {
     writeDraft("mgt-draft-income-concept", incomeConcept);
     writeDraft("mgt-draft-income-amount", incomeAmount);
     writeDraft("mgt-draft-offer-end", offerEndDate);
+    writeDraft("mgt-draft-quote-values", JSON.stringify(quoteDrafts));
   }, [
     employeeMessage, newPackageName, newPackagePrice, newPackageCountry,
     query, origin, date, returnDate, travelers, profileEmail, profilePhone,
     passengerName, passengerEmail, paymentMethod, authEmail, authFullName,
     employeeEmailDraft, contactName, contactEmail, contactMessage, newsletterEmail,
-    incomeConcept, incomeAmount, offerEndDate
+    incomeConcept, incomeAmount, offerEndDate, quoteDrafts
   ]);
 
   useEffect(() => {
@@ -213,6 +215,8 @@ export default function App() {
   ), [category, query, employeePackages, maxPrice, onlyOffers, topRatedOnly]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? buildServicePrices(p.price);
+  const quoteDraftFor = (p: Package) => { const current = quoteForPackage(p); return quoteDrafts[p.id] ?? { flight: String(current.flight), hotel: String(current.hotel), assistance: String(current.assistance) }; };
+  const savePackageQuote = (p: Package) => { const draft = quoteDraftFor(p); const flight = Number(draft.flight); const hotel = Number(draft.hotel); const assistance = Number(draft.assistance); if (![flight, hotel, assistance].every(value => Number.isFinite(value) && value > 0)) { setToast("Ingresá importes válidos para vuelo, hotel y asistencia."); return; } const total = flight + hotel + assistance; setEmployeePackages(items => items.map(item => item.id === p.id ? { ...item, price: total, oldPrice: item.tag === "¡Oferta!" ? Math.max(item.oldPrice, total) : total, servicePrices: { flight, hotel, assistance } } : item)); setQuoteDrafts(items => ({ ...items, [p.id]: { flight: String(flight), hotel: String(hotel), assistance: String(assistance) } })); setToast("Cotización guardada y precio del paquete actualizado."); };
   const collectedIncome = incomeEntries.filter(entry => entry.status === "Acreditado").reduce((total, entry) => total + entry.amount, 0);
   const pendingIncome = incomeEntries.filter(entry => entry.status === "Pendiente").reduce((total, entry) => total + entry.amount, 0);
   const sortedPackages = useMemo(() => [...filtered].sort((a, b) => {
@@ -255,7 +259,7 @@ export default function App() {
     const id = `MGT-${Math.floor(100000 + Math.random() * 900000)}`;
     const next = [...bookings, `${selected.name} · ${id} · ${money(selected.price * travelers)}`];
     setBookings(next); localStorage.setItem("mgt-bookings", JSON.stringify(next));
-    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, amount: selected.price * travelers, method: paymentMethod, status: "Pendiente", date: todayISO }, ...items]);
+    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, destination: selected.name, amount: selected.price * travelers, method: paymentMethod, status: "Pendiente", date: todayISO }, ...items]);
     setPassengerEmail("");
     setPaymentMethod("");
     writeDraft("mgt-draft-passenger-email", "");
@@ -590,10 +594,7 @@ export default function App() {
         {employeeTab==="quotes"&&<>
           <div className="employee-section-title"><div><h2>Proveedores y cotizaciones</h2><p>Desglose de costos estimados de los servicios por pasajero.</p></div><span className="demo-label">COTIZACIÓN REFERENCIAL</span></div>
           <div className="employee-quote-warning"><Building2/><span><b>Importes de ejemplo, no cotizaciones confirmadas</b><small>La integración con hoteles, aerolíneas y compañías de asistencia todavía no está conectada. Antes de vender, el empleado debe solicitar y validar disponibilidad, moneda, impuestos y vigencia con cada proveedor.</small></span></div>
-          <div className="employee-quote-table">
-            <div className="employee-quote-table-head"><span>Destino / servicio</span><span>Vuelo</span><span>Hotel</span><span>Asistencia</span><span>Total p/persona</span></div>
-            {employeePackages.map(p=>{const q=quoteForPackage(p);return <div className="employee-quote-table-row" key={p.id}><div><b>{p.name}</b><small>{p.country} · {p.days-1} noches · cotización demo</small></div><strong>{money(q.flight)}</strong><strong>{money(q.hotel)}</strong><strong>{money(q.assistance)}</strong><strong>{money(p.price)}</strong></div>;})}
-          </div>
+          <div className="employee-quote-edit-list">{employeePackages.map(p=>{const draft=quoteDraftFor(p);return <article key={p.id}><div className="employee-quote-edit-heading"><div><b>{p.name} · {p.country}</b><small>{p.days-1} noches · Precio actual {money(p.price)} por persona</small></div><span className="demo-label">EDITABLE</span></div><div className="employee-quote-edit-inputs"><label>Vuelo · USD<input type="number" min="1" step="0.01" value={draft.flight} onChange={e=>setQuoteDrafts(items=>({...items,[p.id]:{...draft,flight:e.target.value}}))}/></label><label>Hotel · USD<input type="number" min="1" step="0.01" value={draft.hotel} onChange={e=>setQuoteDrafts(items=>({...items,[p.id]:{...draft,hotel:e.target.value}}))}/></label><label>Asistencia · USD<input type="number" min="1" step="0.01" value={draft.assistance} onChange={e=>setQuoteDrafts(items=>({...items,[p.id]:{...draft,assistance:e.target.value}}))}/></label></div><div className="employee-quote-edit-footer"><small>Total nuevo al guardar: {money((Number(draft.flight)||0)+(Number(draft.hotel)||0)+(Number(draft.assistance)||0))}</small><button type="button" className="primary-btn" onClick={()=>savePackageQuote(p)}>Guardar cotización <Check size={14}/></button></div></article>;})}</div>
           <div className="employee-quote-supplier-grid">
             <article><span><Plane/></span><b>Aerolíneas</b><small>Tarifa aérea, equipaje, tasas y disponibilidad por fecha.</small></article>
             <article><span><Hotel/></span><b>Hoteles</b><small>Habitación, régimen, noches, impuestos y políticas de cancelación.</small></article>
@@ -614,7 +615,7 @@ export default function App() {
         </>}
         {employeeTab==="bookings"&&<>
           <div className="employee-section-title"><div><h2>Reservas y pasajeros</h2><p>Revisá operaciones, importes y estado de los pagos.</p></div><span className="demo-label">RESERVAS DE PRUEBA</span></div>
-          <div className="employee-booking-list">{["MG-20481 · Cancún · Confirmada","MG-20480 · Roma · Pendiente de pago","MG-20479 · Punta Cana · En preparación",...bookings.map(x=>"MG-DEMO · "+x)].map((b,i)=><article key={i}><span className="booking-icon"><Ticket/></span><div><b>{b.split(" · ")[1]}</b><small>{b.split(" · ")[0]} · {b.split(" · ")[2]||"Operación de demostración"}</small></div><strong>{b.split(" · ")[3]||""}</strong><span className="status-pill">{b.split(" · ")[2]||"Registrada"}</span></article>)}</div>
+          <div className="employee-booking-list">{incomeEntries.filter(entry=>entry.reference.startsWith("MG-")||entry.reference.startsWith("MGT-")).map(entry=><article key={entry.id}><span className="booking-icon"><Ticket/></span><div><b>{entry.destination||"Reserva de viaje"}</b><small>{entry.reference} · {entry.client} · {entry.date} · {entry.method}</small></div><strong>{money(entry.amount)}</strong><span className={entry.status==="Acreditado"?"message-done":"message-pending"}>{entry.status==="Acreditado"?"Pago acreditado":"Pendiente de pago"}</span></article>)}</div>
         </>}
       </section>
     </div>
