@@ -1,0 +1,12 @@
+.smart-image{position:relative;display:block;width:100%;min-width:0;overflow:hidden;isolation:isolate;background:#eaf0fa;border-radius:inherit;aspect-ratio:4/3}
+.smart-image-skeleton{position:absolute;inset:0;z-index:0;background:linear-gradient(100deg,#e9eef7 20%,#f7f9fc 38%,#e9eef7 56%);background-size:220% 100%;animation:smart-shimmer 1.35s linear infinite}
+.smart-image-main,.smart-image-backdrop{position:absolute;inset:0;width:100%;height:100%;display:block}
+.smart-image-main{z-index:2;object-fit:cover;object-position:var(--smart-focal-x,50%) var(--smart-focal-y,50%);opacity:0;transition:opacity 300ms ease,transform 450ms ease-out;transform-origin:var(--smart-focal-x,50%) var(--smart-focal-y,50%)}
+.smart-image.is-loaded .smart-image-main{opacity:1}
+.smart-image-backdrop{z-index:1;object-fit:cover;filter:blur(24px) brightness(.62);transform:scale(1.2)}
+.smart-image.uses-contain .smart-image-main{object-fit:contain}
+.smart-image-fallback{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(145deg,#eaf0fa,#dce7fa);color:#3763a9}
+.smart-image-fallback small{font-size:11px;font-weight:600}
+.smart-image:hover .smart-image-main{transform:scale(1.05)}
+@keyframes smart-shimmer{to{background-position-x:-220%}}
+@media(prefers-reduced-motion:reduce){.smart-image-skeleton{animation:none}.smart-image-main{transition:none}.smart-image:hover .smart-image-main{transform:none}}
