@@ -136,7 +136,9 @@
 .package-other-card-heading h3{margin:0;color:#1D3155;font-size:14px;font-weight:800}
 .package-other-card-heading>span{display:flex;align-items:center;gap:3px;color:#D79B17;font-size:9px;font-weight:800;white-space:nowrap}
 .package-other-card-heading>span svg{color:#F5B93A}
-.package-other-facts{margin:8px 0;color:#8090A8;font-size:9px}
+.package-other-facts{display:flex;flex-wrap:wrap;gap:9px;margin:8px 0;color:#8090A8;font-size:9px}
+.package-other-facts>span{display:inline-flex;align-items:center;gap:4px}
+.package-other-facts svg{color:#1E4FD8}
 .package-other-price{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:9px 0}
 .package-other-price>b{color:#1C3975;font-size:12px}
 .package-other-price>small{color:#8090A8;font-size:9px}
