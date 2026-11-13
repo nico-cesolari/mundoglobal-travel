@@ -14,12 +14,12 @@ type Package = {
   tag?: string; description: string;
 };
 const packages: Package[] = [
-  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "/assets/img/cancun.jpg", description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
-  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "/assets/img/salvador.jpg", description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
-  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, tag: "¡Oferta!", image: "/assets/img/copacabana.jpg", description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
-  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, image: "/assets/img/roma.jpg", description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
-  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, image: "/assets/img/nueva-york.jpg", description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
-  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, tag: "¡Oferta!", image: "/assets/img/punta-cana.jpg", description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." }
+  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "/images/cancun.jpg", description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
+  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "/images/salvador.jpg", description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
+  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, tag: "¡Oferta!", image: "/images/copacabana.jpg", description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
+  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, image: "/images/roma.jpg", description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
+  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, image: "/images/nueva-york.jpg", description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
+  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, tag: "¡Oferta!", image: "/images/punta-cana.jpg", description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." }
 ];
 
 const money = (n: number) => `USD ${n.toLocaleString("es-AR")}`;
@@ -238,7 +238,7 @@ export default function App() {
   };
 
   const heroPromotions = [
-    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/assets/img/hero-mundo.png", caption: "" }
+    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/images/hero-mundo.png", caption: "" }
   ];
   const activePromotion = heroPromotions[heroSlide];
   const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
