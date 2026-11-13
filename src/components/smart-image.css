@@ -10,3 +10,4 @@
 .smart-image:hover .smart-image-main{transform:scale(1.05)}
 @keyframes smart-shimmer{to{background-position-x:-220%}}
 @media(prefers-reduced-motion:reduce){.smart-image-skeleton{animation:none}.smart-image-main{transition:none}.smart-image:hover .smart-image-main{transform:none}}
+.smart-image-lqip{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;filter:blur(12px);transform:scale(1.08)}
