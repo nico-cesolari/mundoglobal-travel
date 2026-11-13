@@ -88,6 +88,7 @@ export default function App() {
   const locationOptions = ["Buenos Aires, Argentina", "Córdoba, Argentina", "Villa María, Córdoba, Argentina", "Leones, Córdoba, Argentina", "Mendoza, Argentina", "Bariloche, Argentina", "Salta, Argentina", "Iguazú, Misiones, Argentina", "Montevideo, Uruguay", "Punta del Este, Uruguay", "Santiago, Chile", "Río de Janeiro, Brasil", "São Paulo, Brasil", "Salvador de Bahía, Brasil", "Florianópolis, Brasil", "Camboriú, Brasil", "El Chaltén, Santa Cruz, Argentina", "Cancún, México", "Ciudad de México, México", "Punta Cana, República Dominicana", "Nueva York, Estados Unidos", "Miami, Estados Unidos", "Madrid, España", "Barcelona, España", "Roma, Italia", "París, Francia", "Londres, Reino Unido"];
   const [category, setCategory] = useState("Todos");
   const [activeService, setActiveService] = useState("Paquetes");
+  const [accommodation, setAccommodation] = useState(() => readDraft("mgt-draft-accommodation", "Todos"));
   const today = new Date();
   const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   const [date, setDate] = useState(() => readDraft("mgt-draft-date", todayISO));
@@ -148,6 +149,7 @@ export default function App() {
     writeDraft("mgt-draft-package-category", newPackageCategory);
     writeDraft("mgt-draft-destination", query);
     writeDraft("mgt-draft-origin", origin);
+    writeDraft("mgt-draft-accommodation", accommodation);
     writeDraft("mgt-draft-date", date);
     writeDraft("mgt-draft-return-date", returnDate);
     writeDraft("mgt-draft-travelers", String(travelers));
@@ -169,7 +171,7 @@ export default function App() {
     writeDraft("mgt-draft-quote-values", JSON.stringify(quoteDrafts));
   }, [
     employeeMessage, newPackageName, newPackagePrice, newPackageCountry, newPackageDays, newPackageCategory,
-    query, origin, date, returnDate, travelers, profileEmail, profilePhone,
+    query, origin, accommodation, date, returnDate, travelers, profileEmail, profilePhone,
     passengerName, passengerEmail, paymentMethod, authEmail, authFullName,
     employeeEmailDraft, contactName, contactEmail, contactMessage, newsletterEmail,
     incomeConcept, incomeAmount, offerEndDate, quoteDrafts
@@ -196,12 +198,10 @@ export default function App() {
   const toggleFavorite = (id: number) => { setAnimatingFavorite(id); window.setTimeout(() => setAnimatingFavorite(current => current === id ? null : current), 480); setFavorites(v => { const next = v.includes(id) ? v.filter(x => x !== id) : [...v, id]; setToast(next.includes(id) ? "¡Paquete guardado en tus favoritos!" : "Paquete quitado de favoritos."); return next; }); };
   const submitSearch = () => {
     if (isSearching) return;
-    if (!origin.trim()) { setToast("Elegí una ciudad de origen para continuar."); return; }
     if (!query.trim()) { setToast("Elegí un destino para continuar."); return; }
-    if (origin.trim().toLowerCase() === query.trim().toLowerCase()) { setToast("El origen y el destino deben ser diferentes."); return; }
     if (!date || !returnDate || returnDate < date) { setToast("Revisá las fechas de ida y vuelta."); return; }
     setIsSearching(true);
-    const term = [origin.trim(), query.trim()].join(" → ");
+    const term = query.trim();
     const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6);
     setRecentSearches(next);
     localStorage.setItem("mgt-recent-searches", JSON.stringify(next));
@@ -326,7 +326,7 @@ export default function App() {
   </footer>;
 
   const renderPackageCard = (p: Package, featured = false) => <article key={p.id} className={`package-card ${featured ? "featured" : ""}`}>
-    <div className="package-photo"><SmartImage className="package-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="auto" focalPoint={p.focalPoint} safeArea={p.safeArea} priority={featured && p.id <= 4}/>
+    <div className="package-photo"><SmartImage className="package-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="4/3" fit="cover" focalPoint={p.focalPoint} safeArea={p.safeArea} priority={featured && p.id <= 4}/>
       {p.tag && <span className="offer-tag">{p.tag}</span>}
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
@@ -339,48 +339,44 @@ export default function App() {
   </article>;
 
   const renderSearchBar = () => {
-    const matches = locationOptions.filter(place => place.toLowerCase().includes((activeLocationField === "origin" ? origin : query).trim().toLowerCase())).slice(0, 7);
+    const displayDate = (value: string) => {
+      if (!value) return "Elegí fecha";
+      const [year, month, day] = value.split("-").map(Number);
+      return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short" }).replace(".", "");
+    };
+    const matches = locationOptions.filter(place => place.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 7);
     return <div className="search-panel">
-      <div className={`search-field location-field origin-search-field ${activeLocationField === "origin" ? "location-focused" : ""}`}>
-        <span className="field-icon"><MapPin size={18}/></span>
-        <span className="search-field-copy">
-          <small>Origen</small>
-          <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder="¿Desde dónde salís?" autoComplete="off" aria-label="Ciudad de origen"/>
-          {activeLocationField === "origin" && origin.trim().length > 0 && <div className="location-suggestions">
-            {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setOrigin(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
-          </div>}
-        </span>
-      </div>
       <div className={`search-field location-field destination-search-field ${activeLocationField === "destination" ? "location-focused" : ""}`}>
         <span className="field-icon"><MapPin size={18}/></span>
         <span className="search-field-copy">
           <small>Destino</small>
-          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="¿A dónde querés ir?" autoComplete="off" aria-label="Ciudad de destino"/>
+          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="¿A dónde querés ir?" autoComplete="off" />
           {activeLocationField === "destination" && query.trim().length > 0 && <div className="location-suggestions">
             {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setQuery(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
           </div>}
         </span>
       </div>
-      <label className="search-field date-search-field">
+      <div className="search-field date-range-field">
         <span className="field-icon"><CalendarDays size={18}/></span>
         <span className="search-field-copy">
-          <small>Fecha de ida</small>
-          <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate < nextDate) setReturnDate(nextDate); }} aria-label="Fecha de ida"/>
+          <small>Fechas</small>
+          <strong>{displayDate(date)} – {displayDate(returnDate)}</strong>
+          <span className="date-range-inputs">
+            <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate < nextDate) setReturnDate(nextDate); }} aria-label="Fecha de ida"/>
+            <input type="date" value={returnDate} min={date} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
+          </span>
         </span>
-      </label>
-      <label className="search-field date-search-field">
-        <span className="field-icon"><CalendarDays size={18}/></span>
-        <span className="search-field-copy">
-          <small>Fecha de vuelta</small>
-          <input type="date" value={returnDate} min={date} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
-        </span>
-      </label>
-      <label className="search-field select-search-field passengers-search-field">
+      </div>
+      <label className="search-field select-search-field">
         <span className="field-icon"><Users size={18}/></span>
         <span className="search-field-copy"><small>Pasajeros</small>
-          <select value={travelers} onChange={e => setTravelers(Number(e.target.value))} aria-label="Cantidad de pasajeros">
-            {Array.from({length: 9}, (_, index) => index + 1).map(count => <option key={count} value={count}>{count} {count === 1 ? "pasajero" : "pasajeros"}</option>)}
-          </select>
+          <select value={travelers} onChange={e => setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select>
+        </span>
+      </label>
+      <label className="search-field select-search-field accommodation-field">
+        <span className="field-icon"><BedDouble size={18}/></span>
+        <span className="search-field-copy"><small>Alojamiento</small>
+          <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>Hotel 3 estrellas</option><option>Hotel 4 estrellas</option><option>Hotel 5 estrellas</option><option>All Inclusive</option></select>
         </span>
       </label>
       <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
@@ -411,7 +407,7 @@ export default function App() {
     </div>
     <div className="destination-grid destination-reference">
       {[packages[0],packages[3],packages[4],packages[5],packages[6],packages[7]].map(p=><article className="destination-card" key={p.id}>
-        <div className="destination-photo"><SmartImage className="destination-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="auto" focalPoint={p.focalPoint} safeArea={p.safeArea}/><button type="button" className={`heart ${favorites.includes(p.id)?"liked":""}`} onClick={()=>toggleFavorite(p.id)} aria-label="Guardar favorito"><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button>{p.id===1&&<span className="destination-badge">★ Más elegido</span>}</div>
+        <div className="destination-photo"><SmartImage className="destination-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="4/3" fit="cover" focalPoint={p.focalPoint} safeArea={p.safeArea}/><button type="button" className={`heart ${favorites.includes(p.id)?"liked":""}`} onClick={()=>toggleFavorite(p.id)} aria-label="Guardar favorito"><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button>{p.id===1&&<span className="destination-badge">★ Más elegido</span>}</div>
         <div className="destination-info"><div><h3>{p.name}</h3><p>{p.id===5?"EE.UU.":p.country} · {p.category}</p><span className="destination-rating"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small></span></div><button className="destination-arrow" onClick={()=>openPackage(p)} aria-label={`Ver ${p.name}`}><ArrowRight size={18}/></button></div>
       </article>)}
     </div>
@@ -580,7 +576,7 @@ export default function App() {
           <p className="employee-form-note">Al publicar, el precio final se desglosa en vuelo, hotel y asistencia al viajero. Los importes son orientativos hasta confirmar las tarifas con los proveedores.</p>
           <div className="focal-editor-select"><label>Encuadre de imagen del paquete<select value={focalEditingPackage?.id ?? ""} onChange={e=>setFocalEditPackageId(Number(e.target.value))}>{employeePackages.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label></div>
           <FocalPointEditor src={focalEditingPackage?.image ?? packages[0].image} name={focalEditingPackage?.name ?? "Cancún"} focalPoint={focalEditingPackage?.focalPoint} onChange={point=>{if(focalEditingPackage)setEmployeePackages(items=>items.map(p=>p.id===focalEditingPackage.id?{...p,focalPoint:point}:p));}}/>
-          <div className="employee-package-list">{employeePackages.map(p=>{const q=quoteForPackage(p);return <article key={p.id}><SmartImage className="employee-package-smart-image" src={p.image} alt={p.name} preset="thumb" ratio="auto"/><div><b>{p.name}</b><small>{p.country} · {p.days} días · Vuelo {money(q.flight)} · Hotel {money(q.hotel)} · Asistencia {money(q.assistance)}</small></div><strong>{money(p.price)}</strong><button className="employee-delete" onClick={()=>{setEmployeePackages(v=>v.filter(x=>x.id!==p.id));setToast("Paquete quitado del catálogo local.");}} aria-label={"Eliminar "+p.name}><X size={17}/></button></article>;})}</div>
+          <div className="employee-package-list">{employeePackages.map(p=>{const q=quoteForPackage(p);return <article key={p.id}><SmartImage className="employee-package-smart-image" src={p.image} alt={p.name} preset="thumb" ratio="auto" fit="cover"/><div><b>{p.name}</b><small>{p.country} · {p.days} días · Vuelo {money(q.flight)} · Hotel {money(q.hotel)} · Asistencia {money(q.assistance)}</small></div><strong>{money(p.price)}</strong><button className="employee-delete" onClick={()=>{setEmployeePackages(v=>v.filter(x=>x.id!==p.id));setToast("Paquete quitado del catálogo local.");}} aria-label={"Eliminar "+p.name}><X size={17}/></button></article>;})}</div>
         </>}
         {employeeTab==="offers"&&<>
           <div className="employee-section-title"><div><h2>Promociones y ofertas</h2><p>Aplicá descuentos a un paquete y actualizá el precio público.</p></div><span className="demo-label">PUBLICACIÓN LOCAL</span></div>
@@ -627,7 +623,7 @@ export default function App() {
   </main>;
 
   const checkoutQuote = quoteForPackage(selected);
-  const renderCheckout = () => <main className="page-container narrow"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span><button onClick={()=>go("detail")}>Paquete</button><span>/</span>Confirmar reserva</div><div className="checkout-title"><span className="kicker">ÚLTIMO PASO</span><h1>Confirmá tu viaje</h1><p>Revisá los detalles antes de confirmar tu reserva de prueba.</p></div><div className="checkout-layout"><div className="checkout-box"><h2>Resumen del paquete</h2><div className="checkout-destination"><SmartImage className="checkout-smart-image" src={selected.image} alt={selected.name} preset="thumb" ratio="auto"/><div><b>{selected.name} · {selected.country}</b><small>{selected.days} días · {travelers} pasajero(s)</small><small>Ida: {date} · Vuelta: {returnDate}</small></div></div><div className="checkout-service"><Plane/> Vuelos ida y vuelta <strong>{money(checkoutQuote.flight)}</strong></div><div className="checkout-service"><Hotel/> Hotel · {selected.days - 1} noches <strong>{money(checkoutQuote.hotel)}</strong></div><div className="checkout-service"><Stethoscope/> Asistencia al viajero <strong>{money(checkoutQuote.assistance)}</strong></div><p className="form-hint">Cada servicio tiene un importe asignado. Estos valores son referenciales de la demostración y se confirman con los proveedores antes de emitir.</p><div className="booking-divider"/><h2>Datos del pasajero principal</h2><label>Nombre y apellido<input value={passengerName} onChange={e=>setPassengerName(e.target.value)} autoComplete="name" placeholder="Nombre completo" maxLength={80}/></label><label>Correo electrónico<input type="email" value={passengerEmail} onChange={e=>setPassengerEmail(e.target.value)} autoComplete="email" placeholder="tu@email.com" maxLength={120}/></label><p className="form-hint">Usaremos estos datos para identificar la reserva y enviar la confirmación.</p><div className="booking-divider"/><h2>Elegí tu medio de pago</h2><p className="form-hint">Seleccioná cómo preferís abonar. En esta demo no se realizará ningún cobro.</p><div className="payment-method-grid"><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de crédito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de crédito")}><span className="payment-visual card-visa">VISA</span><b>Tarjeta de crédito</b><small>Crédito y cuotas</small></button><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de débito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de débito")}><span className="payment-visual card-master"><i></i><i></i></span><b>Tarjeta de débito</b><small>Pago con débito</small></button><button type="button" className={`payment-method ${paymentMethod === "Mercado Pago" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Mercado Pago")}><span className="payment-visual mercado-logo"> Mercado Pago </span><b>Mercado Pago</b><small>Billetera virtual</small></button><button type="button" className={`payment-method ${paymentMethod === "Transferencia bancaria" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Transferencia bancaria")}><span className="payment-visual transfer-visual"><CreditCard size={25}/></span><b>Transferencia</b><small>Desde tu banco</small></button></div><div className="demo-warning"><CircleHelp/> Esta es una simulación académica. No se realizará ningún cobro ni reserva real.</div></div><aside className="booking-card"><h3>Detalle de precio</h3><div className="summary-row"><span>Vuelos · por persona</span><b>{money(checkoutQuote.flight)}</b></div><div className="summary-row"><span>Hotel · por persona</span><b>{money(checkoutQuote.hotel)}</b></div><div className="summary-row"><span>Asistencia · por persona</span><b>{money(checkoutQuote.assistance)}</b></div><div className="summary-row"><span>Pasajeros</span><b>× {travelers}</b></div><div className="booking-divider"/><div className="booking-total"><span>Total</span><b>{money(selected.price*travelers)}</b></div><button className="primary-btn full" onClick={reserve}>Confirmar reserva <Check size={17}/></button><p className="booking-safe"><LockKeyhole size={14}/> Proceso de demostración</p></aside></div></main>;
+  const renderCheckout = () => <main className="page-container narrow"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span><button onClick={()=>go("detail")}>Paquete</button><span>/</span>Confirmar reserva</div><div className="checkout-title"><span className="kicker">ÚLTIMO PASO</span><h1>Confirmá tu viaje</h1><p>Revisá los detalles antes de confirmar tu reserva de prueba.</p></div><div className="checkout-layout"><div className="checkout-box"><h2>Resumen del paquete</h2><div className="checkout-destination"><SmartImage className="checkout-smart-image" src={selected.image} alt={selected.name} preset="thumb" ratio="auto" fit="cover"/><div><b>{selected.name} · {selected.country}</b><small>{selected.days} días · {travelers} pasajero(s)</small><small>Ida: {date} · Vuelta: {returnDate}</small></div></div><div className="checkout-service"><Plane/> Vuelos ida y vuelta <strong>{money(checkoutQuote.flight)}</strong></div><div className="checkout-service"><Hotel/> Hotel · {selected.days - 1} noches <strong>{money(checkoutQuote.hotel)}</strong></div><div className="checkout-service"><Stethoscope/> Asistencia al viajero <strong>{money(checkoutQuote.assistance)}</strong></div><p className="form-hint">Cada servicio tiene un importe asignado. Estos valores son referenciales de la demostración y se confirman con los proveedores antes de emitir.</p><div className="booking-divider"/><h2>Datos del pasajero principal</h2><label>Nombre y apellido<input value={passengerName} onChange={e=>setPassengerName(e.target.value)} autoComplete="name" placeholder="Nombre completo" maxLength={80}/></label><label>Correo electrónico<input type="email" value={passengerEmail} onChange={e=>setPassengerEmail(e.target.value)} autoComplete="email" placeholder="tu@email.com" maxLength={120}/></label><p className="form-hint">Usaremos estos datos para identificar la reserva y enviar la confirmación.</p><div className="booking-divider"/><h2>Elegí tu medio de pago</h2><p className="form-hint">Seleccioná cómo preferís abonar. En esta demo no se realizará ningún cobro.</p><div className="payment-method-grid"><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de crédito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de crédito")}><span className="payment-visual card-visa">VISA</span><b>Tarjeta de crédito</b><small>Crédito y cuotas</small></button><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de débito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de débito")}><span className="payment-visual card-master"><i></i><i></i></span><b>Tarjeta de débito</b><small>Pago con débito</small></button><button type="button" className={`payment-method ${paymentMethod === "Mercado Pago" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Mercado Pago")}><span className="payment-visual mercado-logo"> Mercado Pago </span><b>Mercado Pago</b><small>Billetera virtual</small></button><button type="button" className={`payment-method ${paymentMethod === "Transferencia bancaria" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Transferencia bancaria")}><span className="payment-visual transfer-visual"><CreditCard size={25}/></span><b>Transferencia</b><small>Desde tu banco</small></button></div><div className="demo-warning"><CircleHelp/> Esta es una simulación académica. No se realizará ningún cobro ni reserva real.</div></div><aside className="booking-card"><h3>Detalle de precio</h3><div className="summary-row"><span>Vuelos · por persona</span><b>{money(checkoutQuote.flight)}</b></div><div className="summary-row"><span>Hotel · por persona</span><b>{money(checkoutQuote.hotel)}</b></div><div className="summary-row"><span>Asistencia · por persona</span><b>{money(checkoutQuote.assistance)}</b></div><div className="summary-row"><span>Pasajeros</span><b>× {travelers}</b></div><div className="booking-divider"/><div className="booking-total"><span>Total</span><b>{money(selected.price*travelers)}</b></div><button className="primary-btn full" onClick={reserve}>Confirmar reserva <Check size={17}/></button><p className="booking-safe"><LockKeyhole size={14}/> Proceso de demostración</p></aside></div></main>;
 
   const renderAccount = () => <main className="page-container"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span>Mi cuenta</div><div className="account-heading"><div className="user-avatar"><UserRound/></div><div><span className="kicker">MI ESPACIO MUNDO GLOBAL</span><h1>¡Hola, {user || "Viajero"}!</h1><p>Gestioná tus viajes y preparate para tu próxima aventura.</p></div><button className="outline-btn" onClick={()=>{setUser("");localStorage.removeItem("mgt-user");go("home");}}> <LogOut size={16}/> Cerrar sesión</button></div><div className="account-grid"><aside className="account-menu"><button className={accountSection==="bookings"?"current":""} onClick={()=>setAccountSection("bookings")}><Ticket/> Mis reservas</button><button className={accountSection==="profile"?"current":""} onClick={()=>setAccountSection("profile")}><UserRound/> Mi perfil</button><button className={accountSection==="favorites"?"current":""} onClick={()=>setAccountSection("favorites")}><Heart/> Mis favoritos</button><button className={accountSection==="recent"?"current":""} onClick={()=>setAccountSection("recent")}><Clock3/> Búsquedas recientes</button><button onClick={()=>go("support")}><Headphones/> Ayuda y soporte</button></aside><section className="account-content">
     {accountSection==="bookings"&&<><div className="section-heading compact"><div><h2>Mis reservas</h2><p>Consultá el estado de tus próximos viajes.</p></div><button className="primary-btn" onClick={()=>go("results")}>Buscar viajes <ArrowRight size={16}/></button></div>{bookings.length===0?<div className="empty-state"><Luggage size={42}/><h3>Todavía no tenés viajes reservados</h3><p>Tu próxima aventura está a un clic de distancia.</p><button className="primary-btn" onClick={()=>go("results")}>Explorar paquetes</button></div>:bookings.map((b,i)=><div className="booking-list-item" key={i}><span className="booking-icon"><Plane/></span><div><b>{b.split(" · ")[0]}</b><small>Código: {b.split(" · ")[1]} · Reserva de demostración</small></div><strong>{b.split(" · ")[2]}</strong><span className="status-pill"><CheckCircle2 size={13}/> Confirmada</span></div>)}</>}
