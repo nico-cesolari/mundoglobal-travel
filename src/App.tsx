@@ -61,8 +61,10 @@ export default function App() {
   const [toast, setToast] = useState("");
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [assistantInput, setAssistantInput] = useState("");
-  const [assistantMessages, setAssistantMessages] = useState([
-    { from: "assistant" as const, text: "¡Hola! 👋 Soy el asistente virtual de MundoGlobal Travel. ¿Necesitás ayuda para organizar tu próximo viaje?" }
+  const [assistantMessages, setAssistantMessages] = useState<
+    { from: "assistant" | "user"; text: string }[]
+  >([
+    { from: "assistant", text: "¡Hola! 👋 Soy el asistente virtual de MundoGlobal Travel. ¿Necesitás ayuda para organizar tu próximo viaje?" }
   ]);
   const [showPassword, setShowPassword] = useState(false);
   const [passengerName, setPassengerName] = useState(user);
@@ -259,27 +261,14 @@ export default function App() {
   };
 
   const heroPromotions = [
-    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/images/hero-mundo.png", caption: "" }
+    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/images/hero-mundo.svg", caption: "" }
   ];
   const activePromotion = heroPromotions[heroSlide];
   const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
     <div className="hero-art" aria-hidden="true"><img src="/images/hero-mundo.png" alt="" fetchPriority="high" /></div>
-    <div className="hero-copy">
-      <span className="eyebrow hero-trust-badge"><Plane size={13} fill="currentColor"/> Más de 2 millones de viajeros felices</span>
-      <h1>El mundo está<br/>esperando <em>por vos</em></h1>
-      <p>Encontrá tu próximo viaje en un solo lugar: vuelos, hoteles y paquetes con atención personalizada.</p>
-      <div className="hero-buttons">
-        <button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={17}/></button>
-        <button className="ghost-btn" onClick={() => { setActiveService("Paquetes"); go("results"); }}><Tag size={15}/> Ver oferta</button>
-      </div>
-      <div className="hero-service-tabs" role="tablist" aria-label="Tipo de servicio">
-        <button type="button" role="tab" aria-selected={activeService === "Paquetes"} className={activeService === "Paquetes" ? "active" : ""} onClick={() => setActiveService("Paquetes")}><Globe2 size={16}/> Paquetes</button>
-        <button type="button" role="tab" aria-selected={activeService === "Vuelos"} className={activeService === "Vuelos" ? "active" : ""} onClick={() => setActiveService("Vuelos")}><Plane size={16}/> Vuelos</button>
-        <button type="button" role="tab" aria-selected={activeService === "Hoteles"} className={activeService === "Hoteles" ? "active" : ""} onClick={() => setActiveService("Hoteles")}><Hotel size={16}/> Hoteles</button>
-        <button type="button" role="tab" aria-selected={activeService === "Autos"} className={activeService === "Autos" ? "active" : ""} onClick={() => setActiveService("Autos")}><CarFront size={16}/> Autos</button>
-      </div>
-    </div>
-  </div>{renderSearchBar()}</section>  <section className="section destinations-section">
+    <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está<br/>esperando <em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
+  </div>{renderSearchBar()}</section>
+  <section className="section destinations-section">
     <div className="category-row destination-filters">
       {[{name:"Todos",icon:null},{name:"Playas",icon:<Plane size={14}/>},{name:"Ciudades",icon:<Hotel size={14}/>},{name:"Aventuras",icon:<Sparkles size={14}/>},{name:"Cultura",icon:<Star size={14}/>}].map(item=><button type="button" key={item.name} className={category===item.name?"selected":""} onClick={()=>setCategory(item.name)}>{item.icon}{item.name}</button>)}
     </div>
