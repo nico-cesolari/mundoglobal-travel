@@ -133,7 +133,6 @@ export default function App() {
   const [offerPackageId, setOfferPackageId] = useState(1);
   const [offerPercent, setOfferPercent] = useState("15");
   const [offerEndDate, setOfferEndDate] = useState(() => readDraft("mgt-draft-offer-end"));
-  const [quoteDrafts, setQuoteDrafts] = useState<Record<number, { flight: string; hotel: string; assistance: string }>>(() => { const saved = readDraft("mgt-draft-quote-values"); if (saved) { try { return JSON.parse(saved) as Record<number, { flight: string; hotel: string; assistance: string }>; } catch { /* Cotizaciones calculadas desde el precio del paquete. */ } } return {}; });
   const [employeeMessage, setEmployeeMessage] = useState(() => readDraft("mgt-draft-employee-message"));
   const [newPackageName, setNewPackageName] = useState(() => readDraft("mgt-draft-package-name"));
   const [newPackagePrice, setNewPackagePrice] = useState(() => readDraft("mgt-draft-package-price"));
@@ -234,14 +233,13 @@ export default function App() {
     writeDraft("mgt-draft-income-concept", incomeConcept);
     writeDraft("mgt-draft-income-amount", incomeAmount);
     writeDraft("mgt-draft-offer-end", offerEndDate);
-    writeDraft("mgt-draft-quote-values", JSON.stringify(quoteDrafts));
   }, [
     employeeMessage, newPackageName, newPackagePrice, newPackageCountry, newPackageCategory,
     newPackageDepartureCity, newPackageDepartureDate, newPackageReturnDate, newPackageImage,
     query, origin, accommodation, date, returnDate, travelers, profileEmail, profilePhone,
     passengerName, passengerEmail, paymentMethod, authEmail, authFullName,
     employeeEmailDraft, contactName, contactEmail, contactMessage, newsletterEmail,
-    incomeConcept, incomeAmount, offerEndDate, quoteDrafts
+    incomeConcept, incomeAmount, offerEndDate
   ]);
 
   useEffect(() => {
@@ -322,8 +320,6 @@ export default function App() {
   ), [category, query, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? (p.price ? buildServicePrices(p.price) : undefined);
-  const quoteDraftFor = (p: Package) => { const current = quoteForPackage(p); return quoteDrafts[p.id] ?? { flight: String(current?.flight ?? ""), hotel: String(current?.hotel ?? ""), assistance: String(current?.assistance ?? "") }; };
-  const savePackageQuote = (p: Package) => { if (!p.price) { setToast("Primero configurá el precio de esta salida."); return; } const draft = quoteDraftFor(p); const flight = Number(draft.flight); const hotel = Number(draft.hotel); const assistance = Number(draft.assistance); if (![flight, hotel, assistance].every(value => Number.isFinite(value) && value > 0)) { setToast("Ingresá importes válidos para vuelo, hotel y asistencia."); return; } const total = flight + hotel + assistance; setEmployeePackages(items => items.map(item => { if (item.id !== p.id) return item; const keepOffer = item.tag === "¡Oferta!" && Boolean(item.oldPrice && total < item.oldPrice); return enrichPackage({ ...item, price: total, oldPrice: keepOffer ? item.oldPrice : total, originalPrice: keepOffer ? (item.originalPrice ?? item.oldPrice) : total, tag: item.tag === "¡Oferta!" && !keepOffer ? undefined : item.tag, offerExpires: keepOffer ? item.offerExpires : undefined, servicePrices: { flight, hotel, assistance }, flags: { ...item.flags, promo: keepOffer, reservaOnline: true }, includes: undefined }); })); setQuoteDrafts(items => ({ ...items, [p.id]: { flight: String(flight), hotel: String(hotel), assistance: String(assistance) } })); setToast("Cotización guardada y precio del paquete actualizado."); };
   const collectedIncome = incomeEntries.filter(entry => entry.status === "Acreditado").reduce((total, entry) => total + entry.amount, 0);
   const pendingIncome = incomeEntries.filter(entry => entry.status === "Pendiente").reduce((total, entry) => total + entry.amount, 0);
   const sortedPackages = useMemo(() => [...filtered].sort((a, b) => {
@@ -663,13 +659,13 @@ export default function App() {
           {employeePackages.filter(p=>p.tag==="¡Oferta!").length===0&&<p className="employee-empty-note">Todavía no hay ofertas aplicadas. Creá una desde el formulario.</p>}
         </>}
         {employeeTab==="quotes"&&<>
-          <div className="employee-section-title"><div><h2>Proveedores y cotizaciones</h2><p>Desglose de costos estimados de los servicios por pasajero.</p></div><span className="demo-label">COTIZACIÓN REFERENCIAL</span></div>
-          <div className="employee-quote-warning"><Building2/><span><b>Importes de ejemplo, no cotizaciones confirmadas</b><small>La integración con hoteles, aerolíneas y compañías de asistencia todavía no está conectada. Antes de vender, el empleado debe solicitar y validar disponibilidad, moneda, impuestos y vigencia con cada proveedor.</small></span></div>
-          <div className="employee-quote-edit-list">{employeePackages.map(p=>{const draft=quoteDraftFor(p);return <article key={p.id}><div className="employee-quote-edit-heading"><div><b>{p.name} · {p.country}</b><small>{p.nights ?? (p.days && p.days > 1 ? p.days - 1 : "")}{(p.nights ?? (p.days && p.days > 1 ? p.days - 1 : null)) ? " noches · " : ""}Precio actual {money(p.price) || "A cotizar"} por persona</small></div><span className="demo-label">EDITABLE</span></div><div className="employee-quote-edit-inputs"><label>Vuelo · USD<input type="number" min="1" step="0.01" value={draft.flight} onChange={e=>setQuoteDrafts(items=>({...items,[p.id]:{...draft,flight:e.target.value}}))}/></label><label>Hotel · USD<input type="number" min="1" step="0.01" value={draft.hotel} onChange={e=>setQuoteDrafts(items=>({...items,[p.id]:{...draft,hotel:e.target.value}}))}/></label><label>Asistencia · USD<input type="number" min="1" step="0.01" value={draft.assistance} onChange={e=>setQuoteDrafts(items=>({...items,[p.id]:{...draft,assistance:e.target.value}}))}/></label></div><div className="employee-quote-edit-footer"><small>Total nuevo al guardar: {money((Number(draft.flight)||0)+(Number(draft.hotel)||0)+(Number(draft.assistance)||0))}</small><button type="button" className="primary-btn" onClick={()=>savePackageQuote(p)}>Guardar cotización <Check size={14}/></button></div></article>;})}</div>
+          <div className="employee-section-title"><div><h2>Proveedores y cotizaciones</h2><p>Consulta de costos estimados por paquete y servicio.</p></div><span className="demo-label">SOLO LECTURA</span></div>
+          <div className="employee-quote-warning"><Building2/><span><b>Información de cotizaciones</b><small>Esta sección es únicamente informativa. Los valores se muestran para consulta del equipo; la gestión y actualización de cotizaciones corresponde al proceso automático de integración con proveedores, no al empleado. En este prototipo las conexiones externas todavía no están activas.</small></span></div>
+          <div className="employee-quote-read-list">{employeePackages.map(p=>{const quote=quoteForPackage(p);return <article key={p.id}><div className="employee-quote-read-heading"><div><b>{p.name} · {p.country}</b><small>{p.nights ?? (p.days && p.days>1?p.days-1:"")}{(p.nights ?? (p.days && p.days>1?p.days-1:null))?" noches · ":""}{p.price ? "Precio publicado "+money(p.price)+" por persona" : "Precio pendiente de definir"}</small></div><span className="employee-quote-read-status">Informativo</span></div><div className="employee-quote-read-services"><div><Plane/><span>Vuelo</span><b>{quote?.flight?money(quote.flight):"A cotizar"}</b></div><div><Hotel/><span>Hotel</span><b>{quote?.hotel?money(quote.hotel):"A cotizar"}</b></div><div><Stethoscope/><span>Asistencia</span><b>{quote?.assistance?money(quote.assistance):"A cotizar"}</b></div></div><div className="employee-quote-read-total"><span>Precio total por persona</span><b>{money(p.price)||"A cotizar"}</b></div></article>;})}</div>
           <div className="employee-quote-supplier-grid">
-            <article><span><Plane/></span><b>Aerolíneas</b><small>Tarifa aérea, equipaje, tasas y disponibilidad por fecha.</small></article>
-            <article><span><Hotel/></span><b>Hoteles</b><small>Habitación, régimen, noches, impuestos y políticas de cancelación.</small></article>
-            <article><span><Stethoscope/></span><b>Asistencia al viajero</b><small>Plan, cobertura, edad del pasajero y días de vigencia.</small></article>
+            <article><span><Plane/></span><b>Aerolíneas</b><small>Tarifas, equipaje, tasas y disponibilidad.</small></article>
+            <article><span><Hotel/></span><b>Hoteles</b><small>Habitaciones, régimen, noches e impuestos.</small></article>
+            <article><span><Stethoscope/></span><b>Asistencia al viajero</b><small>Planes, cobertura y vigencia.</small></article>
           </div>
         </>}
         {employeeTab==="income"&&<>
