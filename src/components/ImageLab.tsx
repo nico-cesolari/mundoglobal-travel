@@ -2,7 +2,7 @@ import { SmartImage } from "./SmartImage";
 import "./image-lab.css";
 
 const samples = [
-  { name: "Cancún", src: "/images/cancun.jpg", focalPoint: { x: 52, y: 48 }, safeArea: { x: 18, y: 34, w: 64, h: 28 } },
+  { name: "Cancún", src: "/images/cancun.jpg", focalPoint: { x: 52, y: 48 } },
   { name: "Salvador de Bahía", src: "/images/salvador.jpg", focalPoint: { x: 50, y: 50 } },
   { name: "Roma", src: "/images/roma.jpg", focalPoint: { x: 54, y: 48 } }
 ];
@@ -20,7 +20,7 @@ export default function ImageLab() {
           <div className="image-lab-presets">
             {presets.map(preset => <div className="image-lab-item" key={preset}>
               <span>{preset}</span>
-              <SmartImage src={sample.src} alt={sample.name} preset={preset} ratio="auto" focalPoint={sample.focalPoint} safeArea={sample.safeArea} priority={preset === "hero"}/>
+              <SmartImage src={sample.src} alt={sample.name} preset={preset} focalPoint={sample.focalPoint} safeArea={sample.safeArea} priority={preset === "hero"}/>
             </div>)}
           </div>
         </article>)}
