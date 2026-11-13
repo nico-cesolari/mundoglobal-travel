@@ -123,13 +123,14 @@ export function SmartImage({
   const imageRatio = naturalSize.width / Math.max(1, naturalSize.height);
   const boxRatio = boxSize.width / Math.max(1, boxSize.height);
   const lowResolution = naturalSize.width > 0 && naturalSize.height > 0 && Math.max(boxSize.width / naturalSize.width, boxSize.height / naturalSize.height) > 1;
-  const belowRequestedWidth = Boolean(minSourceWidth && naturalSize.width > 0 && naturalSize.width < minSourceWidth);
-  const tooNarrowForWideFrame = imageRatio > 0 && imageRatio < 1.2 && boxRatio >= 1.5;
-  const shouldContain = fit === "contain" || lowResolution || belowRequestedWidth || tooNarrowForWideFrame || (fit === "smart" && smartNeedsContain(
-    safeArea,
-    imageRatio,
-    boxRatio,
-    focal
+  const smallSourceImage = naturalSize.width > 0 && naturalSize.width < 600;
+  const shouldContain = fit === "contain" || (fit === "smart" && (
+    smallSourceImage || smartNeedsContain(
+      safeArea,
+      imageRatio,
+      boxRatio,
+      focal
+    )
   ));
   const ratioStyle = resolvedRatio === "auto" ? undefined : { aspectRatio: resolvedRatio.replace("/", " / ") };
   const roundedStyle = typeof rounded === "number" ? { borderRadius: rounded } : rounded ? undefined : { borderRadius: 0 };
