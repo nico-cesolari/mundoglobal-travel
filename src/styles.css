@@ -446,3 +446,14 @@ select:focus-visible{
  .offer-reference .price-line strong{font-size:14px}
  .offer-reference .price-line del{font-size:8px}
 }
+
+
+/* Imágenes del inicio: carga explícita y recorte consistente */
+.hero-reference .hero-art{background:none!important;overflow:hidden;display:flex;align-items:center;justify-content:flex-end}
+.hero-reference .hero-art img{display:block;width:100%;height:100%;object-fit:contain;object-position:right center;filter:drop-shadow(0 10px 20px #003a8b25)}
+.offer-reference .package-photo{background:#eaf1fb;overflow:hidden}
+.offer-reference .package-photo .offer-image{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .35s ease}
+.offer-reference .package-card:hover .package-photo .offer-image{transform:scale(1.045)}
+.destination-reference .destination-photo img{object-position:center}
+@media(max-width:800px){.hero-reference .hero-art img{object-fit:contain;object-position:right bottom}}
+@media(max-width:520px){.hero-reference .hero-art img{object-fit:contain;object-position:center bottom}}
