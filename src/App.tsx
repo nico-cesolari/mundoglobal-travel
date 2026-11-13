@@ -118,12 +118,14 @@ export default function App() {
   const initialSlug = currentPackageSlug();
   const initialPackages = loadSavedPackages();
   const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === initialSlug);
-  const [page, setPage] = useState<Page>(() => initialSlug ? "detail" : "home");
+  const employeeSession = localStorage.getItem("mgt-employee-session") || "";
+  const initialPage: Page = initialSlug ? "detail" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
+  const [page, setPage] = useState<Page>(() => initialPage);
   const [routeNotFound, setRouteNotFound] = useState(Boolean(initialSlug && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
   const [employeePackages, setEmployeePackages] = useState<Package[]>(initialPackages);
   const [focalEditPackageId, setFocalEditPackageId] = useState(1);
-  const [employee, setEmployee] = useState("");
+  const [employee, setEmployee] = useState(employeeSession);
   const [employeeTab, setEmployeeTab] = useState<"overview" | "packages" | "offers" | "quotes" | "income" | "messages" | "bookings">("overview");
   const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>(() => { const saved = readDraft("mgt-income-entries"); if (saved) { try { const parsed = JSON.parse(saved) as IncomeEntry[]; if (Array.isArray(parsed)) return parsed; } catch { /* Datos de demostración. */ } } return demoIncomeEntries; });
   const [incomeConcept, setIncomeConcept] = useState(() => readDraft("mgt-draft-income-concept"));
@@ -256,6 +258,12 @@ export default function App() {
         if (found) setSelected(found);
       } else if (window.location.pathname === "/paquetes") {
         setRouteNotFound(false); setActiveNav("Paquetes"); setPage("results");
+      } else if (window.location.pathname === "/employee-login") {
+        setRouteNotFound(false); setActiveNav(""); setPage("employee-login");
+      } else if (window.location.pathname === "/employee") {
+        setRouteNotFound(false); setActiveNav("");
+        if (localStorage.getItem("mgt-employee-session")) setPage("employee");
+        else setPage("employee-login");
       } else {
         setRouteNotFound(false); setActiveNav("Inicio"); setPage("home");
       }
@@ -278,7 +286,9 @@ export default function App() {
   const go = (p: Page) => {
     setPage(p); setMobileMenu(false); setRouteNotFound(false);
     if (p === "home") setActiveNav("Inicio"); else if (p === "support") setActiveNav("Contacto"); else if (p !== "results" && p !== "detail") setActiveNav("");
-    if (currentPackageSlug() && p !== "detail") window.history.pushState({}, "", p === "results" ? "/paquetes" : "/");
+    const routePaths: Partial<Record<Page, string>> = { home: "/", results: "/paquetes", "employee-login": "/employee-login", employee: "/employee" };
+    const nextPath = routePaths[p];
+    if (nextPath && window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const openPackage = (p: Package) => {
@@ -326,6 +336,7 @@ export default function App() {
       return;
     }
     setEmployee("Camila Torres");
+    localStorage.setItem("mgt-employee-session", "Camila Torres");
     setEmployeeTab("overview");
     setEmployeeEmailDraft("");
     setEmployeePasswordDraft("");
@@ -553,6 +564,12 @@ export default function App() {
         event.preventDefault();
         if (!authEmail.trim() || !authPassword) { setToast("Completá tu correo y contraseña."); return; }
         if (register && authFullName.trim().length < 3) { setToast("Ingresá tu nombre y apellido."); return; }
+        if (!register && authEmail.trim().toLowerCase() === "empleado@mundoglobal.com") {
+          employeeLogin(authEmail, authPassword);
+          setAuthPassword("");
+          setAuthEmail("");
+          return;
+        }
         login(authEmail, register ? authFullName : "");
         setAuthPassword("");
         setAuthEmail("");
@@ -574,7 +591,7 @@ export default function App() {
   const renderEmployeeLogin = () => <main className="auth-page employee-auth"><div className="auth-promo"><div className="auth-promo-content"><span className="eyebrow"><LockKeyhole size={14}/> Portal interno</span><h1>Gestioná cada viaje desde un solo lugar.</h1><p>Un espacio de trabajo para el equipo de MundoGlobal Travel: paquetes, consultas y reservas.</p><ul><li><Check/> Administración de paquetes</li><li><Check/> Atención de consultas</li><li><Check/> Seguimiento de reservas</li></ul><div className="promo-globe"><Globe2 size={220}/></div></div></div><div className="auth-form-side"><div className="auth-form"><div className="auth-avatar"><LockKeyhole/></div><span className="kicker">ACCESO DEL PERSONAL</span><h1>Portal de empleados</h1><p>Ingresá con tus credenciales internas para continuar.</p><form onSubmit={e=>{e.preventDefault();employeeLogin(employeeEmailDraft,employeePasswordDraft);}}><label>Correo corporativo<div className="input-icon"><Mail/><input name="email" type="email" value={employeeEmailDraft} onChange={e=>setEmployeeEmailDraft(e.target.value)} autoComplete="username" required placeholder="empleado@mundoglobal.com"/></div></label><label>Contraseña<div className="input-icon"><LockKeyhole/><input name="password" type="password" value={employeePasswordDraft} onChange={e=>setEmployeePasswordDraft(e.target.value)} autoComplete="current-password" required placeholder="Contraseña"/></div></label><button className="primary-btn full auth-submit">Ingresar al panel <ArrowRight size={17}/></button></form><div className="demo-warning employee-demo"><CircleHelp/> Acceso de prueba: empleado@mundoglobal.com · MundoGlobal2026</div><div className="auth-switch"><button onClick={()=>go("home")}>Volver al sitio público</button></div></div></div></main>;
 
   const renderEmployeePanel = () => <main className="page-container employee-page">
-    <div className="employee-top"><div><span className="kicker">MUNDO GLOBAL TRAVEL · OPERACIONES</span><h1>Centro de operaciones</h1><p>Hola, {employee}. Administrá ventas, productos, proveedores y atención al viajero.</p></div><button className="outline-btn" onClick={()=>{setEmployee("");setEmployeePasswordDraft("");go("employee-login");}}><LogOut size={16}/> Cerrar sesión</button></div>
+    <div className="employee-top"><div><span className="kicker">MUNDO GLOBAL TRAVEL · OPERACIONES</span><h1>Centro de operaciones</h1><p>Hola, {employee}. Administrá ventas, productos, proveedores y atención al viajero.</p></div><button className="outline-btn" onClick={()=>{setEmployee("");localStorage.removeItem("mgt-employee-session");setEmployeePasswordDraft("");go("employee-login");}}><LogOut size={16}/> Cerrar sesión</button></div>
     <div className="employee-layout">
       <aside className="employee-sidebar">
         <b>Gestión de la agencia</b>
