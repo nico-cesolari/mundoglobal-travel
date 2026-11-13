@@ -51,7 +51,7 @@ const formatTravelDate = (value?: string) => { if (!value) return ""; const [yea
 const packageDuration = (start: string, end: string) => Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86400000) + 1;
 const buildServicePrices = (price: number) => { const flight = Math.max(1, Math.round(price * 0.38)); const hotel = Math.max(1, Math.round(price * 0.54)); return { flight, hotel, assistance: Math.max(1, price - flight - hotel) }; };
 const availableLocalPackageImages = new Set(["/images/cancun.jpg", "/images/roma.jpg", "/images/nueva-york.jpg", "/images/punta-cana.jpg", "/images/camboriu.png", "/images/el-chalten.png", "/images/madrid.png"]);
-const packageHasPhoto = (item: Partial<Package>) => Boolean(item.image && (item.image.startsWith("/images/") ? availableLocalPackageImages.has(item.image) : /^https?:\\/\\//i.test(item.image)));
+const packageHasPhoto = (item: Partial<Package>) => Boolean(item.image && availableLocalPackageImages.has(item.image));
 const enrichPackage = (item: Package): Package => {
   const quote = item.servicePrices ?? (item.price ? buildServicePrices(item.price) : undefined);
   const datesNights = item.departureDate && item.returnDate ? Math.max(0, packageDuration(item.departureDate, item.returnDate) - 1) : undefined;
@@ -110,8 +110,8 @@ const loadSavedPackages = (): Package[] => {
   }
 };
 
-const slugifyPackage = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const currentPackageSlug = () => window.location.pathname.match(/^\\/paquetes\\/([^/]+)\\/?$/)?.[1] || "";
+const slugifyPackage = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const currentPackageSlug = () => window.location.pathname.match(/^\/paquetes\/([^/]+)\/?$/)?.[1] || "";
 
 export default function App() {
   const initialSlug = currentPackageSlug();
@@ -154,7 +154,7 @@ export default function App() {
   const [date, setDate] = useState(() => readDraft("mgt-draft-search-date"));
   const [returnDate, setReturnDate] = useState(() => readDraft("mgt-draft-search-return-date"));
   const [travelers, setTravelers] = useState(() => Math.min(9, Math.max(1, Number(readDraft("mgt-draft-travelers", "2")) || 2)));
-  const [favorites, setFavorites] = useState<number[]>([1]);
+  const [favorites, setFavorites] = useState<number[]>(() => { try { const saved = JSON.parse(localStorage.getItem("mgt-favorites") || "[1]"); return Array.isArray(saved) ? saved.filter((id): id is number => typeof id === "number") : [1]; } catch { return [1]; } });
   const [user, setUser] = useState(localStorage.getItem("mgt-user") || "");
   const [profileEmail, setProfileEmail] = useState(() => readDraft("mgt-draft-profile-email", localStorage.getItem("mgt-email") || ""));
   const [profilePhone, setProfilePhone] = useState(() => readDraft("mgt-draft-profile-phone", localStorage.getItem("mgt-phone") || ""));
@@ -241,6 +241,7 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("mgt-packages", JSON.stringify(employeePackages.filter(packageHasPhoto)));
   }, [employeePackages]);
+  useEffect(() => { localStorage.setItem("mgt-favorites", JSON.stringify(favorites)); }, [favorites]);
   useEffect(() => { localStorage.setItem("mgt-income-entries", JSON.stringify(incomeEntries)); }, [incomeEntries]);
 
   useEffect(() => {
@@ -384,7 +385,7 @@ export default function App() {
     setAssistantMessages(items => [...items, { from: "user" as const, text: question }, { from: "assistant" as const, text: answer }]);
     setAssistantInput("");
   };
-  const renderHeader = () => <header className="header">
+  const renderHeader = () => <header className={`header ${page === "detail" ? "header-package-detail" : ""}`}>
     <div className="nav-wrap">
       <button className="brand" onClick={() => go("home")} aria-label="Ir al inicio">
         <img className="brand-logo" src="/images/mundoglobal_travel.svg" alt="MundoGlobal Travel" />
@@ -398,6 +399,7 @@ export default function App() {
       </nav>
       <div className="nav-actions">
         <button className="account-pill" onClick={() => go(user ? "account" : "login")}><UserRound size={16}/>{user || "Iniciar sesión"}{user && <ChevronDown size={14}/>}</button>
+        {page === "detail" && <button className="nav-book-now" onClick={() => document.querySelector<HTMLButtonElement>(".package-consult-button")?.click()}>Reservar ahora</button>}
         <button className="menu-toggle" onClick={() => setMobileMenu(!mobileMenu)}>{mobileMenu ? <X/> : <Menu/>}</button>
       </div>
     </div>
@@ -419,10 +421,10 @@ export default function App() {
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
     <div className="package-info">
-      <div className="package-heading"><div><h3>{p.id===2?"Salvador":p.name}</h3><p>{p.country} <span>·</span> Playas</p></div></div>
-      <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small>{p.tag==="¡Oferta!" && <span className="discount">{discount(p)}% OFF</span>}</div>
+      <div className="package-heading"><div><h3>{p.name}</h3><p>{p.country} <span>·</span> {p.category}</p></div></div>
+      {(p.rating || (p.reviews && p.reviews !== "0")) && <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating ? p.rating.toFixed(1) : ""} {p.reviews && p.reviews !== "0" ? <small>({p.reviews})</small> : null}{p.tag==="¡Oferta!" && discount(p)>0 && <span className="discount">{discount(p)}% OFF</span>}</div>}
       <div className="price-line"><strong>{money(p.price)}</strong><del>{money(p.oldPrice)}</del></div>
-      <small className="package-schedule-inline">Desde {p.departureCity} · {formatTravelDate(p.departureDate)}</small>
+      {p.departureCity && p.departureDate && <small className="package-schedule-inline">Desde {p.departureCity} · {formatTravelDate(p.departureDate)}</small>}
       <button className="outline-btn full offer-reserve" onClick={() => openPackage(p)}>Reservar <ArrowRight size={16}/></button>
     </div>
   </article>;
@@ -495,15 +497,15 @@ export default function App() {
       {[{name:"Todos",icon:null},{name:"Playas",icon:<Plane size={14}/>},{name:"Ciudades",icon:<Hotel size={14}/>},{name:"Aventuras",icon:<Sparkles size={14}/>},{name:"Cultura",icon:<Star size={14}/>}].map(item=><button type="button" key={item.name} className={category===item.name?"selected":""} onClick={()=>setCategory(item.name)}>{item.icon}{item.name}</button>)}
     </div>
     <div className="destination-grid destination-reference">
-      {[packages[0],packages[3],packages[4],packages[5],packages[6],packages[7]].map(p=><article className="destination-card" key={p.id}>
+      {employeePackages.filter(packageHasPhoto).slice(0,6).map(p=><article className="destination-card" key={p.id}>
         <div className="destination-photo"><SmartImage className="destination-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="4/3" fit="cover" focalPoint={p.focalPoint} safeArea={p.safeArea}/><button type="button" className={`heart ${favorites.includes(p.id)?"liked":""}`} onClick={()=>toggleFavorite(p.id)} aria-label="Guardar favorito"><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button>{p.id===1&&<span className="destination-badge">★ Más elegido</span>}</div>
-        <div className="destination-info"><div><h3>{p.name}</h3><p>{p.id===5?"EE.UU.":p.country} · {p.category}</p><span className="destination-rating"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small></span></div><button className="destination-arrow" onClick={()=>openPackage(p)} aria-label={`Ver ${p.name}`}><ArrowRight size={18}/></button></div>
+        <div className="destination-info"><div><h3>{p.name}</h3><p>{p.country} · {p.category}</p>{p.rating && <span className="destination-rating"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)} {p.reviews && p.reviews !== "0" ? <small>({p.reviews})</small> : null}</span>}</div><button className="destination-arrow" onClick={()=>openPackage(p)} aria-label={`Ver ${p.name}`}><ArrowRight size={18}/></button></div>
       </article>)}
     </div>
   </section>
   <section className="benefit-strip"><div><span><Plane/></span><b>Turnos y pagos<small>100% online</small></b></div><div><span><ShieldCheck/></span><b>Compra segura<small>Tus datos protegidos</small></b></div><div><span><Headphones/></span><b>Atención al cliente<small>Soporte 24/7</small></b></div><div><span><CreditCard/></span><b>Múltiples medios<small>de pago</small></b></div></section>
   <section className="section offers-section">
-    <div className="offer-grid offer-reference">{[packages[0],packages[1],packages[2]].map(p=>renderPackageCard(p,true))}</div>
+    <div className="offer-grid offer-reference">{employeePackages.filter(p=>p.flags?.promo || p.tag === "¡Oferta!").slice(0,3).map(p=>renderPackageCard(p,true))}</div>
   </section>
   <section className="trust-section"><div className="trust-card"><div className="stars">★★★★★</div><h3>Miles de viajeros ya confían en nosotros</h3><p>Calidad y experiencias únicas en todo el mundo.</p><b>+50.000 viajeros</b></div><div className="trust-card"><div className="stars">★★★★★</div><h3>Los mejores precios del mercado</h3><p>Encontrá las mejores ofertas y ahorrá más.</p><b><ShieldCheck size={17}/> Compra segura</b></div><div className="trust-card"><div className="stars">★★★★★</div><h3>Atención personalizada</h3><p>Estamos para ayudarte en todo momento.</p><b><MessageCircle size={17}/> Chat 24/7</b></div></section>
   <section className="newsletter"><div className="newsletter-icon"><Mail/></div><div><h3>¿Buscás más ayuda?</h3><p>Suscribite y recibí las mejores ofertas en tu email.</p></div><form onSubmit={e=>{e.preventDefault();if(!newsletterEmail.trim())return;setToast("¡Gracias por suscribirte!");setNewsletterEmail("");}}><input type="email" value={newsletterEmail} onChange={e=>setNewsletterEmail(e.target.value)} required placeholder="Tu email aquí..."/><button className="yellow-btn">Suscribirme <ArrowRight size={15}/></button></form></section>
@@ -511,67 +513,23 @@ export default function App() {
 
   const renderResults = () => <main className="page-container"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span> Paquetes</div><div className="page-title-row"><div><span className="kicker">ENCONTRÁ TU PRÓXIMA AVENTURA</span><h1>Paquetes de viaje</h1><p>Experiencias completas, pensadas para que solo te ocupes de disfrutar.</p></div><span className="results-count">{filtered.length} experiencias</span></div><div className="results-search">{renderSearchBar()}</div><div className="results-layout"><aside className="filters"><h3><SlidersHorizontal size={18}/> Filtrar resultados</h3><b>Tipo de viaje</b>{["Todos","Playas","Ciudades","Cultura","Aventuras"].map(c=><button key={c} className={category===c?"filter-active":""} onClick={()=>setCategory(c)}>{c}<span>{c==="Todos"?packages.length:packages.filter(p=>p.category===c).length}</span></button>)}<div className="filter-divider"/><b>Buscar destino o país</b><input className="filter-text-input" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Ej. Cancún, Brasil, Italia..." aria-label="Buscar destino o país"/><div className="filter-divider"/><b>Rango de precio por persona</b><p className="filter-hint">Ingresá los importes en USD.</p><div className="filter-price-fields"><label>Desde<input type="number" min="0" step="50" value={minPrice} onChange={e=>setMinPrice(Math.max(0,Number(e.target.value)||0))}/></label><label>Hasta<input type="number" min={minPrice} step="50" value={maxPrice} onChange={e=>setMaxPrice(Math.max(minPrice,Number(e.target.value)||0))}/></label></div><input className="price-range" type="range" min={Math.max(0,minPrice)} max="2000" step="50" value={Math.min(maxPrice,2000)} onChange={e=>setMaxPrice(Math.max(minPrice,Number(e.target.value)))} aria-label="Precio máximo"/><div className="filter-divider"/><b>Preferencias</b><label className="check-label"><input type="checkbox" checked={onlyOffers} onChange={e=>setOnlyOffers(e.target.checked)}/> Solo ofertas</label><label className="check-label"><input type="checkbox" checked={topRatedOnly} onChange={e=>setTopRatedOnly(e.target.checked)}/> Mejor valorados (4.8+)</label><button className="filter-reset" onClick={()=>{setCategory("Todos");setQuery("");setMinPrice(0);setMaxPrice(2000);setOnlyOffers(false);setTopRatedOnly(false);setSortBy("recommended");}}>Limpiar todos los filtros</button></aside><div className="results-content"><div className="sort-row"><span>{filtered.length} paquetes encontrados</span><select aria-label="Ordenar paquetes" value={sortBy} onChange={e=>setSortBy(e.target.value)}><option value="recommended">Recomendados</option><option value="price">Menor precio</option><option value="rating">Mejor calificación</option></select></div><div className="results-grid">{sortedPackages.map(p=>renderPackageCard(p))}</div>{filtered.length===0&&<div className="empty-state"><Search size={34}/><h3>No encontramos resultados</h3><p>Probá con otro destino o categoría.</p><button className="primary-btn" onClick={()=>{setQuery("");setOrigin("");setCategory("Todos");setMinPrice(0);setMaxPrice(2000);setOnlyOffers(false);setTopRatedOnly(false);setSortBy("recommended");}}>Limpiar filtros</button></div>}</div></div></main>;
 
-  const selectedQuote = quoteForPackage(selected);
-  const renderDetail = () => <main className="page-container detail-page">
-    <div className="breadcrumb"><button onClick={() => go("home")}>Inicio</button><span>/</span><button onClick={() => go("results")}>Paquetes</button><span>/</span>{selected.name}</div>
-    <div className="detail-hero">
-      <SmartImage
-        className="detail-smart-image"
-        src={selected.image}
-        alt={selected.name}
-        preset="card-wide"
-        ratio="auto"
-        fit="smart"
-        focalPoint={selected.focalPoint ?? {x:50,y:60}}
-        objectPosition={selected.imagePosition ?? "center 60%"}
-        sizes="100vw"
-        minSourceWidth={1200}
-        priority
-      />
-      <div className="detail-hero-copy">
-        <span className="eyebrow"><MapPin size={14}/> {selected.country} · {selected.category}</span>
-        <h1>{selected.name}</h1>
-        <p>{selected.description}</p>
-        <span className="detail-rating">
-          <Star size={16} fill="currentColor"/>
-          <strong>{selected.rating.toFixed(1)}</strong>
-          <span>{selected.reviews === "0" ? "Nuevo" : `(${selected.reviews} opiniones)`}</span>
-        </span>
-      </div>
-    </div>
-    <div className="detail-layout">
-      <div className="detail-main">
-        <h2>Tu viaje, todo resuelto</h2>
-        <p className="muted">Un paquete integral con los servicios esenciales para viajar tranquilo.</p>
-        <div className="included-grid">
-          <div><span><Plane/></span><b>Vuelos ida y vuelta</b><p>{money(selectedQuote.flight)} por pasajero · cotización estimada.</p></div>
-          <div><span><Hotel/></span><b>Hotel · {selected.days - 1} noches</b><p>{money(selectedQuote.hotel)} por pasajero · alojamiento seleccionado.</p></div>
-          <div><span><Stethoscope/></span><b>Asistencia al viajero</b><p>{money(selectedQuote.assistance)} por pasajero · cobertura durante la estadía.</p></div>
-        </div>
-        <h2>Detalle de servicios y precios</h2>
-        <ul className="included-list">
-          <li><CheckCircle2/> Vuelos de ida y vuelta · {money(selectedQuote.flight)}</li>
-          <li><CheckCircle2/> Alojamiento · {money(selectedQuote.hotel)}</li>
-          <li><CheckCircle2/> Asistencia al viajero · {money(selectedQuote.assistance)}</li>
-          <li><CheckCircle2/> Traslados aeropuerto – hotel – aeropuerto · sujeto a cotización</li>
-          <li><CheckCircle2/> Soporte digital 24/7</li>
-        </ul>
-        <div className="notice"><ShieldCheck/><span><b>Servicios con precio transparente</b><small>La asistencia al viajero tiene un costo y está discriminada en el total. Los importes son orientativos de esta demostración y deben confirmarse con cada proveedor.</small></span></div>
-      </div>
-      <aside className="booking-card">
-        {selected.tag==="¡Oferta!" && discount(selected)>0 && <span className="discount">{discount(selected)}% OFF</span>}
-        <div className="price-line"><strong>{money(selected.price)}</strong><del>{money(selected.oldPrice)}</del></div>
-        <small>por persona · incluye los servicios cotizados abajo</small>
-        <div className="employee-quote-breakdown"><div><span>Vuelos</span><b>{money(selectedQuote.flight)}</b></div><div><span>Hotel</span><b>{money(selectedQuote.hotel)}</b></div><div><span>Asistencia al viajero</span><b>{money(selectedQuote.assistance)}</b></div></div>
-        <div className="booking-divider"/>
-        <div className="package-fixed-itinerary"><div><MapPin size={15}/><span>Salida desde <b>{selected.departureCity || "A coordinar"}</b></span></div><div><CalendarDays size={15}/><span><b>{formatTravelDate(selected.departureDate)}</b> al <b>{formatTravelDate(selected.returnDate)}</b></span></div></div>
-        <label>Pasajeros<select value={travelers} onChange={e=>setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select></label>
-        <div className="booking-total"><span>Total estimado</span><b>{money(selected.price*travelers)}</b></div>
-        <button className="primary-btn full" onClick={()=>go(user?"checkout":"login")} disabled={!selected.departureCity || !selected.departureDate || !selected.returnDate}>Reservar paquete <ArrowRight size={17}/></button>
-        <p className="booking-safe"><LockKeyhole size={14}/> Reserva segura · Sin cargos ocultos</p>
-      </aside>
-    </div>
-  </main>;
+  const renderDetail = () => routeNotFound
+    ? <main className="package-not-found"><span className="package-section-eyebrow">DESTINO NO DISPONIBLE</span><h1>No encontramos este paquete</h1><p>Puede que haya sido retirado del catálogo o que la dirección no sea correcta.</p><button className="primary-btn" onClick={()=>go("results")}>Ver paquetes disponibles <ArrowRight size={16}/></button></main>
+    : <PackageDetailPage
+        packageData={selected}
+        packages={employeePackages}
+        isFavorite={favorites.includes(selected.id)}
+        favoriteIds={favorites}
+        onToggleFavorite={()=>toggleFavorite(selected.id)}
+        onTogglePackageFavorite={toggleFavorite}
+        onHome={()=>go("home")}
+        onOpenPackage={item=>openPackage(item as Package)}
+        onConsultAvailability={payload=>{
+          setStaffMessages(items=>[{id:Date.now(),name:payload.name,subject:`Disponibilidad · ${selected.name}`,body:`Correo: ${payload.email || "No indicado"} · Teléfono: ${payload.phone || "No indicado"} · Pasajeros: ${payload.travelers} · Fecha solicitada: ${payload.requestedDate || formatTravelDate(selected.departureDate) || "A coordinar"}`,status:"Pendiente"},...items]);
+          setToast("Tu consulta fue enviada. El equipo de MundoGlobal Travel se comunicará con vos.");
+        }}
+        onContact={()=>go("support")}
+      />;
 
   const renderAuthPage = (register = false) => <main className="auth-page">
     <div className="auth-promo"><div className="auth-promo-content">
