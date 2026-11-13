@@ -75,8 +75,7 @@ export default function App() {
   const Header = () => <header className="header">
     <div className="nav-wrap">
       <button className="brand" onClick={() => go("home")} aria-label="Ir al inicio">
-        <span className="brand-mark"><Globe2 size={25}/><Plane size={17} className="brand-plane"/></span>
-        <span><b>MundoGlobal</b><small>Travel</small></span>
+        <img className="brand-logo" src="/images/mundoglobal_travel.svg" alt="MundoGlobal Travel" />
       </button>
       <nav className={mobileMenu ? "nav-links open" : "nav-links"}>
         <button className={page === "home" ? "active" : ""} onClick={() => go("home")}>Inicio</button>
@@ -94,7 +93,7 @@ export default function App() {
 
   const Footer = () => <footer className="footer">
     <div className="footer-grid">
-      <div><div className="brand brand-light"><span className="brand-mark"><Globe2 size={25}/><Plane size={17} className="brand-plane"/></span><span><b>MundoGlobal</b><small>Travel</small></span></div><p>Tu mundo, nuestro destino.<br/>Viajá más lejos, viví más experiencias.</p><div className="socials"><Facebook/><Instagram/><Youtube/><Linkedin/></div></div>
+      <div><div className="brand brand-light"><img className="brand-logo brand-logo-light" src="/images/mundoglobal_travel.svg" alt="MundoGlobal Travel" /></div><p>Tu mundo, nuestro destino.<br/>Viajá más lejos, viví más experiencias.</p><div className="socials"><Facebook/><Instagram/><Youtube/><Linkedin/></div></div>
       <div><b>Explorá</b><button onClick={() => go("results")}>Paquetes</button><button onClick={() => go("results")}>Destinos</button><button onClick={() => go("results")}>Ofertas</button></div>
       <div><b>Ayuda</b><button onClick={() => go("support")}>Preguntas frecuentes</button><button onClick={() => go("support")}>Contacto</button><button onClick={() => go("support")}>Asistencia al viajero</button></div>
       <div><b>Medios de pago</b><div className="payment-tags"><span>VISA</span><span>mastercard</span><span>Transferencia</span></div><p className="secure-note"><ShieldCheck size={16}/> Compra segura y protegida</p></div>
