@@ -2299,3 +2299,19 @@ select:focus-visible{
 
 @media(max-width:850px){.employee-add-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.employee-add-form{grid-template-columns:1fr}}
+
+
+/* Escala de presentación: equivalente visual al zoom 80% de Chrome en escritorio.
+   El ancho compensado mantiene la página ocupando todo el viewport. */
+@media screen and (min-width: 1024px){
+  #root{
+    zoom: .8;
+    width: 125%;
+  }
+}
+@media screen and (max-width: 1023px){
+  #root{
+    zoom: 1;
+    width: 100%;
+  }
+}
