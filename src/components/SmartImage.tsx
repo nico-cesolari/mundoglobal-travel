@@ -30,22 +30,22 @@ export type SmartImageProps = {
 
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
 
-function smartNeedsContain(safeArea: SafeArea | undefined, imageRatio: number, boxRatio: number) {
+function smartNeedsContain(safeArea: SafeArea | undefined, imageRatio: number, boxRatio: number, focalPoint: FocalPoint) {
   if (!safeArea || !imageRatio || !boxRatio) return false;
   let visibleX = 1;
   let visibleY = 1;
   if (imageRatio > boxRatio) visibleX = boxRatio / imageRatio;
   else visibleY = imageRatio / boxRatio;
-  const cropX = (1 - visibleX) / 2;
-  const cropY = (1 - visibleY) / 2;
+  const cropX = (1 - visibleX) * clamp(focalPoint.x) / 100;
+  const cropY = (1 - visibleY) * clamp(focalPoint.y) / 100;
   const left = safeArea.x / 100;
   const top = safeArea.y / 100;
   const right = left + safeArea.w / 100;
   const bottom = top + safeArea.h / 100;
   const visibleLeft = cropX;
   const visibleTop = cropY;
-  const visibleRight = 1 - cropX;
-  const visibleBottom = 1 - cropY;
+  const visibleRight = cropX + visibleX;
+  const visibleBottom = cropY + visibleY;
   const intersectionW = Math.max(0, Math.min(right, visibleRight) - Math.max(left, visibleLeft));
   const intersectionH = Math.max(0, Math.min(bottom, visibleBottom) - Math.max(top, visibleTop));
   const originalArea = Math.max(0.0001, (right - left) * (bottom - top));
@@ -90,11 +90,12 @@ export function SmartImage({
     }
   }, [naturalSize.width, src]);
 
-  const lowResolution = naturalSize.width > 0 && boxSize.width > naturalSize.width;
+  const lowResolution = naturalSize.width > 0 && naturalSize.height > 0 && Math.max(boxSize.width / naturalSize.width, boxSize.height / naturalSize.height) > 1;
   const shouldContain = fit === "contain" || lowResolution || (fit === "smart" && smartNeedsContain(
     safeArea,
     naturalSize.width / Math.max(1, naturalSize.height),
-    boxSize.width / Math.max(1, boxSize.height)
+    boxSize.width / Math.max(1, boxSize.height),
+    focal
   ));
   const ratioStyle = resolvedRatio === "auto" ? undefined : { aspectRatio: resolvedRatio.replace("/", " / ") };
   const roundedStyle = typeof rounded === "number" ? { borderRadius: rounded } : rounded ? undefined : { borderRadius: 0 };
