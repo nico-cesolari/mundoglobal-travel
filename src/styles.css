@@ -843,3 +843,68 @@ select:focus-visible{
   position: relative;
   z-index: 2;
 }
+
+/* Navbar: indicador activo anclado al texto de cada enlace */
+.nav-links {
+  align-items: center;
+}
+
+.nav-links button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: auto;
+  padding: 4px 0;
+  line-height: normal;
+}
+
+.nav-links button.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  width: auto;
+  height: 3px;
+  border-radius: 999px;
+  background: #0754df;
+  opacity: 1;
+  transform: scaleX(1);
+  transform-origin: center;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.nav-links button:not(.active)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 3px;
+  border-radius: 999px;
+  background: #0754df;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+@media (max-width: 650px) {
+  .nav-links {
+    align-items: flex-start;
+  }
+
+  .nav-links button {
+    height: auto;
+    width: fit-content;
+    padding: 4px 0;
+  }
+
+  .nav-links button.active::after,
+  .nav-links button:not(.active)::after {
+    bottom: -6px;
+    left: 0;
+    right: 0;
+    width: auto;
+  }
+}
