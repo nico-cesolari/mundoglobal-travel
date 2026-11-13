@@ -45,9 +45,9 @@ const readDraft = (key: string, fallback = "") => {
 const writeDraft = (key: string, value: string) => {
   try { if (value) localStorage.setItem(key, value); else localStorage.removeItem(key); } catch { /* El formulario sigue funcionando sin almacenamiento local. */ }
 };
-const money = (n: number) => `USD ${n.toLocaleString("es-AR")}`;
-const discount = (p: Package) => Math.round((1 - p.price / p.oldPrice) * 100);
-const formatTravelDate = (value: string) => { if (!value) return "A coordinar"; const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }).replace(".", ""); };
+const money = (n?: number) => typeof n === "number" && Number.isFinite(n) && n > 0 ? `USD ${n.toLocaleString("es-AR")}` : "";
+const discount = (p: Package) => p.price && p.oldPrice && p.oldPrice > p.price ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+const formatTravelDate = (value?: string) => { if (!value) return ""; const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }).replace(".", ""); };
 const packageDuration = (start: string, end: string) => Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86400000) + 1;
 const buildServicePrices = (price: number) => { const flight = Math.max(1, Math.round(price * 0.38)); const hotel = Math.max(1, Math.round(price * 0.54)); return { flight, hotel, assistance: Math.max(1, price - flight - hotel) }; };
 const availableLocalPackageImages = new Set(["/images/cancun.jpg", "/images/roma.jpg", "/images/nueva-york.jpg", "/images/punta-cana.jpg", "/images/camboriu.png", "/images/el-chalten.png", "/images/madrid.png"]);
@@ -94,10 +94,10 @@ const demoIncomeEntries: IncomeEntry[] = [
 ];
 const loadSavedPackages = (): Package[] => {
   const saved = localStorage.getItem("mgt-packages");
-  if (!saved) return packages;
+  if (!saved) return packages.filter(packageHasPhoto).map(enrichPackage);
   try {
     const parsed: unknown = JSON.parse(saved);
-    if (!Array.isArray(parsed)) return packages;
+    if (!Array.isArray(parsed)) return packages.filter(packageHasPhoto).map(enrichPackage);
     const savedPackages = (parsed as Package[]).filter(packageHasPhoto);
     const normalizedPackages = savedPackages.map(savedItem => {
       const defaults = packages.find(item => item.id === savedItem.id);
@@ -106,21 +106,28 @@ const loadSavedPackages = (): Package[] => {
     const missingDefaults = packages.filter(item => packageHasPhoto(item) && !savedPackages.some(savedItem => savedItem.id === item.id));
     return [...normalizedPackages, ...missingDefaults.map(enrichPackage)];
   } catch {
-    return packages;
+    return packages.filter(packageHasPhoto).map(enrichPackage);
   }
 };
 
+const slugifyPackage = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const currentPackageSlug = () => window.location.pathname.match(/^\\/paquetes\\/([^/]+)\\/?$/)?.[1] || "";
+
 export default function App() {
-  const [page, setPage] = useState<Page>("home");
+  const initialSlug = currentPackageSlug();
+  const initialPackages = loadSavedPackages();
+  const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === initialSlug);
+  const [page, setPage] = useState<Page>(() => initialSlug ? "detail" : "home");
+  const [routeNotFound, setRouteNotFound] = useState(Boolean(initialSlug && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
-  const [employeePackages, setEmployeePackages] = useState<Package[]>(loadSavedPackages);
+  const [employeePackages, setEmployeePackages] = useState<Package[]>(initialPackages);
   const [focalEditPackageId, setFocalEditPackageId] = useState(1);
   const [employee, setEmployee] = useState("");
   const [employeeTab, setEmployeeTab] = useState<"overview" | "packages" | "offers" | "quotes" | "income" | "messages" | "bookings">("overview");
   const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>(() => { const saved = readDraft("mgt-income-entries"); if (saved) { try { const parsed = JSON.parse(saved) as IncomeEntry[]; if (Array.isArray(parsed)) return parsed; } catch { /* Datos de demostración. */ } } return demoIncomeEntries; });
   const [incomeConcept, setIncomeConcept] = useState(() => readDraft("mgt-draft-income-concept"));
   const [incomeAmount, setIncomeAmount] = useState(() => readDraft("mgt-draft-income-amount"));
-  const [offerPackageId, setOfferPackageId] = useState(2);
+  const [offerPackageId, setOfferPackageId] = useState(1);
   const [offerPercent, setOfferPercent] = useState("15");
   const [offerEndDate, setOfferEndDate] = useState(() => readDraft("mgt-draft-offer-end"));
   const [quoteDrafts, setQuoteDrafts] = useState<Record<number, { flight: string; hotel: string; assistance: string }>>(() => { const saved = readDraft("mgt-draft-quote-values"); if (saved) { try { return JSON.parse(saved) as Record<number, { flight: string; hotel: string; assistance: string }>; } catch { /* Cotizaciones calculadas desde el precio del paquete. */ } } return {}; });
@@ -134,7 +141,7 @@ export default function App() {
   const [editingPackageId, setEditingPackageId] = useState<number | null>(null);
   const [packageEditDraft, setPackageEditDraft] = useState({ departureCity: "", departureDate: "", returnDate: "", price: "" });
   const [newPackageCategory, setNewPackageCategory] = useState(() => readDraft("mgt-draft-package-category", "Playas"));
-  const [selected, setSelected] = useState<Package>(packages[0]);
+  const [selected, setSelected] = useState<Package>(initialRoutePackage || initialPackages[0] || packages[0]);
   const [query, setQuery] = useState(() => readDraft("mgt-draft-destination"));
   const [origin, setOrigin] = useState(() => readDraft("mgt-draft-origin"));
   const [activeLocationField, setActiveLocationField] = useState<"origin" | "destination" | null>(null);
@@ -167,7 +174,7 @@ export default function App() {
   const [passengerName, setPassengerName] = useState(() => readDraft("mgt-draft-passenger-name", user));
   const [passengerEmail, setPassengerEmail] = useState(() => readDraft("mgt-draft-passenger-email"));
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [activeNav, setActiveNav] = useState("Inicio");
+  const [activeNav, setActiveNav] = useState(initialSlug ? "Paquetes" : "Inicio");
   const [isSearching, setIsSearching] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(() => readDraft("mgt-draft-payment-method"));
   const [authEmail, setAuthEmail] = useState(() => readDraft("mgt-draft-auth-email"));
@@ -232,9 +239,26 @@ export default function App() {
   ]);
 
   useEffect(() => {
-    localStorage.setItem("mgt-packages", JSON.stringify(employeePackages));
+    localStorage.setItem("mgt-packages", JSON.stringify(employeePackages.filter(packageHasPhoto)));
   }, [employeePackages]);
   useEffect(() => { localStorage.setItem("mgt-income-entries", JSON.stringify(incomeEntries)); }, [incomeEntries]);
+
+  useEffect(() => {
+    const handlePackageRoute = () => {
+      const slug = currentPackageSlug();
+      if (slug) {
+        const found = employeePackages.find(item => slugifyPackage(item.name) === slug);
+        setActiveNav("Paquetes"); setPage("detail"); setRouteNotFound(!found);
+        if (found) setSelected(found);
+      } else if (window.location.pathname === "/paquetes") {
+        setRouteNotFound(false); setActiveNav("Paquetes"); setPage("results");
+      } else {
+        setRouteNotFound(false); setActiveNav("Inicio"); setPage("home");
+      }
+    };
+    window.addEventListener("popstate", handlePackageRoute);
+    return () => window.removeEventListener("popstate", handlePackageRoute);
+  }, [employeePackages]);
 
   useEffect(() => {
     const interval = window.setInterval(() => setHeroSlide(current => (current + 1) % 4), 3000);
@@ -247,8 +271,17 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, [toast]);
 
-  const go = (p: Page) => { setPage(p); setMobileMenu(false); if (p !== "results") setActiveNav(p === "home" ? "Inicio" : p === "support" ? "Contacto" : ""); window.scrollTo({ top: 0, behavior: "smooth" }); };
-  const openPackage = (p: Package) => { setSelected(p); go("detail"); };
+  const go = (p: Page) => {
+    setPage(p); setMobileMenu(false); setRouteNotFound(false);
+    if (p !== "results") setActiveNav(p === "home" ? "Inicio" : p === "support" ? "Contacto" : "");
+    if (currentPackageSlug() && p !== "detail") window.history.pushState({}, "", p === "results" ? "/paquetes" : "/");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const openPackage = (p: Package) => {
+    setSelected(p); setActiveNav("Paquetes"); setRouteNotFound(false);
+    window.history.pushState({}, "", `/paquetes/${slugifyPackage(p.name)}`);
+    go("detail");
+  };
   const toggleFavorite = (id: number) => { setAnimatingFavorite(id); window.setTimeout(() => setAnimatingFavorite(current => current === id ? null : current), 480); setFavorites(v => { const next = v.includes(id) ? v.filter(x => x !== id) : [...v, id]; setToast(next.includes(id) ? "¡Paquete guardado en tus favoritos!" : "Paquete quitado de favoritos."); return next; }); };
   const submitSearch = () => {
     if (isSearching) return;
@@ -266,21 +299,20 @@ export default function App() {
   const filtered = useMemo(() => employeePackages.filter(p =>
     (category === "Todos" || p.category === category) &&
     (`${p.name} ${p.country}`.toLowerCase().includes(query.trim().split(",")[0].trim().toLowerCase())) &&
-    p.price >= minPrice &&
-    p.price <= maxPrice &&
+    (!p.price || (p.price >= minPrice && p.price <= maxPrice)) &&
     (!onlyOffers || p.tag === "¡Oferta!") &&
-    (!topRatedOnly || p.rating >= 4.8) &&
+    (!topRatedOnly || (p.rating ?? 0) >= 4.8) &&
     (!date || (p.departureDate === date && p.returnDate === returnDate))
   ), [category, query, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
-  const quoteForPackage = (p: Package) => p.servicePrices ?? buildServicePrices(p.price);
-  const quoteDraftFor = (p: Package) => { const current = quoteForPackage(p); return quoteDrafts[p.id] ?? { flight: String(current.flight), hotel: String(current.hotel), assistance: String(current.assistance) }; };
-  const savePackageQuote = (p: Package) => { const draft = quoteDraftFor(p); const flight = Number(draft.flight); const hotel = Number(draft.hotel); const assistance = Number(draft.assistance); if (![flight, hotel, assistance].every(value => Number.isFinite(value) && value > 0)) { setToast("Ingresá importes válidos para vuelo, hotel y asistencia."); return; } const total = flight + hotel + assistance; setEmployeePackages(items => items.map(item => { if (item.id !== p.id) return item; const keepOffer = item.tag === "¡Oferta!" && total < item.oldPrice; return { ...item, price: total, oldPrice: keepOffer ? item.oldPrice : total, tag: item.tag === "¡Oferta!" && !keepOffer ? undefined : item.tag, offerExpires: keepOffer ? item.offerExpires : undefined, servicePrices: { flight, hotel, assistance } }; })); setQuoteDrafts(items => ({ ...items, [p.id]: { flight: String(flight), hotel: String(hotel), assistance: String(assistance) } })); setToast("Cotización guardada y precio del paquete actualizado."); };
+  const quoteForPackage = (p: Package) => p.servicePrices ?? (p.price ? buildServicePrices(p.price) : undefined);
+  const quoteDraftFor = (p: Package) => { const current = quoteForPackage(p); return quoteDrafts[p.id] ?? { flight: String(current?.flight ?? ""), hotel: String(current?.hotel ?? ""), assistance: String(current?.assistance ?? "") }; };
+  const savePackageQuote = (p: Package) => { if (!p.price) { setToast("Primero configurá el precio de esta salida."); return; } const draft = quoteDraftFor(p); const flight = Number(draft.flight); const hotel = Number(draft.hotel); const assistance = Number(draft.assistance); if (![flight, hotel, assistance].every(value => Number.isFinite(value) && value > 0)) { setToast("Ingresá importes válidos para vuelo, hotel y asistencia."); return; } const total = flight + hotel + assistance; setEmployeePackages(items => items.map(item => { if (item.id !== p.id) return item; const keepOffer = item.tag === "¡Oferta!" && total < item.oldPrice; return { ...item, price: total, oldPrice: keepOffer ? item.oldPrice : total, tag: item.tag === "¡Oferta!" && !keepOffer ? undefined : item.tag, offerExpires: keepOffer ? item.offerExpires : undefined, servicePrices: { flight, hotel, assistance } }; })); setQuoteDrafts(items => ({ ...items, [p.id]: { flight: String(flight), hotel: String(hotel), assistance: String(assistance) } })); setToast("Cotización guardada y precio del paquete actualizado."); };
   const collectedIncome = incomeEntries.filter(entry => entry.status === "Acreditado").reduce((total, entry) => total + entry.amount, 0);
   const pendingIncome = incomeEntries.filter(entry => entry.status === "Pendiente").reduce((total, entry) => total + entry.amount, 0);
   const sortedPackages = useMemo(() => [...filtered].sort((a, b) => {
-    if (sortBy === "price") return a.price - b.price;
-    if (sortBy === "rating") return b.rating - a.rating;
+    if (sortBy === "price") return (a.price ?? Number.POSITIVE_INFINITY) - (b.price ?? Number.POSITIVE_INFINITY);
+    if (sortBy === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
     return Number(Boolean(b.tag)) - Number(Boolean(a.tag));
   }), [filtered, sortBy]);
 
@@ -306,7 +338,7 @@ export default function App() {
   const reserve = () => {
     const cleanName = passengerName.trim();
     const cleanEmail = passengerEmail.trim();
-    if (!selected.departureCity || !selected.departureDate || !selected.returnDate) { setToast("Este paquete todavía no tiene una salida configurada. Contactá a la agencia."); return; }
+    if (!selected.price || !selected.departureCity || !selected.departureDate || !selected.returnDate) { setToast("Este destino todavía no tiene una salida y cotización publicadas. Contactá a la agencia."); return; }
     if (cleanName.length < 3) {
       setToast("Ingresá el nombre y apellido del pasajero principal.");
       return;
