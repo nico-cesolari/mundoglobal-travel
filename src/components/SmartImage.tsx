@@ -81,7 +81,14 @@ export function SmartImage({
 
   useEffect(() => {
     const image = imageRef.current;
-    if (!image) return;
+    if (!image) {
+      // A previous failure removes the img node. If the source changed,
+      // clear that failure so React can mount and load the new source.
+      setLoaded(false);
+      setFailed(false);
+      setNaturalSize({ width: 0, height: 0 });
+      return;
+    }
 
     // A cached image may complete before the effect runs. Read its current
     // state instead of always resetting the loaded UI and showing the skeleton.
