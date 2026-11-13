@@ -13,15 +13,16 @@ type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | 
 type Package = {
   id: number; name: string; country: string; category: string; price: number;
   oldPrice: number; rating: number; reviews: string; days: number; image: string;
+  focalPoint?: { x: number; y: number }; safeArea?: { x: number; y: number; w: number; h: number };
   tag?: string; description: string;
 };
 const packages: Package[] = [
-  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "/images/cancun.jpg", description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
-  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "/images/salvador.jpg", description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
-  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, tag: "¡Oferta!", image: "/images/copacabana.jpg", description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
-  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, image: "/images/roma.jpg", description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
-  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, image: "/images/nueva-york.jpg", description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
-  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, tag: "¡Oferta!", image: "/images/punta-cana.jpg", description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." }
+  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
+  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "/images/salvador.jpg", focalPoint: {x:50,y:50}, description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
+  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, tag: "¡Oferta!", image: "/images/copacabana.jpg", focalPoint: {x:50,y:50}, description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
+  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, image: "/images/roma.jpg", focalPoint: {x:50,y:50}, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
+  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, image: "/images/nueva-york.jpg", focalPoint: {x:50,y:50}, description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
+  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, tag: "¡Oferta!", image: "/images/punta-cana.jpg", focalPoint: {x:50,y:50}, description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." }
 ];
 
 const money = (n: number) => `USD ${n.toLocaleString("es-AR")}`;
@@ -205,7 +206,7 @@ export default function App() {
   </footer>;
 
   const PackageCard = ({ p, featured = false }: {p: Package; featured?: boolean}) => <article className={`package-card ${featured ? "featured" : ""}`}>
-    <div className="package-photo"><SmartImage className="package-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="auto" focalPoint={p.id === 1 ? {x:52,y:48} : {x:50,y:50}} priority={p.id <= 2}/>
+    <div className="package-photo"><SmartImage className="package-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="auto" focalPoint={p.focalPoint} safeArea={p.safeArea} priority={p.id <= 2}/>
       <span className="offer-tag">¡Oferta!</span>
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
@@ -286,7 +287,7 @@ export default function App() {
     </div>
     <div className="destination-grid destination-reference">
       {[packages[0],packages[3],packages[4],packages[5]].map(p=><article className="destination-card" key={p.id}>
-        <div className="destination-photo"><SmartImage className="destination-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="auto" focalPoint={p.id === 1 ? {x:52,y:48} : {x:50,y:50}} priority={p.id === 1}/><button type="button" className={`heart ${favorites.includes(p.id)?"liked":""}`} onClick={()=>toggleFavorite(p.id)} aria-label="Guardar favorito"><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button>{p.id===1&&<span className="destination-badge">★ Más elegido</span>}</div>
+        <div className="destination-photo"><SmartImage className="destination-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="auto" focalPoint={p.focalPoint} safeArea={p.safeArea} priority={p.id === 1}/><button type="button" className={`heart ${favorites.includes(p.id)?"liked":""}`} onClick={()=>toggleFavorite(p.id)} aria-label="Guardar favorito"><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button>{p.id===1&&<span className="destination-badge">★ Más elegido</span>}</div>
         <div className="destination-info"><div><h3>{p.name}</h3><p>{p.id===5?"EE.UU.":p.country} · {p.category}</p><span className="destination-rating"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small></span></div><button className="destination-arrow" onClick={()=>openPackage(p)} aria-label={`Ver ${p.name}`}><ArrowRight size={18}/></button></div>
       </article>)}
     </div>
