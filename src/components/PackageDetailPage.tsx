@@ -28,6 +28,7 @@ export type PackageDetailData = {
   category?: string;
   price?: number;
   oldPrice?: number;
+  originalPrice?: number;
   currency?: string;
   days?: number;
   nights?: number;
@@ -42,6 +43,7 @@ export type PackageDetailData = {
   descriptionTitle?: string;
   rating?: number;
   reviews?: string;
+  reviewCount?: number | string;
   departureCity?: string;
   departureDate?: string;
   returnDate?: string;
@@ -106,8 +108,8 @@ const durationDays = (item: PackageDetailData) => {
 };
 
 const discountAmount = (item: PackageDetailData) =>
-  typeof item.oldPrice === "number" && typeof item.price === "number" && item.oldPrice > item.price
-    ? item.oldPrice - item.price
+  typeof (item.originalPrice ?? item.oldPrice) === "number" && typeof item.price === "number" && (item.originalPrice ?? item.oldPrice)! > item.price
+    ? (item.originalPrice ?? item.oldPrice)! - item.price
     : undefined;
 
 const iconFor = (name?: string) => {
@@ -159,7 +161,7 @@ export function PackageDetailPage({
   const days = durationDays(packageData);
   const savings = discountAmount(packageData);
   const priceLabel = money(packageData.price, packageData.currency || "USD");
-  const originalPriceLabel = money(packageData.oldPrice, packageData.currency || "USD");
+  const originalPriceLabel = money(packageData.originalPrice ?? packageData.oldPrice, packageData.currency || "USD");
   const galleryClass = images.length <= 1 ? "package-gallery package-gallery-single" : images.length === 2 ? "package-gallery package-gallery-double" : "package-gallery";
   const includes = (packageData.includes || []).filter(item => item.title || item.description);
   const infoSections = (packageData.infoSections || []).filter(item => item.title && item.description);
@@ -414,7 +416,7 @@ export function PackageDetailPage({
                 <span className="package-other-country">{item.country || "Destino"}</span>
               </div>
               <div className="package-other-card-body">
-                <div className="package-other-card-heading"><h3>{item.name}</h3>{item.rating && item.rating > 0 && <span><Star size={13} fill="currentColor"/>{item.rating.toFixed(1)} {item.reviews && item.reviews !== "0" ? `(${item.reviews})` : ""}</span>}</div>
+                <div className="package-other-card-heading"><h3>{item.name}</h3>{item.rating && item.rating > 0 && <span><Star size={13} fill="currentColor"/>{item.rating.toFixed(1)} {(item.reviewCount ?? item.reviews) && (item.reviewCount ?? item.reviews) !== "0" ? `(${item.reviewCount ?? item.reviews})` : ""}</span>}</div>
                 {(itemDays || itemHasHotel || itemHasFlight || item.mode) && <p className="package-other-facts">{itemDays && <span><CalendarDays size={13}/>{itemDays} días</span>}{itemHasHotel && <span><BedDouble size={13}/>Hotel</span>}{!itemHasHotel && itemHasFlight && <span><Plane size={13}/>Vuelo</span>}{item.mode && <span><Compass size={13}/>{item.mode}</span>}</p>}
                 {money(item.price, item.currency || "USD") && <div className="package-other-price"><b>Desde {money(item.price, item.currency || "USD")}</b><small>por persona</small>{saved && <span>Ahorrá {money(saved, item.currency || "USD")}</span>}</div>}
                 {item.description && <p className="package-other-description">{item.description}</p>}
