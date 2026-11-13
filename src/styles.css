@@ -347,3 +347,102 @@ select:focus-visible{
   outline:none !important;
   box-shadow:none !important;
 }
+
+
+/* Inicio: hero, destinos y ofertas alineados con la referencia visual */
+.hero-shell{padding-bottom:34px}
+.hero-reference{height:318px;border-radius:24px;background:linear-gradient(105deg,#0756d8 0%,#0877e8 58%,#35a5f5 100%);isolation:isolate}
+.hero-reference:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,55,145,.2),transparent 66%);z-index:0;pointer-events:none}
+.hero-reference .hero-art{position:absolute;z-index:1;right:0;top:0;width:68%;height:100%;background:url("/assets/img/hero-mundo.png") right center/cover no-repeat;mix-blend-mode:normal}
+.hero-reference .hero-copy{padding:34px 5.8%;max-width:560px}
+.hero-reference .eyebrow{background:#ffffff20;border-color:#ffffff45;padding:8px 13px;font-size:11px}
+.hero-reference h1{font-size:clamp(35px,4vw,48px);line-height:1.02;letter-spacing:-1.8px;margin:22px 0 12px}
+.hero-reference h1 em{color:#f7be2d;font-style:normal}
+.hero-reference .hero-copy p{font-size:14px;line-height:1.5;max-width:410px;margin:0 0 18px;color:#fff}
+.hero-reference .hero-buttons{display:flex;gap:10px}
+.hero-reference .yellow-btn{background:#f7be2d;color:#10234b;border-radius:12px;padding:12px 17px;font-weight:800}
+.hero-reference .ghost-btn{border:1px solid #ffffffb8;color:#fff;background:transparent;border-radius:12px;padding:11px 17px}
+.hero-shell>.search-panel{position:relative;z-index:5;margin:-31px auto 0;width:92%;box-shadow:0 12px 30px #123d7828;border:1px solid #e7edf7;border-radius:18px;background:#fff}
+.destinations-section{padding-top:36px;padding-bottom:22px}
+.destinations-section .section-heading,.offers-section .section-heading{display:none}
+.destination-filters{display:flex;gap:8px;margin:0 0 12px;justify-content:flex-start}
+.destination-filters button{display:inline-flex;align-items:center;gap:7px;border:1px solid #e1e7f0;background:#fff;color:#23395d;padding:8px 14px;border-radius:24px;font-size:11px;font-weight:700}
+.destination-filters button.selected{background:#0f1f4d;border-color:#0f1f4d;color:#fff}
+.destination-grid.destination-reference{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.destination-reference .destination-card{height:auto;display:flex;flex-direction:column;padding:0;background:#fff;border:1px solid #e5ebf4;border-radius:15px;overflow:hidden;box-shadow:0 6px 17px #173d7017;text-align:left;min-width:0}
+.destination-reference .destination-photo{height:112px;position:relative;overflow:hidden}
+.destination-reference .destination-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.destination-reference .destination-card:hover .destination-photo img{transform:scale(1.04)}
+.destination-reference .destination-photo .heart{top:8px;right:8px;width:25px;height:25px}
+.destination-reference .destination-badge{position:absolute;left:8px;bottom:7px;border-radius:20px;background:#f7be2d;color:#4c3900;padding:4px 8px;font-size:9px;font-weight:800}
+.destination-reference .destination-info{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 10px 12px;background:#fff;color:#0f1f4d}
+.destination-reference .destination-info h3{margin:0 0 4px;font-size:14px;line-height:1.15;font-weight:800}
+.destination-reference .destination-info p{margin:0 0 7px;color:#64748b;font-size:10px}
+.destination-reference .destination-rating{display:flex;align-items:center;gap:4px;color:#f2ad00;font-size:10px;font-weight:800}
+.destination-reference .destination-rating small{color:#64748b;font-weight:500}
+.destination-reference .destination-arrow{position:static;flex:0 0 29px;width:29px;height:29px;background:#e8f0ff;color:#2250d8}
+.benefit-strip{margin-top:0;margin-bottom:10px}
+.offers-section{padding-top:36px;padding-bottom:40px}
+.offer-grid.offer-reference{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.offer-reference .package-card{border-radius:16px;box-shadow:0 7px 18px #173d7018}
+.offer-reference .package-photo{height:128px;background-size:cover;background-position:center}
+.offer-reference .offer-tag{top:9px;left:10px;background:#f7be2d;color:#4c3900;padding:5px 9px;font-size:9px}
+.offer-reference .heart{top:8px;right:8px;width:25px;height:25px}
+.offer-reference .package-info{padding:11px 12px 12px}
+.offer-reference .package-heading h3{font-size:14px;margin-bottom:4px;color:#0f1f4d}
+.offer-reference .package-heading p{font-size:10px;color:#64748b}
+.offer-rating{display:flex;align-items:center;gap:4px;margin-top:8px;color:#f2ad00;font-size:10px;font-weight:800}
+.offer-rating small{color:#64748b;font-weight:500}
+.offer-rating .discount{margin-left:auto;font-size:9px;padding:5px 8px}
+.offer-reference .price-line{margin:10px 0 9px;gap:7px}
+.offer-reference .price-line strong{font-size:18px;color:#0f1f4d}
+.offer-reference .price-line del{font-size:9px;color:#94a3b8}
+.offer-reserve{width:100%;height:31px;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid #2250d8;border-radius:9px;background:#fff;color:#2250d8;font-size:10px;font-weight:800}
+.offer-reserve:hover{background:#eff5ff}
+@media(max-width:800px){
+ .hero-reference{height:300px}
+ .hero-reference .hero-art{width:65%;opacity:.88;background-position:center}
+ .hero-reference .hero-copy{padding:30px 4%;max-width:58%}
+ .hero-reference h1{font-size:35px}
+ .destination-grid.destination-reference{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .offer-grid.offer-reference{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .benefit-strip{grid-template-columns:repeat(2,1fr);gap:12px}
+ .benefit-strip>div:nth-child(2){border-right:0}
+}
+@media(max-width:520px){
+ .hero-shell{padding-left:12px;padding-right:12px;padding-bottom:26px}
+ .hero-reference{height:345px;border-radius:18px}
+ .hero-reference .hero-art{width:100%;height:48%;top:auto;bottom:0;opacity:.8;background-size:cover;background-position:center}
+ .hero-reference:after{background:linear-gradient(180deg,rgba(0,67,160,.08),rgba(0,65,155,.05) 54%,rgba(0,67,160,.12))}
+ .hero-reference .hero-copy{max-width:100%;padding:24px 20px;z-index:2}
+ .hero-reference h1{font-size:32px;letter-spacing:-1.2px;margin:17px 0 9px}
+ .hero-reference .hero-copy p{font-size:12px;max-width:310px;margin-bottom:13px}
+ .hero-reference .eyebrow{font-size:9px;padding:7px 10px}
+ .hero-reference .yellow-btn,.hero-reference .ghost-btn{padding:10px 12px;font-size:10px}
+ .hero-shell>.search-panel{width:96%;margin-top:-22px}
+ .destinations-section{padding:24px 14px 18px}
+ .destination-filters{overflow-x:auto;padding-bottom:4px;gap:6px}
+ .destination-filters button{white-space:nowrap;padding:8px 11px;font-size:10px}
+ .destination-grid.destination-reference{gap:10px}
+ .destination-reference .destination-photo{height:105px}
+ .destination-reference .destination-info{padding:9px 8px}
+ .destination-reference .destination-info h3{font-size:12px}
+ .destination-reference .destination-info p{font-size:9px}
+ .destination-reference .destination-rating{font-size:9px}
+ .destination-reference .destination-arrow{width:25px;height:25px;flex-basis:25px}
+ .benefit-strip{margin:0 12px 8px;padding:12px 6px}
+ .benefit-strip>div{justify-content:flex-start;gap:7px;padding:0 5px}
+ .benefit-strip>div>span{width:30px;height:30px;flex:0 0 30px}
+ .benefit-strip b{font-size:9px}
+ .benefit-strip small{font-size:8px}
+ .offers-section{padding:26px 14px 30px}
+ .offer-grid.offer-reference{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .offer-reference .package-photo{height:100px}
+ .offer-reference .package-info{padding:9px}
+ .offer-reference .package-heading h3{font-size:12px}
+ .offer-reference .package-heading p{font-size:9px}
+ .offer-rating{font-size:9px;gap:3px;flex-wrap:wrap}
+ .offer-rating .discount{font-size:8px;padding:4px 6px}
+ .offer-reference .price-line strong{font-size:14px}
+ .offer-reference .price-line del{font-size:8px}
+}
