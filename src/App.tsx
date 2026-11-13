@@ -14,12 +14,12 @@ type Package = {
   tag?: string; description: string;
 };
 const packages: Package[] = [
-  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "https://images.unsplash.com/photo-1510097467424-192d713fd8b2?auto=format&fit=crop&w=1000&q=85", description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
-  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=1000&q=85", description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
-  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.8k", days: 5, tag: "¡Oferta!", image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=1000&q=85", description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
-  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.9, reviews: "8.2k", days: 8, image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1000&q=85", description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
-  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, image: "https://images.unsplash.com/photo-1490644658840-3f2e3f8c5625?auto=format&fit=crop&w=1000&q=85", description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
-  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "9.4k", days: 7, tag: "¡Oferta!", image: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1000&q=85", description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." }
+  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "/assets/img/cancun.jpg", description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
+  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "/assets/img/salvador.jpg", description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
+  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, tag: "¡Oferta!", image: "/assets/img/copacabana.jpg", description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
+  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, image: "/assets/img/roma.jpg", description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
+  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, image: "/assets/img/nueva-york.jpg", description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
+  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, tag: "¡Oferta!", image: "/assets/img/punta-cana.jpg", description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." }
 ];
 
 const money = (n: number) => `USD ${n.toLocaleString("es-AR")}`;
@@ -200,14 +200,14 @@ export default function App() {
 
   const PackageCard = ({ p, featured = false }: {p: Package; featured?: boolean}) => <article className={`package-card ${featured ? "featured" : ""}`}>
     <div className="package-photo" style={{backgroundImage:`url(${p.image})`}}>
-      {p.tag && <span className="offer-tag">{p.tag}</span>}
+      <span className="offer-tag">¡Oferta!</span>
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
     <div className="package-info">
-      <div className="package-heading"><div><h3>{p.name}</h3><p>{p.country} <span>·</span> {p.category}</p></div><span className="rating"><Star size={14} fill="currentColor"/> {p.rating}</span></div>
-      <div className="package-meta"><span><Clock3 size={13}/> {p.days} días</span><span className="discount">Hasta {discount(p)}% OFF</span></div>
+      <div className="package-heading"><div><h3>{p.id===2?"Salvador":p.name}</h3><p>{p.country} <span>·</span> Playas</p></div></div>
+      <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small><span className="discount">Hasta {p.id===1?40:p.id===2?35:45}% OFF</span></div>
       <div className="price-line"><strong>{money(p.price)}</strong><del>{money(p.oldPrice)}</del></div>
-      <button className="outline-btn full" onClick={() => openPackage(p)}>Ver paquete <ArrowRight size={16}/></button>
+      <button className="outline-btn full offer-reserve" onClick={() => openPackage(p)}>Reservar <ArrowRight size={16}/></button>
     </div>
   </article>;
 
@@ -238,24 +238,28 @@ export default function App() {
   };
 
   const heroPromotions = [
-    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: packages[0].image, caption: "Experiencias que quedan para siempre" },
-    { packageId: 2, eyebrow: "Oferta especial · Brasil", title: <>Sentí la magia<br/>de <em>Salvador</em></>, description: "Playas, cultura y gastronomía para disfrutar unas vacaciones inolvidables.", action: "Ver oferta", image: packages[1].image, caption: "Salvador de Bahía · 6 días" },
-    { packageId: 6, eyebrow: "Escapada al Caribe", title: <>Tu lugar en<br/><em>el paraíso</em></>, description: "Relajate frente al mar con una experiencia All Inclusive en Punta Cana.", action: "Descubrir Punta Cana", image: packages[5].image, caption: "Punta Cana · 7 días" },
-    { packageId: 4, eyebrow: "Europa te espera", title: <>Una historia<br/>en cada <em>calle</em></>, description: "Viví Roma, su historia, su arquitectura y sus sabores únicos.", action: "Conocer Roma", image: packages[3].image, caption: "Roma · 8 días" }
+    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/assets/img/hero-mundo.png", caption: "" }
   ];
   const activePromotion = heroPromotions[heroSlide];
-  const renderHome = () => <><section className="hero-shell"><div className="hero" style={{backgroundImage:`linear-gradient(90deg,rgba(0,35,95,.88),rgba(0,55,130,.28)),url("${activePromotion.image}")`}}>
-    <div className="hero-copy" key={heroSlide}><span className="eyebrow"><Plane size={14}/> {activePromotion.eyebrow}</span><h1>{activePromotion.title}</h1><p>{activePromotion.description}</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => openPackage(packages.find(p => p.id === activePromotion.packageId) || packages[0])}>{activePromotion.action} <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver todos los viajes</button></div></div>
-    <div className="hero-plane"><Plane size={92}/></div>
-    <div className="hero-caption"><Sparkles size={16}/> {activePromotion.caption}</div>
-    <div className="hero-pagination" aria-label="Promociones destacadas">{heroPromotions.map((slide,index)=><button key={slide.packageId} className={heroSlide===index?"active":""} onClick={()=>setHeroSlide(index)} aria-label={`Ver promoción ${index+1}`}/>)}</div>
+  const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
+    <div className="hero-art" aria-hidden="true"/>
+    <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está<br/>esperando <em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
   </div>{renderSearchBar()}</section>
-  <section className="section destinations-section"><div className="section-heading"><div><span className="kicker">INSPIRATE PARA TU PRÓXIMO VIAJE</span><h2>Destinos que te van a enamorar</h2><p>Elegí tu próxima aventura entre los favoritos de nuestros viajeros.</p></div><button className="text-link" onClick={() => go("results")}>Ver todos los destinos <ArrowRight size={16}/></button></div>
-    <div className="category-row">{["Todos","Playas","Ciudades","Aventuras","Cultura"].map(c=><button key={c} className={category===c?"selected":""} onClick={()=>setCategory(c)}>{c}</button>)}</div>
-    <div className="destination-grid">{packages.slice(0,4).map(p=><button className="destination-card" key={p.id} onClick={()=>openPackage(p)}><img src={p.image}/><span className="destination-overlay"/><span className="destination-title">{p.name}<small>{p.country} · {p.category}</small></span><span className="destination-arrow"><ArrowRight size={18}/></span></button>)}</div>
+  <section className="section destinations-section">
+    <div className="category-row destination-filters">
+      {[{name:"Todos",icon:null},{name:"Playas",icon:<Plane size={14}/>},{name:"Ciudades",icon:<Hotel size={14}/>},{name:"Aventuras",icon:<Sparkles size={14}/>},{name:"Cultura",icon:<Star size={14}/>}].map(item=><button type="button" key={item.name} className={category===item.name?"selected":""} onClick={()=>setCategory(item.name)}>{item.icon}{item.name}</button>)}
+    </div>
+    <div className="destination-grid destination-reference">
+      {[packages[0],packages[3],packages[4],packages[5]].map(p=><article className="destination-card" key={p.id}>
+        <div className="destination-photo"><img src={p.image} alt={p.name}/><button type="button" className={`heart ${favorites.includes(p.id)?"liked":""}`} onClick={()=>toggleFavorite(p.id)} aria-label="Guardar favorito"><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button>{p.id===1&&<span className="destination-badge">★ Más elegido</span>}</div>
+        <div className="destination-info"><div><h3>{p.name}</h3><p>{p.id===5?"EE.UU.":p.country} · {p.category}</p><span className="destination-rating"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small></span></div><button className="destination-arrow" onClick={()=>openPackage(p)} aria-label={`Ver ${p.name}`}><ArrowRight size={18}/></button></div>
+      </article>)}
+    </div>
   </section>
   <section className="benefit-strip"><div><span><Plane/></span><b>Turnos y pagos<small>100% online</small></b></div><div><span><ShieldCheck/></span><b>Compra segura<small>Tus datos protegidos</small></b></div><div><span><Headphones/></span><b>Atención al cliente<small>Soporte 24/7</small></b></div><div><span><CreditCard/></span><b>Múltiples medios<small>de pago</small></b></div></section>
-  <section className="section offers-section"><div className="section-heading"><div><span className="kicker">OPORTUNIDADES PARA VIAJAR</span><h2>Ofertas que no te podés perder</h2><p>Paquetes integrales para disfrutar sin preocupaciones.</p></div><button className="text-link" onClick={()=>go("results")}>Ver todas las ofertas <ArrowRight size={16}/></button></div><div className="offer-grid">{packages.filter(p=>p.tag==="¡Oferta!").map(p=><PackageCard p={p} featured key={p.id}/>)}</div></section>
+  <section className="section offers-section">
+    <div className="offer-grid offer-reference">{[packages[0],packages[1],packages[2]].map(p=><PackageCard p={p} featured key={p.id}/>)}</div>
+  </section>
   <section className="trust-section"><div className="trust-card"><div className="stars">★★★★★</div><h3>Miles de viajeros ya confían en nosotros</h3><p>Calidad y experiencias únicas en todo el mundo.</p><b>+50.000 viajeros</b></div><div className="trust-card"><div className="stars">★★★★★</div><h3>Los mejores precios del mercado</h3><p>Encontrá las mejores ofertas y ahorrá más.</p><b><ShieldCheck size={17}/> Compra segura</b></div><div className="trust-card"><div className="stars">★★★★★</div><h3>Atención personalizada</h3><p>Estamos para ayudarte en todo momento.</p><b><MessageCircle size={17}/> Chat 24/7</b></div></section>
   <section className="newsletter"><div className="newsletter-icon"><Mail/></div><div><h3>¿Buscás más ayuda?</h3><p>Suscribite y recibí las mejores ofertas en tu email.</p></div><form onSubmit={e=>{e.preventDefault();setToast("¡Gracias por suscribirte!");}}><input type="email" required placeholder="Tu email aquí..."/><button className="yellow-btn">Suscribirme <ArrowRight size={15}/></button></form></section>
   </>;
