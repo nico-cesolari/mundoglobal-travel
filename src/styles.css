@@ -832,3 +832,14 @@ select:focus-visible{
   .hero-reference .yellow-btn,.hero-reference .ghost-btn{flex:1;padding:0 9px;font-size:11px}
   .hero-service-tabs button{padding:0 8px;font-size:10px}
 }
+
+/* Sin una segunda capa azul sobre la fotografía */
+.hero-reference::after {
+  content: none;
+}
+
+/* Contenido por encima de las capas visuales */
+.hero-reference .hero-copy {
+  position: relative;
+  z-index: 2;
+}
