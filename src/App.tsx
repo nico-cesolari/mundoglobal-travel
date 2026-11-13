@@ -41,6 +41,8 @@ export default function App() {
   const [activeLocationField, setActiveLocationField] = useState<"origin" | "destination" | null>(null);
   const locationOptions = ["Buenos Aires, Argentina", "Córdoba, Argentina", "Villa María, Córdoba, Argentina", "Leones, Córdoba, Argentina", "Mendoza, Argentina", "Bariloche, Argentina", "Salta, Argentina", "Iguazú, Misiones, Argentina", "Montevideo, Uruguay", "Punta del Este, Uruguay", "Santiago, Chile", "Río de Janeiro, Brasil", "São Paulo, Brasil", "Salvador de Bahía, Brasil", "Florianópolis, Brasil", "Cancún, México", "Ciudad de México, México", "Punta Cana, República Dominicana", "Nueva York, Estados Unidos", "Miami, Estados Unidos", "Madrid, España", "Barcelona, España", "Roma, Italia", "París, Francia", "Londres, Reino Unido"];
   const [category, setCategory] = useState("Todos");
+  const [activeService, setActiveService] = useState("Paquetes");
+  const [accommodation, setAccommodation] = useState("Todos");
   const today = new Date();
   const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   const [date, setDate] = useState(todayISO);
@@ -212,27 +214,46 @@ export default function App() {
   </article>;
 
   const renderSearchBar = () => {
-    const renderLocationField = (field: "origin" | "destination") => {
-      const value = field === "origin" ? origin : query;
-      const setValue = field === "origin" ? setOrigin : setQuery;
-      const matches = locationOptions.filter(place => place.toLowerCase().includes(value.trim().toLowerCase())).slice(0, 7);
-      return <div className={`search-field location-field ${activeLocationField === field ? "location-focused" : ""}`}>
-        <MapPin size={19}/>
-        <span>
-          <small>{field === "origin" ? "Origen" : "Destino"}</small>
-          <input value={value} onChange={e => setValue(e.target.value)} onFocus={() => setActiveLocationField(field)} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === field ? null : current), 140)} placeholder={field === "origin" ? "¿Desde dónde salís?" : "¿A dónde querés ir?"} autoComplete="off" />
-          {activeLocationField === field && value.trim().length > 0 && <div className="location-suggestions">
-            {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setValue(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
+    const displayDate = (value: string) => {
+      if (!value) return "Elegí fecha";
+      const [year, month, day] = value.split("-").map(Number);
+      return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short" }).replace(".", "");
+    };
+    const matches = locationOptions.filter(place => place.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 7);
+    return <div className="search-panel">
+      <div className={`search-field location-field destination-search-field ${activeLocationField === "destination" ? "location-focused" : ""}`}>
+        <span className="field-icon"><MapPin size={18}/></span>
+        <span className="search-field-copy">
+          <small>Destino</small>
+          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="¿A dónde querés ir?" autoComplete="off" />
+          {activeLocationField === "destination" && query.trim().length > 0 && <div className="location-suggestions">
+            {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setQuery(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
           </div>}
         </span>
-      </div>;
-    };
-    return <div className="search-panel">
-      {renderLocationField("origin")}
-      {renderLocationField("destination")}
-      <label className="search-field"><CalendarDays/><span><small>Fecha de ida</small><input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate < nextDate) setReturnDate(nextDate); }} aria-label="Fecha de ida"/></span></label>
-      <label className="search-field"><CalendarDays/><span><small>Fecha de vuelta</small><input type="date" value={returnDate} min={date} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/></span></label>
-      <label className="search-field"><Users/><span><small>Pasajeros</small><select value={travelers} onChange={e => setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select></span></label>
+      </div>
+      <div className="search-field date-range-field">
+        <span className="field-icon"><CalendarDays size={18}/></span>
+        <span className="search-field-copy">
+          <small>Fechas</small>
+          <strong>{displayDate(date)} – {displayDate(returnDate)}</strong>
+          <span className="date-range-inputs">
+            <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate < nextDate) setReturnDate(nextDate); }} aria-label="Fecha de ida"/>
+            <input type="date" value={returnDate} min={date} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
+          </span>
+        </span>
+      </div>
+      <label className="search-field select-search-field">
+        <span className="field-icon"><Users size={18}/></span>
+        <span className="search-field-copy"><small>Pasajeros</small>
+          <select value={travelers} onChange={e => setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select>
+        </span>
+      </label>
+      <label className="search-field select-search-field accommodation-field">
+        <span className="field-icon"><Hotel size={18}/></span>
+        <span className="search-field-copy"><small>Alojamiento</small>
+          <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>Hotel 3 estrellas</option><option>Hotel 4 estrellas</option><option>Hotel 5 estrellas</option><option>All Inclusive</option></select>
+        </span>
+      </label>
       <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
     </div>;
   };
@@ -243,9 +264,22 @@ export default function App() {
   const activePromotion = heroPromotions[heroSlide];
   const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
     <div className="hero-art" aria-hidden="true"><img src="/images/hero-mundo.png" alt="" fetchPriority="high" /></div>
-    <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está<br/>esperando <em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
-  </div>{renderSearchBar()}</section>
-  <section className="section destinations-section">
+    <div className="hero-copy">
+      <span className="eyebrow hero-trust-badge"><Plane size={13} fill="currentColor"/> Más de 2 millones de viajeros felices</span>
+      <h1>El mundo está<br/>esperando <em>por vos</em></h1>
+      <p>Encontrá tu próximo viaje en un solo lugar: vuelos, hoteles y paquetes con atención personalizada.</p>
+      <div className="hero-buttons">
+        <button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={17}/></button>
+        <button className="ghost-btn" onClick={() => { setActiveService("Paquetes"); go("results"); }}><Tag size={15}/> Ver oferta</button>
+      </div>
+      <div className="hero-service-tabs" role="tablist" aria-label="Tipo de servicio">
+        <button type="button" role="tab" aria-selected={activeService === "Paquetes"} className={activeService === "Paquetes" ? "active" : ""} onClick={() => setActiveService("Paquetes")}><Globe2 size={16}/> Paquetes</button>
+        <button type="button" role="tab" aria-selected={activeService === "Vuelos"} className={activeService === "Vuelos" ? "active" : ""} onClick={() => setActiveService("Vuelos")}><Plane size={16}/> Vuelos</button>
+        <button type="button" role="tab" aria-selected={activeService === "Hoteles"} className={activeService === "Hoteles" ? "active" : ""} onClick={() => setActiveService("Hoteles")}><Hotel size={16}/> Hoteles</button>
+        <button type="button" role="tab" aria-selected={activeService === "Autos"} className={activeService === "Autos" ? "active" : ""} onClick={() => setActiveService("Autos")}><Luggage size={16}/> Autos</button>
+      </div>
+    </div>
+  </div>{renderSearchBar()}</section>  <section className="section destinations-section">
     <div className="category-row destination-filters">
       {[{name:"Todos",icon:null},{name:"Playas",icon:<Plane size={14}/>},{name:"Ciudades",icon:<Hotel size={14}/>},{name:"Aventuras",icon:<Sparkles size={14}/>},{name:"Cultura",icon:<Star size={14}/>}].map(item=><button type="button" key={item.name} className={category===item.name?"selected":""} onClick={()=>setCategory(item.name)}>{item.icon}{item.name}</button>)}
     </div>
