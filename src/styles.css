@@ -2439,3 +2439,47 @@ body{
 .employee-quote-read-total span{font-size:10px;color:#78879b}
 .employee-quote-read-total b{font-size:15px;color:#1e4fd8}
 @media(max-width:560px){.employee-quote-read-list>article{padding:14px}.employee-quote-read-services{gap:6px}.employee-quote-read-services>div{grid-template-columns:1fr;justify-items:start;padding:9px 7px}.employee-quote-read-services svg{grid-row:auto}.employee-quote-read-services span{font-size:9px}.employee-quote-read-services b{font-size:10px}.employee-quote-read-heading b{font-size:12px}}
+
+
+/* Pantallas de acceso: fondo continuo hasta el final del viewport y footer completo */
+html,body,#root{min-height:100%;background:#f4f7fc}
+#root{min-height:100vh;display:flex;flex-direction:column}
+#root>.auth-page{flex:1 0 auto;width:100%;min-height:calc(100vh - 190px);background:#f4f7fc}
+#root>.footer{width:100%;flex-shrink:0;box-sizing:border-box;background:#071d49}
+.auth-page{box-sizing:border-box;min-height:calc(100vh - 190px);align-items:stretch;background:#f4f7fc}
+.auth-promo{min-height:100%;background:linear-gradient(145deg,#071d50 0%,#1248b8 58%,#2878e8 100%)}
+.auth-form-side{min-height:100%;box-sizing:border-box;background:linear-gradient(180deg,#fff 0%,#f4f7fc 100%)}
+.auth-form{padding:34px 0}
+@media(max-width:760px){
+  #root>.auth-page{min-height:auto}
+  .auth-page{grid-template-columns:1fr;min-height:0}
+  .auth-promo{min-height:260px}
+  .auth-promo-content{padding:34px 26px}
+  .auth-promo h1{font-size:32px;margin:18px 0 10px}
+  .auth-promo ul{grid-template-columns:1fr;gap:9px;margin-top:18px}
+  .promo-globe{right:-65px;bottom:-120px}
+  .auth-form-side{padding:38px 22px 48px}
+  .auth-form{padding:0}
+}
+@media(min-width:761px){
+  #root>.auth-page{min-height:calc(100vh - 210px)}
+  .auth-promo,.auth-form-side{min-height:calc(100vh - 210px)}
+}
+.search-panel{grid-template-columns:minmax(145px,1fr) minmax(145px,1fr) minmax(170px,1.1fr) minmax(115px,.7fr) minmax(135px,.9fr) 142px}
+.search-panel .date-range-field{align-items:flex-start}
+.search-panel .date-range-field .search-field-copy{gap:5px}
+.search-panel .visible-date-input{display:block;width:100%;min-width:0;padding:3px 0;color:#526581;font-size:11px;background:transparent}
+.search-panel .return-date-label{margin-top:4px}
+.search-panel .date-range-inputs{display:none}
+.search-panel .origin-search-field{position:relative}
+.search-panel .location-field{position:relative}
+@media(max-width:1050px){
+  .hero-shell>.search-panel,.results-search .search-panel{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .search-panel .search-field:nth-of-type(2),.search-panel .search-field:nth-of-type(4){border-right:0}
+}
+@media(max-width:650px){
+  .search-panel{grid-template-columns:1fr!important}
+  .search-panel .search-field{border-right:0;border-bottom:1px solid #e7edf5;padding:12px 10px}
+  .search-panel .date-range-field{min-height:112px}
+  .search-panel .visible-date-input{font-size:13px}
+}
