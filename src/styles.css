@@ -2274,3 +2274,23 @@ select:focus-visible{
  .employee-sidebar{grid-template-columns:repeat(2,minmax(0,1fr))}
  .employee-sidebar>b,.employee-api{grid-column:span 2}
 }
+
+
+/* Edición de cotizaciones por paquete desde el portal interno */
+.employee-quote-edit-list{display:grid;gap:12px}
+.employee-quote-edit-list>article{padding:14px;border:1px solid #e5ebf4;border-radius:12px;background:#fff}
+.employee-quote-edit-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
+.employee-quote-edit-heading>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.employee-quote-edit-heading b{font-size:11px;color:#243d60}
+.employee-quote-edit-heading small{font-size:9px;color:#8390a4}
+.employee-quote-edit-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.employee-quote-edit-inputs label{display:flex;flex-direction:column;gap:6px;font-size:9px;font-weight:700;color:#52647e}
+.employee-quote-edit-inputs input{width:100%;min-width:0;height:38px;padding:0 10px;border:1px solid #dce5f2;border-radius:8px;background:#fff;color:#283f60;font:inherit;font-size:10px}
+.employee-quote-edit-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;padding-top:11px;border-top:1px solid #edf1f6}
+.employee-quote-edit-footer small{font-size:9px;color:#64748b}
+.employee-quote-edit-footer .primary-btn{display:flex;align-items:center;gap:7px;padding:9px 12px;font-size:9px;white-space:nowrap}
+@media(max-width:650px){
+ .employee-quote-edit-inputs{grid-template-columns:1fr}
+ .employee-quote-edit-footer{align-items:flex-start;flex-direction:column}
+ .employee-quote-edit-footer .primary-btn{width:100%;justify-content:center}
+}
