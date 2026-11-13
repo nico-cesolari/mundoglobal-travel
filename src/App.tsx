@@ -260,13 +260,23 @@ export default function App() {
     </div>;
   };
 
-  const heroPromotions = [
-    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está esperando<br/> <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/images/hero-mundo.svg", caption: "" }
-  ];
-  const activePromotion = heroPromotions[heroSlide];
   const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
     <div className="hero-art" aria-hidden="true"><img src="/images/hero-mundo.svg" alt="" fetchPriority="high" /></div>
-    <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está esperando <br/><em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
+    <div className="hero-copy">
+      <span className="eyebrow hero-trust-badge"><Plane size={15} fill="currentColor"/> Más de 2 millones de viajeros felices</span>
+      <h1>El mundo está<br/><span className="hero-title-line">esperando <em>por vos<svg className="hero-brush" viewBox="0 0 220 18" preserveAspectRatio="none" aria-hidden="true"><path d="M3 12 C55 2 128 4 215 9 C158 13 65 17 3 12Z" fill="#F5B93A"/></svg></em></span></h1>
+      <p>Encontrá tu próximo viaje en un solo lugar: vuelos, hoteles y paquetes con atención personalizada.</p>
+      <div className="hero-buttons">
+        <button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button>
+        <button className="ghost-btn" onClick={() => go("results")}><Tag size={16}/> Ver oferta</button>
+      </div>
+      <div className="hero-service-tabs" aria-label="Servicios de viaje">
+        <button className="active" type="button" onClick={() => go("results")}><Globe2 size={17}/> Paquetes</button>
+        <button type="button" onClick={() => go("results")}><Plane size={17}/> Vuelos</button>
+        <button type="button" onClick={() => go("results")}><Hotel size={17}/> Hoteles</button>
+        <button type="button" onClick={() => go("results")}><CarFront size={17}/> Autos</button>
+      </div>
+    </div>
   </div>{renderSearchBar()}</section>
   <section className="section destinations-section">
     <div className="category-row destination-filters">
