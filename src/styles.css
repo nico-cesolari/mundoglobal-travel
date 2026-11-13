@@ -1805,12 +1805,12 @@ select:focus-visible{
   overflow:hidden!important;
   background-color:#1E4FD8!important;
 }
-.hero-reference .hero-art img{
+.hero-reference .hero-art .smart-image-main{
   position:absolute!important;
   left:0!important;
   right:0!important;
-  bottom:0!important;
-  top:auto!important;
+  top:0!important;
+  bottom:auto!important;
   width:100%!important;
   height:115%!important;
   object-fit:cover!important;
@@ -1828,7 +1828,9 @@ select:focus-visible{
 }
 @media(max-width:1023px){
   .hero-shell{padding-top:10px}
-  .hero-reference .hero-art img{
+  .hero-reference .hero-art .smart-image-main{
+    top:0!important;
+    bottom:auto!important;
     height:115%!important;
     object-position:70% 0%!important;
     transform:none!important;
