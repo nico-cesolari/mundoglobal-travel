@@ -1786,7 +1786,6 @@ select:focus-visible{
 .employee-package-list .employee-package-smart-image{width:58px;height:48px;flex:0 0 58px;aspect-ratio:auto;border-radius:8px}
 .checkout-destination .checkout-smart-image{width:100px;height:72px;flex:0 0 100px;aspect-ratio:auto;border-radius:10px}
 .checkout-destination>div:not(.smart-image){display:flex;flex-direction:column;gap:5px}
-.smart-image.is-low-resolution .smart-image-main{width:auto;height:auto;max-width:100%;max-height:100%;inset:0;margin:auto;object-fit:contain}
 .smart-image.uses-contain .smart-image-main{object-fit:contain}
 .smart-image-backdrop{pointer-events:none}
 @media(max-width:767px){
@@ -1840,104 +1839,6 @@ select:focus-visible{
     padding-top:64px!important;
   }
 }
-
-/* Buscador de viajes: origen, destino, ida, vuelta y cantidad de pasajeros */
-.hero-shell>.search-panel,
-.results-search .search-panel{
-  grid-template-columns:
-    minmax(155px,1.2fr)
-    minmax(155px,1.2fr)
-    minmax(145px,1fr)
-    minmax(145px,1fr)
-    minmax(125px,.85fr)
-    126px;
-}
-.search-panel .origin-search-field,
-.search-panel .destination-search-field{
-  position:relative;
-  z-index:6;
-}
-.search-panel .origin-search-field.location-focused,
-.search-panel .destination-search-field.location-focused{
-  z-index:12;
-}
-.search-panel .date-search-field .search-field-copy{
-  min-width:0;
-  overflow:hidden;
-}
-.search-panel .date-search-field input[type="date"]{
-  display:block;
-  width:100%;
-  min-width:0;
-  max-width:100%;
-  min-height:22px;
-  padding:0;
-  border:0;
-  outline:0;
-  background:transparent;
-  color:#172b4d;
-  font-size:13px;
-  line-height:1.35;
-  font-weight:750;
-  cursor:pointer;
-  box-shadow:none!important;
-  color-scheme:light;
-}
-.search-panel .date-search-field input[type="date"]::-webkit-calendar-picker-indicator{
-  cursor:pointer;
-  opacity:.75;
-}
-.search-panel .passengers-search-field select{
-  cursor:pointer;
-}
-.search-panel .location-suggestions{
-  position:absolute;
-  top:calc(100% + 14px);
-  left:-10px;
-  width:max(100%,260px);
-  max-width:min(340px,80vw);
-  z-index:40;
-}
-@media(min-width:768px) and (max-width:1050px){
-  .hero-shell>.search-panel,
-  .results-search .search-panel{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:0;
-  }
-  .search-panel .search-button{
-    grid-column:1/-1;
-    margin:8px 4px 2px;
-    width:calc(100% - 8px);
-  }
-}
-@media(max-width:767px){
-  .hero-shell>.search-panel,
-  .results-search .search-panel{
-    grid-template-columns:minmax(0,1fr);
-    gap:0;
-  }
-  .search-panel .search-field{
-    min-height:58px;
-    padding:8px 5px;
-    border-right:0!important;
-    border-bottom:1px solid #edf0f5;
-  }
-  .search-panel .date-search-field input[type="date"]{
-    min-height:24px;
-    font-size:14px;
-  }
-  .search-panel .search-button{
-    grid-column:auto;
-    width:100%;
-    margin:9px 0 1px;
-  }
-  .search-panel .location-suggestions{
-    left:-5px;
-    width:calc(100% + 10px);
-    max-width:calc(100vw - 70px);
-  }
-}
-
 
 /* Hero de detalle: imagen a ancho completo y contenido alineado al contenedor */
 .header{
@@ -2301,17 +2202,56 @@ select:focus-visible{
 @media(max-width:600px){.employee-add-form{grid-template-columns:1fr}}
 
 
-/* Escala de presentación: equivalente visual al zoom 80% de Chrome en escritorio.
-   El ancho compensado mantiene la página ocupando todo el viewport. */
-@media screen and (min-width: 1024px){
-  #root{
-    zoom: .8;
-    width: 125%;
-  }
+/* Vista global al 80%: un único factor de escala, sin ensanchar el root */
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
 }
-@media screen and (max-width: 1023px){
-  #root{
-    zoom: 1;
-    width: 100%;
-  }
+body{
+  zoom:.8;
+}
+#root{
+  width:100%;
+  max-width:100%;
+  min-width:320px;
+  margin:0 auto;
+}
+
+/* Los principales bloques comparten un único eje y un máximo común */
+.nav-wrap,.hero-shell,.destinations-section,.section{
+  box-sizing:border-box;
+  width:100%;
+  max-width:1280px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.nav-wrap,.hero-shell,.destinations-section,.section{
+  padding-left:24px;
+  padding-right:24px;
+}
+.hero-shell>.search-panel{
+  box-sizing:border-box;
+  width:100%;
+  max-width:none;
+}
+.destination-grid.destination-reference{
+  width:100%;
+  max-width:100%;
+}
+
+/* Las imágenes de tarjetas llenan el marco en 4:3 con object-fit: cover */
+.package-photo,.destination-photo{
+  position:relative;
+  width:100%;
+  height:auto;
+  aspect-ratio:4/3;
+  overflow:hidden;
+}
+.package-photo>.smart-image,.destination-photo>.smart-image{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  aspect-ratio:4/3;
 }
