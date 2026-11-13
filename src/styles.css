@@ -218,3 +218,39 @@ input[type="date"]::-webkit-calendar-picker-indicator { cursor:pointer; opacity:
 @keyframes favorite-pop{0%{transform:scale(1)}35%{transform:scale(1.32)}65%{transform:scale(.88)}100%{transform:scale(1)}}
 .heart:hover{transform:scale(1.12)}
 @media(max-width:650px){.account-favorites-grid{grid-template-columns:1fr}.profile-edit-form .primary-btn{width:100%}.contact-phone{padding:12px}}
+
+
+/* Ajustes de interacción solicitados */
+.nav-links{gap:27px}
+.nav-links button{padding-bottom:5px}
+.nav-links button.active:after{bottom:0}
+@media(max-width:650px){.nav-links{gap:0}.nav-links button{padding-bottom:9px}.nav-links button.active:after{bottom:3px;width:100%;left:0}}
+/* El foco de campos es sutil: sin contorno azul intenso */
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;outline-offset:0}
+.auth-form input:not([type=checkbox]):focus,.contact-box input:focus,.contact-box textarea:focus,
+.checkout-box input:focus,.booking-card input:focus,.booking-card select:focus,
+.search-field input:focus,.search-field select:focus,.profile-edit-form input:focus,
+.assistant-compose input:focus{outline:none;box-shadow:0 0 0 2px #dce8f8;border-color:#9bb6d8}
+.heart.liked{animation:none}
+.heart.animate-heart{animation:favorite-pop .48s cubic-bezier(.2,.9,.3,1.4)}
+.heart.animate-heart svg{filter:drop-shadow(0 2px 6px #e94e7980)}
+.search-button{position:relative;overflow:hidden}
+.search-button.searching{opacity:.9;pointer-events:none}
+.search-spinner{width:15px;height:15px;border:2px solid #ffffff70;border-top-color:#fff;border-radius:50%;display:inline-block;animation:search-spin .65s linear infinite}
+@keyframes search-spin{to{transform:rotate(360deg)}}
+.search-button.searching:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,#ffffff35 50%,transparent 80%);transform:translateX(-100%);animation:search-shimmer .8s ease-in-out infinite}
+@keyframes search-shimmer{to{transform:translateX(100%)}}
+.payment-method-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:13px 0 17px}
+.payment-method{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:13px;border:1px solid #e1e8f2;border-radius:12px;background:#fff;text-align:left;transition:border-color .18s,background .18s,transform .18s}
+.payment-method:hover{border-color:#a9bfdf;transform:translateY(-2px)}
+.payment-method.chosen{border:2px solid #1769df;background:#f5f9ff;padding:12px;box-shadow:0 5px 15px #1769df14}
+.payment-method>b{font-size:11px;color:#263b5c}
+.payment-method>small{font-size:9px;color:#8794aa}
+.payment-visual{height:42px;width:76px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:-.5px}
+.card-visa{background:linear-gradient(135deg,#123b80,#1769df);color:#fff;font-size:19px;font-style:italic}
+.card-master{background:#18233c;position:relative}
+.card-master i{width:23px;height:23px;border-radius:50%;background:#eb4545;display:block}
+.card-master i+i{margin-left:-8px;background:#f3a12c;opacity:.95}
+.mercado-logo{background:#e7f6ff;color:#0878b9;font-size:10px}
+.transfer-visual{background:#eef3fa;color:#38608e}
+@media(max-width:650px){.payment-method-grid{gap:8px}.payment-method{padding:10px}.payment-method.chosen{padding:9px}.payment-method>b{font-size:10px}}
