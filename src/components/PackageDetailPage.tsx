@@ -68,6 +68,8 @@ type Props = {
   packages: PackageDetailData[];
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  favoriteIds: number[];
+  onTogglePackageFavorite: (id: number) => void;
   onHome: () => void;
   onOpenPackage: (item: PackageDetailData) => void;
   onConsultAvailability: (payload: InquiryPayload) => void;
@@ -133,6 +135,8 @@ export function PackageDetailPage({
   packages,
   isFavorite,
   onToggleFavorite,
+  favoriteIds,
+  onTogglePackageFavorite,
   onHome,
   onOpenPackage,
   onConsultAvailability,
@@ -140,6 +144,7 @@ export function PackageDetailPage({
 }: Props) {
   const images = (packageData.images?.length ? packageData.images : [packageData.image]).filter(Boolean);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [favoritePulse, setFavoritePulse] = useState(false);
   const [activeInfo, setActiveInfo] = useState<PackageInfoSection | null>(null);
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [travelerCount, setTravelerCount] = useState(2);
@@ -234,6 +239,14 @@ export function PackageDetailPage({
     touchStartX.current = null;
   };
 
+  useEffect(() => {
+    if (!activeInfo && !availabilityOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") { setActiveInfo(null); setAvailabilityOpen(false); } };
+    window.addEventListener("keydown", closeOnEscape);
+    document.body.classList.add("package-modal-open");
+    return () => { window.removeEventListener("keydown", closeOnEscape); document.body.classList.remove("package-modal-open"); };
+  }, [activeInfo, availabilityOpen]);
+
   const sharePackage = async () => {
     const shareData = { title: packageData.name, text: packageData.description || `Conocé ${packageData.name} con MundoGlobal Travel`, url: window.location.href };
     try {
@@ -308,12 +321,12 @@ export function PackageDetailPage({
           </div>
           <div className="package-detail-actions">
             <button type="button" onClick={sharePackage}><Share2 size={16}/> Compartir</button>
-            <button type="button" className={isFavorite ? "is-favorite" : ""} onClick={onToggleFavorite} aria-pressed={isFavorite}><Heart size={17} fill={isFavorite ? "currentColor" : "none"}/> Favorito</button>
+            <button type="button" className={`${isFavorite ? "is-favorite" : ""} ${favoritePulse ? "favorite-pop" : ""}`} onClick={()=>{setFavoritePulse(true);onToggleFavorite();window.setTimeout(()=>setFavoritePulse(false),520);}} aria-pressed={isFavorite}><Heart size={17} fill={isFavorite ? "currentColor" : "none"}/> Favorito</button>
           </div>
         </div>
         <div className="package-detail-subrow">
           {packageData.country && <span><MapPin size={16}/>{packageData.country}</span>}
-          {packageData.rating && packageData.rating > 0 && <span><Star size={16} fill="currentColor"/>{packageData.rating.toFixed(1)} {packageData.reviews ? `· ${packageData.reviews} opiniones` : ""}</span>}
+          {(nights || days) && <span><Star size={16} fill="currentColor"/>{nights && days ? `${days} días / ${nights} noches` : nights ? `${nights} noches` : `${days} días`}</span>}
           {packageData.tripType && <span>{packageData.tripType}</span>}
         </div>
       </header>
@@ -393,11 +406,12 @@ export function PackageDetailPage({
                   <SmartImage src={item.image} alt={`${item.name}, ${item.country || "destino"}`} ratio="16/9" fit="cover"/>
                 </button>
                 {item.flags?.recommended && <span className="package-recommended-badge">Recomendado</span>}
-                <button type="button" className="package-other-country">{item.country || "Destino"}</button>
+                <button type="button" className={`package-other-favorite ${favoriteIds.includes(item.id) ? "is-favorite" : ""}`} onClick={()=>onTogglePackageFavorite(item.id)} aria-label={favoriteIds.includes(item.id) ? `Quitar ${item.name} de favoritos` : `Guardar ${item.name} en favoritos`} aria-pressed={favoriteIds.includes(item.id)}><Heart size={17} fill={favoriteIds.includes(item.id) ? "currentColor" : "none"}/></button>
+                <span className="package-other-country">{item.country || "Destino"}</span>
               </div>
               <div className="package-other-card-body">
-                <div className="package-other-card-heading"><h3>{item.name}</h3>{item.rating && item.rating > 0 && <span><Star size={13} fill="currentColor"/>{item.rating.toFixed(1)} {item.reviews ? `(${item.reviews})` : ""}</span>}</div>
-                {(itemDays || item.mode) && <p className="package-other-facts">{itemDays ? `${itemDays} días` : ""}{itemDays && item.mode ? " · " : ""}{item.mode || ""}</p>}
+                <div className="package-other-card-heading"><h3>{item.name}</h3>{item.rating && item.rating > 0 && <span><Star size={13} fill="currentColor"/>{item.rating.toFixed(1)} {item.reviews && item.reviews !== "0" ? `(${item.reviews})` : ""}</span>}</div>
+                {(itemDays || item.mode || item.category) && <p className="package-other-facts">{[itemDays ? `${itemDays} días` : "", item.category || "", item.mode || ""].filter(Boolean).join(" · ")}</p>}
                 {money(item.price, item.currency || "USD") && <div className="package-other-price"><b>Desde {money(item.price, item.currency || "USD")}</b><small>por persona</small>{saved && <span>Ahorrá {money(saved, item.currency || "USD")}</span>}</div>}
                 {item.description && <p className="package-other-description">{item.description}</p>}
                 <button type="button" className="package-other-open" onClick={() => onOpenPackage(item)}>Ver paquete <ArrowRight size={15}/></button>
