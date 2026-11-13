@@ -315,6 +315,15 @@
 .package-other-favorite:hover{transform:scale(1.08);color:#E34F68}
 .package-other-favorite.is-favorite{color:#E34F68}
 .package-detail-actions button.favorite-pop svg{animation:package-heart-pop .48s ease}
+.package-detail-actions button.favorite-pop::before{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 0%,#F5B93A 0 2px,transparent 3px),radial-gradient(circle at 100% 50%,#E34F68 0 2px,transparent 3px),radial-gradient(circle at 50% 100%,#F5B93A 0 2px,transparent 3px),radial-gradient(circle at 0% 50%,#E34F68 0 2px,transparent 3px);
+  animation:package-heart-particles .48s ease-out;
+  pointer-events:none;
+}
 .package-detail-actions button.favorite-pop::after{
   content:"";
   position:absolute;
@@ -335,6 +344,10 @@
   from{transform:scale(.55);opacity:.8}
   to{transform:scale(1.75);opacity:0}
 }
+@keyframes package-heart-particles{
+  from{transform:scale(.45);opacity:1}
+  to{transform:scale(1.3);opacity:0}
+}
 .package-not-found{
   width:min(100% - 48px,720px);
   min-height:48vh;
@@ -354,6 +367,7 @@
 }
 @media(prefers-reduced-motion:reduce){
   .package-detail-actions button.favorite-pop svg,
+  .package-detail-actions button.favorite-pop::before,
   .package-detail-actions button.favorite-pop::after{animation:none!important}
   .nav-book-now,.package-other-favorite{transition:none!important}
 }
