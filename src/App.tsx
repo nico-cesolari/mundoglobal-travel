@@ -17,7 +17,7 @@ type Package = {
   oldPrice: number; rating: number; reviews: string; days: number; image: string;
   focalPoint?: { x: number; y: number }; safeArea?: { x: number; y: number; w: number; h: number };
   imagePosition?: string;
-  tag?: string; description: string;
+  tag?: string; offerExpires?: string; description: string;
   servicePrices?: { flight: number; hotel: number; assistance: number };
 };
 type IncomeEntry = { id: number; reference: string; client: string; destination?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; };
@@ -79,6 +79,8 @@ export default function App() {
   const [newPackageName, setNewPackageName] = useState(() => readDraft("mgt-draft-package-name"));
   const [newPackagePrice, setNewPackagePrice] = useState(() => readDraft("mgt-draft-package-price"));
   const [newPackageCountry, setNewPackageCountry] = useState(() => readDraft("mgt-draft-package-country"));
+  const [newPackageDays, setNewPackageDays] = useState(() => readDraft("mgt-draft-package-days", "7"));
+  const [newPackageCategory, setNewPackageCategory] = useState(() => readDraft("mgt-draft-package-category", "Playas"));
   const [selected, setSelected] = useState<Package>(packages[0]);
   const [query, setQuery] = useState(() => readDraft("mgt-draft-destination"));
   const [origin, setOrigin] = useState(() => readDraft("mgt-draft-origin"));
@@ -142,6 +144,8 @@ export default function App() {
     writeDraft("mgt-draft-package-name", newPackageName);
     writeDraft("mgt-draft-package-price", newPackagePrice);
     writeDraft("mgt-draft-package-country", newPackageCountry);
+    writeDraft("mgt-draft-package-days", newPackageDays);
+    writeDraft("mgt-draft-package-category", newPackageCategory);
     writeDraft("mgt-draft-destination", query);
     writeDraft("mgt-draft-origin", origin);
     writeDraft("mgt-draft-date", date);
@@ -164,7 +168,7 @@ export default function App() {
     writeDraft("mgt-draft-offer-end", offerEndDate);
     writeDraft("mgt-draft-quote-values", JSON.stringify(quoteDrafts));
   }, [
-    employeeMessage, newPackageName, newPackagePrice, newPackageCountry,
+    employeeMessage, newPackageName, newPackagePrice, newPackageCountry, newPackageDays, newPackageCategory,
     query, origin, date, returnDate, travelers, profileEmail, profilePhone,
     passengerName, passengerEmail, paymentMethod, authEmail, authFullName,
     employeeEmailDraft, contactName, contactEmail, contactMessage, newsletterEmail,
@@ -275,11 +279,11 @@ export default function App() {
     if (/hola|buenas|buenos días|buenas tardes/.test(normalized)) {
       answer = "¡Hola! 😊 Qué bueno tenerte por acá. Contame qué estás buscando y te ayudo a encontrar la mejor opción.";
     } else if (/paquete|destino|viaje|oferta|precio|cancún|roma|brasil|punta cana/.test(normalized)) {
-      answer = "¡Tenemos varias opciones! 🌎 En nuestra sección Paquetes podés explorar destinos como Cancún, Salvador de Bahía, Copacabana, Roma, Nueva York, Punta Cana, Camboriú y El Chaltén. Cada propuesta muestra duración, precio estimado y servicios incluidos. ¿Querés que te muestre los paquetes disponibles?";
+      answer = "¡Tenemos varias opciones! 🌎 En nuestra sección Paquetes podés explorar destinos como Cancún, Salvador de Bahía, Copacabana, Roma, Nueva York, Punta Cana, Camboriú y El Chaltén. Cada propuesta muestra la duración, el precio por persona y el desglose estimado de vuelos, hotel y asistencia al viajero. ¿Querés que te muestre los paquetes disponibles?";
     } else if (/vuelo|avión|equipaje|valija/.test(normalized)) {
       answer = "✈️ Los paquetes de demostración incluyen vuelos de ida y vuelta y equipaje de mano. El equipaje para despachar puede depender de la tarifa y la aerolínea; te recomendamos confirmarlo con un asesor antes de reservar.";
     } else if (/hotel|alojamiento|all inclusive|habitación/.test(normalized)) {
-      answer = "🏨 Los paquetes publicados contemplan alojamiento en hoteles o resorts. Las propuestas All Inclusive incluyen comidas y bebidas según las condiciones del establecimiento. Podés abrir cada paquete para revisar sus detalles.";
+      answer = "🏨 El alojamiento en hotel y la asistencia al viajero tienen un costo: cada paquete muestra sus importes dentro del precio total. Los valores son estimativos en esta demo y la tarifa definitiva se confirma con cada proveedor.";
     } else if (/pago|pagar|tarjeta|transferencia|cuota|financi/.test(normalized)) {
       answer = "💳 En esta demo se muestran medios de pago como tarjetas y transferencia. No se procesa ningún cobro real. Para consultar cuotas, promociones o condiciones específicas, puedo derivarte a un asesor.";
     } else if (/reserva|reservar|confirmar|cancelar|cambio|modificar/.test(normalized)) {
@@ -459,7 +463,7 @@ export default function App() {
           <div><span><Hotel/></span><b>Hotel · {selected.days - 1} noches</b><p>{money(selectedQuote.hotel)} por pasajero · alojamiento seleccionado.</p></div>
           <div><span><Stethoscope/></span><b>Asistencia al viajero</b><p>{money(selectedQuote.assistance)} por pasajero · cobertura durante la estadía.</p></div>
         </div>
-        <h2>Tu experiencia incluye</h2>
+        <h2>Detalle de servicios y precios</h2>
         <ul className="included-list">
           <li><CheckCircle2/> Vuelos de ida y vuelta · {money(selectedQuote.flight)}</li>
           <li><CheckCircle2/> Alojamiento · {money(selectedQuote.hotel)}</li>
@@ -570,8 +574,8 @@ export default function App() {
         </>}
         {employeeTab==="packages"&&<>
           <div className="employee-section-title"><div><h2>Paquetes y productos turísticos</h2><p>Publicá viajes con precio final, duración y servicios cotizados.</p></div><span className="demo-label">CATÁLOGO LOCAL</span></div>
-          <form className="employee-add-form" onSubmit={e=>{e.preventDefault();const price=Number(newPackagePrice);if(newPackageName.trim().length<2||newPackageCountry.trim().length<2||!Number.isFinite(price)||price<100){setToast("Completá destino, país y un precio final válido de al menos USD 100.");return;}const item:Package={id:Date.now(),name:newPackageName.trim(),country:newPackageCountry.trim(),category:"Ciudades",price,oldPrice:price,rating:4.7,reviews:"0",days:7,image:"https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1000&q=85",description:"Nuevo paquete cargado por el equipo de la agencia.",servicePrices:buildServicePrices(price)};setEmployeePackages(v=>[item,...v]);setNewPackageName("");setNewPackageCountry("");setNewPackagePrice("");setToast("Paquete publicado en el catálogo de demostración.");}}>
-            <input value={newPackageName} onChange={e=>setNewPackageName(e.target.value)} placeholder="Destino (ej. Bariloche)" required/><input value={newPackageCountry} onChange={e=>setNewPackageCountry(e.target.value)} placeholder="País" required/><input type="number" min="100" value={newPackagePrice} onChange={e=>setNewPackagePrice(e.target.value)} placeholder="Precio final USD" required/><button className="primary-btn"><Plus size={15}/> Publicar paquete</button>
+          <form className="employee-add-form" onSubmit={e=>{e.preventDefault();const price=Number(newPackagePrice);const days=Number(newPackageDays);if(newPackageName.trim().length<2||newPackageCountry.trim().length<2||!Number.isFinite(price)||price<100||!Number.isInteger(days)||days<1||days>60){setToast("Completá destino, país, duración y un precio final válido.");return;}const item:Package={id:Date.now(),name:newPackageName.trim(),country:newPackageCountry.trim(),category:newPackageCategory,price,oldPrice:price,rating:4.7,reviews:"0",days,image:"https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1000&q=85",description:"Nuevo paquete cargado por el equipo de la agencia.",servicePrices:buildServicePrices(price)};setEmployeePackages(v=>[item,...v]);setNewPackageName("");setNewPackageCountry("");setNewPackagePrice("");setNewPackageDays("7");setNewPackageCategory("Playas");setToast("Paquete publicado en el catálogo de demostración.");}}>
+            <input value={newPackageName} onChange={e=>setNewPackageName(e.target.value)} placeholder="Destino (ej. Bariloche)" required/><input value={newPackageCountry} onChange={e=>setNewPackageCountry(e.target.value)} placeholder="País" required/><select value={newPackageCategory} onChange={e=>setNewPackageCategory(e.target.value)}><option>Playas</option><option>Ciudades</option><option>Cultura</option><option>Aventuras</option></select><input type="number" min="1" max="60" value={newPackageDays} onChange={e=>setNewPackageDays(e.target.value)} placeholder="Días" required/><input type="number" min="100" value={newPackagePrice} onChange={e=>setNewPackagePrice(e.target.value)} placeholder="Precio final USD" required/><button className="primary-btn"><Plus size={15}/> Publicar paquete</button>
           </form>
           <p className="employee-form-note">Al publicar, el precio final se desglosa en vuelo, hotel y asistencia al viajero. Los importes son orientativos hasta confirmar las tarifas con los proveedores.</p>
           <div className="focal-editor-select"><label>Encuadre de imagen del paquete<select value={focalEditingPackage?.id ?? ""} onChange={e=>setFocalEditPackageId(Number(e.target.value))}>{employeePackages.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label></div>
@@ -580,7 +584,7 @@ export default function App() {
         </>}
         {employeeTab==="offers"&&<>
           <div className="employee-section-title"><div><h2>Promociones y ofertas</h2><p>Aplicá descuentos a un paquete y actualizá el precio público.</p></div><span className="demo-label">PUBLICACIÓN LOCAL</span></div>
-          <form className="employee-promo-form" onSubmit={e=>{e.preventDefault();const chosen=employeePackages.find(p=>p.id===offerPackageId);const percent=Number(offerPercent);if(!chosen||!Number.isFinite(percent)||percent<1||percent>70||!offerEndDate){setToast("Elegí un paquete, un descuento entre 1% y 70% y una fecha de vigencia.");return;}const basePrice=chosen.price;const promoPrice=Math.max(1,Math.round(basePrice*(1-percent/100)));setEmployeePackages(items=>items.map(p=>p.id===chosen.id?{...p,oldPrice:basePrice,price:promoPrice,tag:"¡Oferta!",servicePrices:buildServicePrices(promoPrice)}:p));setToast("Oferta del "+percent+"% aplicada a "+chosen.name+".");}}>
+          <form className="employee-promo-form" onSubmit={e=>{e.preventDefault();const chosen=employeePackages.find(p=>p.id===offerPackageId);const percent=Number(offerPercent);if(!chosen||!Number.isFinite(percent)||percent<1||percent>70||!offerEndDate){setToast("Elegí un paquete, un descuento entre 1% y 70% y una fecha de vigencia.");return;}const basePrice=chosen.price;const promoPrice=Math.max(1,Math.round(basePrice*(1-percent/100)));setEmployeePackages(items=>items.map(p=>p.id===chosen.id?{...p,oldPrice:basePrice,price:promoPrice,tag:"¡Oferta!",offerExpires:offerEndDate,servicePrices:buildServicePrices(promoPrice)}:p));setToast("Oferta del "+percent+"% aplicada a "+chosen.name+".");}}>
             <label>Paquete<select value={offerPackageId} onChange={e=>setOfferPackageId(Number(e.target.value))}>{employeePackages.map(p=><option key={p.id} value={p.id}>{p.name} · {money(p.price)}</option>)}</select></label>
             <label>Descuento (%)<input type="number" min="1" max="70" value={offerPercent} onChange={e=>setOfferPercent(e.target.value)} required/></label>
             <label>Válida hasta<input type="date" value={offerEndDate} onChange={e=>setOfferEndDate(e.target.value)} required/></label>
@@ -588,7 +592,7 @@ export default function App() {
           </form>
           <p className="employee-form-note">La promoción modifica el precio visible del paquete. La fecha se registra como vigencia informativa; esta demo no desactiva ofertas automáticamente.</p>
           <h3 className="employee-subtitle">Paquetes con promoción</h3>
-          <div className="employee-package-list">{employeePackages.filter(p=>p.tag==="¡Oferta!").map(p=><article key={p.id}><div><b>{p.name}</b><small>Precio anterior {money(p.oldPrice)} · Precio promocional {money(p.price)} · {discount(p)}% OFF</small></div><strong>{money(p.price)}</strong><span className="message-done">Activa en catálogo</span></article>)}</div>
+          <div className="employee-package-list">{employeePackages.filter(p=>p.tag==="¡Oferta!").map(p=><article key={p.id}><div><b>{p.name}</b><small>Precio anterior {money(p.oldPrice)} · Precio promocional {money(p.price)} · {discount(p)}% OFF · Vigente hasta {p.offerExpires||"fecha no registrada"}</small></div><strong>{money(p.price)}</strong><span className="message-done">Activa en catálogo</span></article>)}</div>
           {employeePackages.filter(p=>p.tag==="¡Oferta!").length===0&&<p className="employee-empty-note">Todavía no hay ofertas aplicadas. Creá una desde el formulario.</p>}
         </>}
         {employeeTab==="quotes"&&<>
