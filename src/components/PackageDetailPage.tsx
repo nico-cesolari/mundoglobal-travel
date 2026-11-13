@@ -330,7 +330,6 @@ export function PackageDetailPage({
         <div className="package-detail-subrow">
           {packageData.country && <span><MapPin size={16}/>{packageData.country}</span>}
           {(nights || days) && <span><Star size={16} fill="currentColor"/>{nights && days ? `${days} días / ${nights} noches` : nights ? `${nights} noches` : `${days} días`}</span>}
-          {packageData.tripType && <span>{packageData.tripType}</span>}
         </div>
       </header>
 
