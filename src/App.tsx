@@ -528,6 +528,7 @@ export default function App() {
         onToggleFavorite={()=>toggleFavorite(selected.id)}
         onTogglePackageFavorite={toggleFavorite}
         onHome={()=>go("home")}
+        onPackages={()=>go("results")}
         onOpenPackage={item=>openPackage(item as Package)}
         onConsultAvailability={payload=>{
           setStaffMessages(items=>[{id:Date.now(),name:payload.name,subject:`Disponibilidad · ${selected.name}`,body:`Correo: ${payload.email || "No indicado"} · Teléfono: ${payload.phone || "No indicado"} · Pasajeros: ${payload.travelers} · Fecha solicitada: ${payload.requestedDate || formatTravelDate(selected.departureDate) || "A coordinar"}`,status:"Pendiente"},...items]);
