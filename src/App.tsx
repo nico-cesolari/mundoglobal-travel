@@ -300,7 +300,7 @@ export default function App() {
   const submitSearch = () => {
     if (isSearching) return;
     if (!query.trim()) { setToast("Elegí un destino para continuar."); return; }
-    if (Boolean(date) !== Boolean(returnDate) || (date && returnDate < date)) { setToast("Elegí una fecha de salida y una de regreso válidas."); return; }
+    if (date && returnDate && returnDate < date) { setToast("La fecha de vuelta no puede ser anterior a la fecha de ida."); return; }
     setIsSearching(true);
     const term = query.trim();
     const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6);
@@ -317,7 +317,7 @@ export default function App() {
     (!p.price || (p.price >= minPrice && p.price <= maxPrice)) &&
     (!onlyOffers || p.tag === "¡Oferta!") &&
     (!topRatedOnly || (p.rating ?? 0) >= 4.8) &&
-    (!date || (p.departureDate === date && p.returnDate === returnDate))
+    (!date || (p.departureDate === date && (!returnDate || p.returnDate === returnDate)))
   ), [category, query, origin, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? (p.price ? buildServicePrices(p.price) : undefined);
