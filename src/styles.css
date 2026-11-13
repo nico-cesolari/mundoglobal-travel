@@ -293,3 +293,24 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;out
 .filter-reset:hover{background:#edf4ff}
 .filters .check-label{cursor:pointer}
 .filters .check-label input{width:14px;height:14px;cursor:pointer}
+
+
+/* Filtros de búsqueda: campos editables y cómodos */
+.filter-text-input{display:block;width:100%;min-width:0;margin:8px 0 13px;padding:10px 11px;border:1px solid #d7e1ef;border-radius:9px;background:#fff;color:#243858;font-size:11px;outline:none;transition:border-color .18s,box-shadow .18s}
+.filter-text-input::placeholder{color:#98a5b8}
+.filter-text-input:focus{border-color:#5b91ee;box-shadow:0 0 0 3px #eaf1ff}
+.filter-price-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.filter-price-fields label{display:flex;flex-direction:column;gap:5px;color:#71809a;font-size:9px;font-weight:700}
+.filter-price-fields input{width:100%;min-width:0;padding:9px 7px;border:1px solid #d7e1ef;border-radius:8px;color:#243858;background:#fff;font-size:11px;outline:none}
+.filter-price-fields input:focus{border-color:#5b91ee;box-shadow:0 0 0 3px #eaf1ff}
+.filters .price-range{width:100%;accent-color:var(--blue);cursor:pointer;margin:8px 0 4px}
+@media(max-width:650px){
+ .filters{display:block}
+ .filters h3{margin-bottom:14px}
+ .filters>b{margin:13px 0 7px}
+ .filter-text-input{font-size:12px;padding:11px}
+ .filter-price-fields{gap:10px}
+ .filter-price-fields input{font-size:12px;padding:10px}
+ .filters .check-label{margin:12px 0}
+ .filters .filter-reset{margin-top:15px}
+}
