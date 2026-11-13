@@ -36,6 +36,9 @@ export default function App() {
   const [newPackageCountry, setNewPackageCountry] = useState("");
   const [selected, setSelected] = useState<Package>(packages[0]);
   const [query, setQuery] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [activeLocationField, setActiveLocationField] = useState<"origin" | "destination" | null>(null);
+  const locationOptions = ["Buenos Aires, Argentina", "Córdoba, Argentina", "Villa María, Córdoba, Argentina", "Leones, Córdoba, Argentina", "Mendoza, Argentina", "Bariloche, Argentina", "Salta, Argentina", "Iguazú, Misiones, Argentina", "Montevideo, Uruguay", "Punta del Este, Uruguay", "Santiago, Chile", "Río de Janeiro, Brasil", "São Paulo, Brasil", "Salvador de Bahía, Brasil", "Florianópolis, Brasil", "Cancún, México", "Ciudad de México, México", "Punta Cana, República Dominicana", "Nueva York, Estados Unidos", "Miami, Estados Unidos", "Madrid, España", "Barcelona, España", "Roma, Italia", "París, Francia", "Londres, Reino Unido"];
   const [category, setCategory] = useState("Todos");
   const today = new Date();
   const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
@@ -79,7 +82,7 @@ export default function App() {
   const go = (p: Page) => { setPage(p); setMobileMenu(false); if (p !== "results") setActiveNav(p === "home" ? "Inicio" : p === "support" ? "Contacto" : ""); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const openPackage = (p: Package) => { setSelected(p); go("detail"); };
   const toggleFavorite = (id: number) => { setAnimatingFavorite(id); window.setTimeout(() => setAnimatingFavorite(current => current === id ? null : current), 480); setFavorites(v => { const next = v.includes(id) ? v.filter(x => x !== id) : [...v, id]; setToast(next.includes(id) ? "¡Paquete guardado en tus favoritos!" : "Paquete quitado de favoritos."); return next; }); };
-  const submitSearch = () => { if (isSearching) return; setIsSearching(true); const term = query.trim() || "Todos los destinos"; const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6); setRecentSearches(next); localStorage.setItem("mgt-recent-searches", JSON.stringify(next)); setSearchSubmitted(true); setActiveNav("Paquetes"); window.setTimeout(() => { setIsSearching(false); go("results"); }, 650); };
+  const submitSearch = () => { if (isSearching) return; setIsSearching(true); const term = [origin.trim(), query.trim()].filter(Boolean).join(" → ") || "Todos los destinos"; const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6); setRecentSearches(next); localStorage.setItem("mgt-recent-searches", JSON.stringify(next)); setSearchSubmitted(true); setActiveNav("Paquetes"); window.setTimeout(() => { setIsSearching(false); go("results"); }, 650); };
   const filtered = useMemo(() => employeePackages.filter(p =>
     (category === "Todos" || p.category === category) &&
     (`${p.name} ${p.country}`.toLowerCase().includes(query.toLowerCase()))
@@ -191,12 +194,30 @@ export default function App() {
     </div>
   </article>;
 
-  const SearchBar = () => <div className="search-panel">
-    <label className="search-field"><Search/><span><small>Destino</small><input value={query} onChange={e => setQuery(e.target.value)} placeholder="¿A dónde querés ir?"/></span></label>
-    <label className="search-field"><CalendarDays/><span><small>Fecha de salida</small><input type="date" value={date} min={todayISO} onChange={e => setDate(e.target.value)} aria-label="Fecha de salida"/></span></label>
-    <label className="search-field"><Users/><span><small>Pasajeros</small><select value={travelers} onChange={e => setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select></span></label>
-    <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
-  </div>;
+  const SearchBar = () => {
+    const renderLocationField = (field: "origin" | "destination") => {
+      const value = field === "origin" ? origin : query;
+      const setValue = field === "origin" ? setOrigin : setQuery;
+      const matches = locationOptions.filter(place => place.toLowerCase().includes(value.trim().toLowerCase())).slice(0, 7);
+      return <div className={`search-field location-field ${activeLocationField === field ? "location-focused" : ""}`}>
+        <MapPin size={19}/>
+        <span>
+          <small>{field === "origin" ? "Origen" : "Destino"}</small>
+          <input value={value} onChange={e => setValue(e.target.value)} onFocus={() => setActiveLocationField(field)} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === field ? null : current), 140)} placeholder={field === "origin" ? "¿Desde dónde salís?" : "¿A dónde querés ir?"} autoComplete="off" />
+          {activeLocationField === field && value.trim().length > 0 && <div className="location-suggestions">
+            {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setValue(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
+          </div>}
+        </span>
+      </div>;
+    };
+    return <div className="search-panel">
+      {renderLocationField("origin")}
+      {renderLocationField("destination")}
+      <label className="search-field"><CalendarDays/><span><small>Fecha de salida</small><input type="date" value={date} min={todayISO} onChange={e => setDate(e.target.value)} aria-label="Fecha de salida"/></span></label>
+      <label className="search-field"><Users/><span><small>Pasajeros</small><select value={travelers} onChange={e => setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select></span></label>
+      <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
+    </div>;
+  };
 
   const Home = () => <><section className="hero-shell"><div className="hero">
     <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está<br/>esperando <em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en<br className="desktop-only"/> los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
