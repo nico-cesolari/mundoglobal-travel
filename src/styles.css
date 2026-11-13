@@ -314,3 +314,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;out
  .filters .check-label{margin:12px 0}
  .filters .filter-reset{margin-top:15px}
 }
+
+/* Buscador: quitar el recuadro de foco del campo Destino sin alterar su borde */
+.location-field input:focus,
+.location-field input:focus-visible{
+  outline:none;
+  outline-offset:0;
+  box-shadow:none;
+}
