@@ -185,3 +185,36 @@ input[type="date"]::-webkit-calendar-picker-indicator { cursor:pointer; opacity:
 .assistant-compose button:disabled{opacity:.4;cursor:not-allowed}
 .assistant-disclaimer{text-align:center;font-size:8px;color:#9aa7ba;margin:0;padding:0 8px 10px}
 @media(max-width:650px){.assistant-widget{right:14px;bottom:14px;gap:9px}.chat-float{width:50px;height:50px}.assistant-panel{width:calc(100vw - 28px);height:min(520px,calc(100dvh - 90px));border-radius:16px}.assistant-invite{font-size:10px;padding:9px 12px}}
+
+
+/* Navegación: indicador azul debajo de la opción activa */
+.nav-links button{position:relative;padding-left:2px;padding-right:2px}
+.nav-links button.active:after{content:"";position:absolute;left:0;right:0;bottom:7px;height:3px;border-radius:4px;background:#1769df;display:block}
+@media(max-width:650px){.nav-links button.active:after{left:0;right:auto;bottom:5px;width:28px;height:3px;display:block}}
+/* Identidad visual del asistente */
+.assistant-avatar-img{width:40px;height:40px;flex:0 0 40px;object-fit:cover;border-radius:50%;border:2px solid #ffffff70;background:#fff}
+.assistant-header{min-height:70px}
+/* Edición de perfil y actividad de búsqueda */
+.profile-edit-form{display:grid;gap:14px;max-width:560px}
+.profile-edit-form label{display:flex;flex-direction:column;gap:7px;color:#344768;font-size:10px;font-weight:650}
+.profile-edit-form input{width:100%;border:1px solid #dce5f2;border-radius:9px;padding:12px;font-size:11px;color:#263b5c;background:#fff}
+.profile-edit-form input:focus{outline:none;border-color:#3479e8;box-shadow:0 0 0 4px #3479e81a}
+.profile-edit-form .primary-btn{justify-self:start;margin-top:5px}
+.recent-search-list{display:grid;gap:8px}
+.recent-search-list button{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:11px;padding:13px;color:#385071;font-size:11px;text-align:left}
+.recent-search-list button:hover{border-color:#9bb8e8;background:#f7faff}
+.recent-search-list button span{display:flex;align-items:center;gap:10px}
+.recent-search-list button span svg{color:#3978d6}
+.account-favorites-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.contact-phone{display:flex;align-items:center;gap:12px;padding:14px;margin:5px 0 18px;border:1px solid #e6edf7;border-radius:12px;background:#f8faff}
+.contact-phone>span{width:38px;height:38px;border-radius:10px;background:#e8f0ff;color:#1764d3;display:grid;place-items:center}
+.contact-phone>div{display:flex;flex-direction:column;gap:4px}
+.contact-phone b{font-size:11px;color:#263b5c}
+.contact-phone a{font-size:13px;font-weight:750;color:#1764d3;text-decoration:none}
+.contact-phone small{font-size:9px;color:#8794aa}
+.heart{transition:transform .2s ease,background .2s ease,color .2s ease}
+.heart.liked{animation:favorite-pop .38s cubic-bezier(.2,.9,.3,1.4)}
+.heart.liked svg{filter:drop-shadow(0 2px 5px #e94e7960)}
+@keyframes favorite-pop{0%{transform:scale(1)}35%{transform:scale(1.32)}65%{transform:scale(.88)}100%{transform:scale(1)}}
+.heart:hover{transform:scale(1.12)}
+@media(max-width:650px){.account-favorites-grid{grid-template-columns:1fr}.profile-edit-form .primary-btn{width:100%}.contact-phone{padding:12px}}
