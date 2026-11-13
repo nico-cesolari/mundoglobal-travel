@@ -1795,38 +1795,46 @@ select:focus-visible{
 }
 .focal-editor-select{margin:12px 0}.focal-editor-select label{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700}.focal-editor-select select{max-width:260px;border:1px solid #dce5f2;border-radius:8px;padding:8px 10px;background:#fff;color:#344768;font:inherit}
 
-/* Encuadre del fondo: cobertura completa y avión bajo, sin desplazar la imagen */
+/* Encuadre definitivo del hero: imagen extendida hacia arriba, sin transformaciones */
 .hero-reference{
   background-color:#1E4FD8!important;
 }
 .hero-reference .hero-art{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
+  position:absolute!important;
+  inset:0!important;
+  overflow:hidden!important;
   background-color:#1E4FD8!important;
 }
 .hero-reference .hero-art img{
   position:absolute!important;
-  inset:0!important;
-  top:0!important;
   left:0!important;
+  right:0!important;
+  bottom:0!important;
+  top:auto!important;
   width:100%!important;
-  height:100%!important;
+  height:115%!important;
   object-fit:cover!important;
-  object-position:70% 20%!important;
-  transform:scale(1.15)!important;
-  transform-origin:right bottom!important;
+  object-position:70% 0%!important;
+  transform:none!important;
+  transform-origin:initial!important;
+  opacity:1!important;
 }
 .hero-reference::before{
   position:absolute!important;
   inset:0!important;
 }
+.hero-reference .hero-copy{
+  padding-top:64px!important;
+}
 @media(max-width:1023px){
   .hero-shell{padding-top:10px}
   .hero-reference .hero-art img{
-    object-position:70% 20%!important;
-    transform:scale(1.15)!important;
-    transform-origin:right bottom!important;
-    opacity:.82;
+    height:115%!important;
+    object-position:70% 0%!important;
+    transform:none!important;
+    transform-origin:initial!important;
+  }
+  .hero-reference .hero-copy{
+    padding-top:64px!important;
   }
 }
