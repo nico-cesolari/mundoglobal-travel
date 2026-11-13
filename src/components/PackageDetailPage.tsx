@@ -400,6 +400,9 @@ export function PackageDetailPage({
           {otherPackages.map(item => {
             const itemNights = durationNights(item);
             const itemDays = durationDays(item);
+            const itemIncludes = item.includes || [];
+            const itemHasHotel = itemIncludes.some(entry => ["hotel", "bed"].includes((entry.icon || "").toLowerCase()));
+            const itemHasFlight = itemIncludes.some(entry => (entry.icon || "").toLowerCase() === "plane");
             const saved = discountAmount(item);
             return <article className="package-other-card" key={item.id}>
               <div className="package-other-image-wrap">
@@ -412,7 +415,7 @@ export function PackageDetailPage({
               </div>
               <div className="package-other-card-body">
                 <div className="package-other-card-heading"><h3>{item.name}</h3>{item.rating && item.rating > 0 && <span><Star size={13} fill="currentColor"/>{item.rating.toFixed(1)} {item.reviews && item.reviews !== "0" ? `(${item.reviews})` : ""}</span>}</div>
-                {(itemDays || item.mode || item.category) && <p className="package-other-facts">{[itemDays ? `${itemDays} días` : "", item.category || "", item.mode || ""].filter(Boolean).join(" · ")}</p>}
+                {(itemDays || itemHasHotel || itemHasFlight || item.mode) && <p className="package-other-facts">{itemDays && <span><CalendarDays size={13}/>{itemDays} días</span>}{itemHasHotel && <span><BedDouble size={13}/>Hotel</span>}{!itemHasHotel && itemHasFlight && <span><Plane size={13}/>Vuelo</span>}{item.mode && <span><Compass size={13}/>{item.mode}</span>}</p>}
                 {money(item.price, item.currency || "USD") && <div className="package-other-price"><b>Desde {money(item.price, item.currency || "USD")}</b><small>por persona</small>{saved && <span>Ahorrá {money(saved, item.currency || "USD")}</span>}</div>}
                 {item.description && <p className="package-other-description">{item.description}</p>}
                 <button type="button" className="package-other-open" onClick={() => onOpenPackage(item)}>Ver paquete <ArrowRight size={15}/></button>
@@ -433,7 +436,7 @@ export function PackageDetailPage({
     {priceLabel && <div className="package-mobile-cta"><div><small>Desde</small><b>{priceLabel}</b></div><button type="button" onClick={() => setAvailabilityOpen(true)}>Consultar disponibilidad <ArrowRight size={16}/></button></div>}
 
     {lightboxIndex !== null && <div className="package-lightbox" role="dialog" aria-modal="true" aria-label="Galería de imágenes" onClick={() => setLightboxIndex(null)}>
-      <button className="package-lightbox-close" onClick={() => setLightboxIndex(null)} aria-label="Cerrar galería"><X/></button>
+      <button className="package-lightbox-close" onClick={() => setLightboxIndex(null)} aria-label="Cerrar galería" autoFocus><X/></button>
       {images.length > 1 && <button className="package-lightbox-arrow previous" onClick={event => { event.stopPropagation(); previousImage(); }} aria-label="Foto anterior"><ChevronLeft/></button>}
       <div className="package-lightbox-content" onClick={event => event.stopPropagation()} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <SmartImage src={images[lightboxIndex]} alt={`${packageData.name} · fotografía ${lightboxIndex + 1}`} ratio="auto" fit="contain" rounded={false} priority/>
@@ -444,7 +447,7 @@ export function PackageDetailPage({
 
     {activeInfo && <div className="package-detail-modal-backdrop" role="presentation" onClick={() => setActiveInfo(null)}>
       <section className="package-detail-modal" role="dialog" aria-modal="true" aria-labelledby="package-info-modal-title" onClick={event => event.stopPropagation()}>
-        <button type="button" className="package-detail-modal-close" onClick={() => setActiveInfo(null)} aria-label="Cerrar"><X/></button>
+        <button type="button" className="package-detail-modal-close" onClick={() => setActiveInfo(null)} aria-label="Cerrar" autoFocus><X/></button>
         <span className="package-modal-icon"><Info/></span>
         <h2 id="package-info-modal-title">{activeInfo.title}</h2>
         <p>{renderBoldText(activeInfo.description || "")}</p>
@@ -454,7 +457,7 @@ export function PackageDetailPage({
 
     {availabilityOpen && <div className="package-detail-modal-backdrop" role="presentation" onClick={() => setAvailabilityOpen(false)}>
       <section className="package-detail-modal package-inquiry-modal" role="dialog" aria-modal="true" aria-labelledby="package-inquiry-title" onClick={event => event.stopPropagation()}>
-        <button type="button" className="package-detail-modal-close" onClick={() => setAvailabilityOpen(false)} aria-label="Cerrar"><X/></button>
+        <button type="button" className="package-detail-modal-close" onClick={() => setAvailabilityOpen(false)} aria-label="Cerrar" autoFocus><X/></button>
         <span className="package-modal-icon"><CalendarDays/></span>
         <span className="package-section-eyebrow">CONSULTA DE VIAJE</span>
         <h2 id="package-inquiry-title">Consultá disponibilidad para {packageData.name}</h2>
