@@ -15,10 +15,10 @@ import {
 type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "support" | "employee-login" | "employee";
 type Package = {
   id: number; name: string; country: string; category: string; image: string;
-  price?: number; oldPrice?: number; currency?: string;
+  price?: number; oldPrice?: number; originalPrice?: number; currency?: string;
   departureCity?: string; departureDate?: string; returnDate?: string;
   days?: number; nights?: number; mode?: string; tripType?: string;
-  rating?: number; reviews?: string;
+  rating?: number; reviews?: string; reviewCount?: number | string;
   images?: string[]; caption?: string; descriptionTitle?: string;
   focalPoint?: { x: number; y: number }; safeArea?: { x: number; y: number; w: number; h: number };
   imagePosition?: string;
@@ -46,7 +46,7 @@ const writeDraft = (key: string, value: string) => {
   try { if (value) localStorage.setItem(key, value); else localStorage.removeItem(key); } catch { /* El formulario sigue funcionando sin almacenamiento local. */ }
 };
 const money = (n?: number) => typeof n === "number" && Number.isFinite(n) && n > 0 ? `USD ${n.toLocaleString("es-AR")}` : "";
-const discount = (p: Package) => p.price && p.oldPrice && p.oldPrice > p.price ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+const discount = (p: Package) => { const original = p.originalPrice ?? p.oldPrice; return p.price && original && original > p.price ? Math.round((1 - p.price / original) * 100) : 0; };
 const formatTravelDate = (value?: string) => { if (!value) return ""; const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }).replace(".", ""); };
 const packageDuration = (start: string, end: string) => Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86400000) + 1;
 const buildServicePrices = (price: number) => { const flight = Math.max(1, Math.round(price * 0.38)); const hotel = Math.max(1, Math.round(price * 0.54)); return { flight, hotel, assistance: Math.max(1, price - flight - hotel) }; };
@@ -72,6 +72,9 @@ const enrichPackage = (item: Package): Package => {
   return {
     ...item,
     currency: item.currency || "USD",
+    oldPrice: item.oldPrice ?? item.originalPrice,
+    originalPrice: item.originalPrice ?? item.oldPrice,
+    reviewCount: item.reviewCount ?? item.reviews,
     images: item.images?.length ? item.images.filter(Boolean) : [item.image],
     nights,
     tripType,
@@ -427,7 +430,7 @@ export default function App() {
     <div className="package-info">
       <div className="package-heading"><div><h3>{p.name}</h3><p>{p.country} <span>·</span> {p.category}</p></div></div>
       {(p.rating || (p.reviews && p.reviews !== "0")) && <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating ? p.rating.toFixed(1) : ""} {p.reviews && p.reviews !== "0" ? <small>({p.reviews})</small> : null}{p.tag==="¡Oferta!" && discount(p)>0 && <span className="discount">{discount(p)}% OFF</span>}</div>}
-      <div className="price-line"><strong>{money(p.price)}</strong><del>{money(p.oldPrice)}</del></div>
+      <div className="price-line"><strong>{money(p.price)}</strong><del>{money(p.originalPrice ?? p.oldPrice)}</del></div>
       {p.departureCity && p.departureDate && <small className="package-schedule-inline">Desde {p.departureCity} · {formatTravelDate(p.departureDate)}</small>}
       <button className="outline-btn full offer-reserve" onClick={() => openPackage(p)}>Reservar <ArrowRight size={16}/></button>
     </div>
