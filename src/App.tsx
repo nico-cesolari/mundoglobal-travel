@@ -46,6 +46,11 @@ export default function App() {
   const [bookings, setBookings] = useState<string[]>(JSON.parse(localStorage.getItem("mgt-bookings") || "[]"));
   const [mobileMenu, setMobileMenu] = useState(false);
   const [toast, setToast] = useState("");
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantInput, setAssistantInput] = useState("");
+  const [assistantMessages, setAssistantMessages] = useState([
+    { from: "assistant" as const, text: "¡Hola! 👋 Soy el asistente virtual de MundoGlobal Travel. ¿Necesitás ayuda para organizar tu próximo viaje?" }
+  ]);
   const [showPassword, setShowPassword] = useState(false);
   const [passengerName, setPassengerName] = useState(user);
   const [passengerEmail, setPassengerEmail] = useState("");
@@ -109,6 +114,31 @@ export default function App() {
     go("account"); setToast("¡Reserva de prueba confirmada!");
   };
 
+  const answerAssistant = (raw: string) => {
+    const question = raw.trim();
+    if (!question) return;
+    const normalized = question.toLowerCase();
+    let answer = "¡Claro! Puedo orientarte. Por ahora puedo ayudarte con información general sobre paquetes, vuelos, hoteles, pagos y reservas. Si necesitás resolver un caso particular, puedo conectarte con nuestro equipo de atención.";
+    if (/hola|buenas|buenos días|buenas tardes/.test(normalized)) {
+      answer = "¡Hola! 😊 Qué bueno tenerte por acá. Contame qué estás buscando y te ayudo a encontrar la mejor opción.";
+    } else if (/paquete|destino|viaje|oferta|precio|cancún|roma|brasil|punta cana/.test(normalized)) {
+      answer = "¡Tenemos varias opciones! 🌎 En nuestra sección Paquetes podés explorar destinos como Cancún, Salvador de Bahía, Copacabana, Roma, Nueva York y Punta Cana. Cada propuesta muestra duración, precio estimado y servicios incluidos. ¿Querés que te muestre los paquetes disponibles?";
+    } else if (/vuelo|avión|equipaje|valija/.test(normalized)) {
+      answer = "✈️ Los paquetes de demostración incluyen vuelos de ida y vuelta y equipaje de mano. El equipaje para despachar puede depender de la tarifa y la aerolínea; te recomendamos confirmarlo con un asesor antes de reservar.";
+    } else if (/hotel|alojamiento|all inclusive|habitación/.test(normalized)) {
+      answer = "🏨 Los paquetes publicados contemplan alojamiento en hoteles o resorts. Las propuestas All Inclusive incluyen comidas y bebidas según las condiciones del establecimiento. Podés abrir cada paquete para revisar sus detalles.";
+    } else if (/pago|pagar|tarjeta|transferencia|cuota|financi/.test(normalized)) {
+      answer = "💳 En esta demo se muestran medios de pago como tarjetas y transferencia. No se procesa ningún cobro real. Para consultar cuotas, promociones o condiciones específicas, puedo derivarte a un asesor.";
+    } else if (/reserva|reservar|confirmar|cancelar|cambio|modificar/.test(normalized)) {
+      answer = "🎫 Para iniciar una reserva, elegí un paquete, indicá la fecha y cantidad de pasajeros, y completá los datos del pasajero principal. La confirmación de este prototipo es simulada: no genera una reserva real.";
+    } else if (/persona|asesor|humano|empleado|contacto|ayuda/.test(normalized)) {
+      answer = "¡Por supuesto! Un asesor puede ayudarte con una consulta personalizada. Tocá el botón “Hablar con un asesor” y te llevo a nuestro espacio de contacto.";
+    } else if (/gracias/.test(normalized)) {
+      answer = "¡De nada! 💙 Estamos para ayudarte a que tu próximo viaje sea una gran experiencia.";
+    }
+    setAssistantMessages(items => [...items, { from: "user" as const, text: question }, { from: "assistant" as const, text: answer }]);
+    setAssistantInput("");
+  };
   const Header = () => <header className="header">
     <div className="nav-wrap">
       <button className="brand" onClick={() => go("home")} aria-label="Ir al inicio">
@@ -189,5 +219,17 @@ export default function App() {
 
   const Support = () => <main className="page-container narrow"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span>Ayuda y asistencia</div><div className="support-hero"><span className="support-icon"><Headphones/></span><span className="kicker">ESTAMOS PARA ACOMPAÑARTE</span><h1>¿En qué podemos ayudarte?</h1><p>Nuestro equipo está disponible para acompañarte antes, durante y después de tu viaje.</p></div><div className="support-grid"><button onClick={()=>setToast("Chat de demostración: un asesor se pondrá en contacto.")}><MessageCircle/><b>Chat en vivo</b><small>Hablá con un asesor</small></button><button onClick={()=>setToast("Centro de ayuda de demostración.")}><CircleHelp/><b>Preguntas frecuentes</b><small>Encontrá respuestas rápidas</small></button><button onClick={()=>setToast("Soporte 24/7 activado en modo demostración.")}><ShieldCheck/><b>Asistencia al viajero</b><small>Estamos con vos en destino</small></button></div><div className="contact-box"><h2>Dejanos tu consulta</h2><form onSubmit={e=>{e.preventDefault();setToast("¡Tu consulta fue registrada correctamente!");(e.currentTarget as HTMLFormElement).reset();}}><label>Tu nombre<input required placeholder="Nombre y apellido"/></label><label>Correo electrónico<input type="email" required placeholder="tu@email.com"/></label><label>¿En qué podemos ayudarte?<textarea required rows={4} placeholder="Escribí tu consulta..."/></label><button className="primary-btn">Enviar consulta <ArrowRight size={16}/></button></form></div></main>;
 
-  return <><Header/>{page==="home"&&<Home/>}{page==="results"&&<Results/>}{page==="detail"&&<Detail/>}{page==="login"&&<Login/>}{page==="register"&&<Login register/>}{page==="checkout"&&<Checkout/>}{page==="account"&&<Account/>}{page==="support"&&<Support/>}{page==="employee-login"&&<EmployeeLogin/>}{page==="employee"&&<EmployeePanel/>}<Footer/><button className="chat-float" onClick={()=>go("support")} aria-label="Abrir ayuda"><MessageCircle/></button>{toast&&<div className="toast"><CheckCircle2 size={18}/>{toast}<button onClick={()=>setToast("")}><X size={15}/></button></div>}</>;
+  return <><Header/>{page==="home"&&<Home/>}{page==="results"&&<Results/>}{page==="detail"&&<Detail/>}{page==="login"&&<Login/>}{page==="register"&&<Login register/>}{page==="checkout"&&<Checkout/>}{page==="account"&&<Account/>}{page==="support"&&<Support/>}{page==="employee-login"&&<EmployeeLogin/>}{page==="employee"&&<EmployeePanel/>}<Footer/><div className="assistant-widget">
+    {assistantOpen&&<section className="assistant-panel" aria-label="Asistente virtual">
+      <div className="assistant-header"><span className="assistant-avatar"><Sparkles size={18}/></span><div><b>Asistente MundoGlobal</b><small><i/> En línea · Atención virtual</small></div><button onClick={()=>setAssistantOpen(false)} aria-label="Cerrar chat"><X size={18}/></button></div>
+      <div className="assistant-messages" aria-live="polite">
+        {assistantMessages.map((message,index)=><div key={index} className={message.from==="user"?"assistant-message user-message":"assistant-message bot-message"}>{message.text}</div>)}
+      </div>
+      <div className="assistant-quick-actions"><button onClick={()=>answerAssistant("Quiero conocer los paquetes y destinos")}>Ver paquetes</button><button onClick={()=>answerAssistant("¿Qué medios de pago tienen?")}>Medios de pago</button><button onClick={()=>{setAssistantOpen(false);go("support");}}>Hablar con un asesor</button></div>
+      <form className="assistant-compose" onSubmit={e=>{e.preventDefault();answerAssistant(assistantInput);}}><input value={assistantInput} onChange={e=>setAssistantInput(e.target.value)} placeholder="Escribí tu consulta..." aria-label="Escribí tu consulta"/><button type="submit" disabled={!assistantInput.trim()} aria-label="Enviar mensaje"><ArrowRight size={18}/></button></form>
+      <p className="assistant-disclaimer">Asistente automático de demostración · Puede cometer errores</p>
+    </section>}
+    <button className="chat-float" onClick={()=>setAssistantOpen(v=>!v)} aria-label={assistantOpen?"Cerrar asistente":"Abrir asistente"}>{assistantOpen?<X/>:<MessageCircle/>}</button>
+    {!assistantOpen&&<button className="assistant-invite" onClick={()=>setAssistantOpen(true)}>¿Necesitás ayuda? <span>Estamos para vos</span></button>}
+  </div>{toast&&<div className="toast"><CheckCircle2 size={18}/>{toast}<button onClick={()=>setToast("")}><X size={15}/></button></div>}</>;
 }
