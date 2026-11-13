@@ -145,6 +145,7 @@ export function PackageDetailPage({
   const images = (packageData.images?.length ? packageData.images : [packageData.image]).filter(Boolean);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [favoritePulse, setFavoritePulse] = useState(false);
+  const [animatedOtherFavorite, setAnimatedOtherFavorite] = useState<number | null>(null);
   const [activeInfo, setActiveInfo] = useState<PackageInfoSection | null>(null);
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [travelerCount, setTravelerCount] = useState(2);
@@ -340,7 +341,7 @@ export function PackageDetailPage({
             onClick={() => openLightbox(index)}
             aria-label={`Abrir foto ${index + 1} de ${images.length} de ${packageData.name}`}
           >
-            <SmartImage src={src} alt={`${packageData.name}, ${packageData.country || "destino"} · foto ${index + 1}`} ratio="auto" fit="cover" focalPoint={packageData.focalPoint} objectPosition={packageData.imagePosition} priority={index === 0}/>
+            <SmartImage src={src} alt={`${packageData.name}, ${packageData.country || "destino"} · foto ${index + 1}`} ratio="auto" fit="cover" focalPoint={packageData.focalPoint} objectPosition={packageData.imagePosition} minSourceWidth={index === 0 ? 1600 : 800} priority={index === 0}/>
             {index === 0 && (nights || days) && <span className="package-gallery-night-badge"><CalendarDays size={14}/>{nights ? `${nights} noches` : `${days} días`}</span>}
             {index === 2 && images.length > 3 && <span className="package-gallery-more">+{images.length - 3} fotos</span>}
           </button>)}
@@ -406,7 +407,7 @@ export function PackageDetailPage({
                   <SmartImage src={item.image} alt={`${item.name}, ${item.country || "destino"}`} ratio="16/9" fit="cover"/>
                 </button>
                 {item.flags?.recommended && <span className="package-recommended-badge">Recomendado</span>}
-                <button type="button" className={`package-other-favorite ${favoriteIds.includes(item.id) ? "is-favorite" : ""}`} onClick={()=>onTogglePackageFavorite(item.id)} aria-label={favoriteIds.includes(item.id) ? `Quitar ${item.name} de favoritos` : `Guardar ${item.name} en favoritos`} aria-pressed={favoriteIds.includes(item.id)}><Heart size={17} fill={favoriteIds.includes(item.id) ? "currentColor" : "none"}/></button>
+                <button type="button" className={`package-other-favorite ${favoriteIds.includes(item.id) ? "is-favorite" : ""} ${animatedOtherFavorite === item.id ? "favorite-pop" : ""}`} onClick={()=>{setAnimatedOtherFavorite(item.id);onTogglePackageFavorite(item.id);window.setTimeout(()=>setAnimatedOtherFavorite(current=>current===item.id?null:current),480);}} aria-label={favoriteIds.includes(item.id) ? `Quitar ${item.name} de favoritos` : `Guardar ${item.name} en favoritos`} aria-pressed={favoriteIds.includes(item.id)}><Heart size={17} fill={favoriteIds.includes(item.id) ? "currentColor" : "none"}/></button>
                 <span className="package-other-country">{item.country || "Destino"}</span>
               </div>
               <div className="package-other-card-body">
