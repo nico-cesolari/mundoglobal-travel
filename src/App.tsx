@@ -3,7 +3,7 @@ import { SmartImage } from "./components/SmartImage";
 import ImageLab from "./components/ImageLab";
 import FocalPointEditor from "./components/FocalPointEditor";
 import {
-  ArrowRight, ArrowLeft, Plane, Globe2, Search, CalendarDays, Users, Tag,
+  ArrowRight, ArrowLeft, Plane, Globe2, Search, CalendarDays, Users, Tag, Pencil,
   Heart, Star, ShieldCheck, Headphones, CreditCard, Menu, X, UserRound,
   ChevronDown, MapPin, Clock3, Check, CheckCircle2, Hotel, BedDouble, Stethoscope,
   Luggage, CarFront, LockKeyhole, Mail, Eye, EyeOff, MessageCircle, Bell, SlidersHorizontal,
@@ -14,22 +14,23 @@ import {
 type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "support" | "employee-login" | "employee";
 type Package = {
   id: number; name: string; country: string; category: string; price: number;
+  departureCity: string; departureDate: string; returnDate: string;
   oldPrice: number; rating: number; reviews: string; days: number; image: string;
   focalPoint?: { x: number; y: number }; safeArea?: { x: number; y: number; w: number; h: number };
   imagePosition?: string;
   tag?: string; offerExpires?: string; description: string;
   servicePrices?: { flight: number; hotel: number; assistance: number };
 };
-type IncomeEntry = { id: number; reference: string; client: string; destination?: string; departureCity?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; };
+type IncomeEntry = { id: number; reference: string; client: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; };
 const packages: Package[] = [
-  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
-  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, tag: "¡Oferta!", image: "/images/salvador.jpg", focalPoint: {x:50,y:50}, description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
-  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, tag: "¡Oferta!", image: "/images/copacabana.jpg", focalPoint: {x:50,y:50}, description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
-  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, image: "/images/roma.jpg", focalPoint: {x:50,y:50}, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
-  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, image: "/images/nueva-york.jpg", focalPoint: {x:50,y:50}, description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
-  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, tag: "¡Oferta!", image: "/images/punta-cana.jpg", focalPoint: {x:50,y:50}, description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." },
-  { id: 7, name: "Camboriú", country: "Brasil", category: "Playas", price: 899, oldPrice: 1199, rating: 4.8, reviews: "0", days: 7, image: "/images/camboriu.png", focalPoint: {x:50,y:50}, description: "Disfrutá las playas de Santa Catarina, sus paseos costeros y la energía de uno de los destinos más elegidos de Brasil." },
-  { id: 8, name: "El Chaltén", country: "Argentina", category: "Aventuras", price: 1199, oldPrice: 1499, rating: 4.9, reviews: "0", days: 6, image: "/images/el-chalten.png", focalPoint: {x:50,y:50}, description: "Descubrí la capital nacional del trekking, con senderos de montaña, lagunas de deshielo y vistas inolvidables del Fitz Roy." }
+  { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
+  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, departureCity: "Córdoba, Argentina", departureDate: "2027-02-10", returnDate: "2027-02-15", tag: "¡Oferta!", image: "/images/salvador.jpg", focalPoint: {x:50,y:50}, description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
+  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, departureCity: "Rosario, Santa Fe, Argentina", departureDate: "2027-01-21", returnDate: "2027-01-25", tag: "¡Oferta!", image: "/images/copacabana.jpg", focalPoint: {x:50,y:50}, description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
+  { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", image: "/images/roma.jpg", focalPoint: {x:50,y:50}, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
+  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, departureCity: "Córdoba, Argentina", departureDate: "2027-05-12", returnDate: "2027-05-17", image: "/images/nueva-york.jpg", focalPoint: {x:50,y:50}, description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
+  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-03-05", returnDate: "2027-03-11", tag: "¡Oferta!", image: "/images/punta-cana.jpg", focalPoint: {x:50,y:50}, description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." },
+  { id: 7, name: "Camboriú", country: "Brasil", category: "Playas", price: 899, oldPrice: 1199, rating: 4.8, reviews: "0", days: 7, departureCity: "Villa María, Córdoba, Argentina", departureDate: "2027-01-08", returnDate: "2027-01-14", image: "/images/camboriu.png", focalPoint: {x:50,y:50}, description: "Disfrutá las playas de Santa Catarina, sus paseos costeros y la energía de uno de los destinos más elegidos de Brasil." },
+  { id: 8, name: "El Chaltén", country: "Argentina", category: "Aventuras", price: 1199, oldPrice: 1499, rating: 4.9, reviews: "0", days: 6, departureCity: "Córdoba, Argentina", departureDate: "2027-02-20", returnDate: "2027-02-25", image: "/images/el-chalten.png", focalPoint: {x:50,y:50}, description: "Descubrí la capital nacional del trekking, con senderos de montaña, lagunas de deshielo y vistas inolvidables del Fitz Roy." }
 ];
 
 const readDraft = (key: string, fallback = "") => {
@@ -40,6 +41,8 @@ const writeDraft = (key: string, value: string) => {
 };
 const money = (n: number) => `USD ${n.toLocaleString("es-AR")}`;
 const discount = (p: Package) => Math.round((1 - p.price / p.oldPrice) * 100);
+const formatTravelDate = (value: string) => { if (!value) return "A coordinar"; const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }).replace(".", ""); };
+const packageDuration = (start: string, end: string) => Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86400000) + 1;
 const buildServicePrices = (price: number) => { const flight = Math.max(1, Math.round(price * 0.38)); const hotel = Math.max(1, Math.round(price * 0.54)); return { flight, hotel, assistance: Math.max(1, price - flight - hotel) }; };
 const demoIncomeEntries: IncomeEntry[] = [
   { id: 1, reference: "MG-20481", client: "María González", destination: "Cancún", amount: 2598, method: "Tarjeta de crédito", status: "Acreditado", date: "13/11/2026" },
@@ -54,8 +57,16 @@ const loadSavedPackages = (): Package[] => {
     const parsed: unknown = JSON.parse(saved);
     if (!Array.isArray(parsed)) return packages;
     const savedPackages = parsed as Package[];
+    const normalizedPackages = savedPackages.map(savedItem => {
+      const defaults = packages.find(item => item.id === savedItem.id);
+      return { ...defaults, ...savedItem,
+        departureCity: savedItem.departureCity || defaults?.departureCity || "A coordinar",
+        departureDate: savedItem.departureDate || defaults?.departureDate || "",
+        returnDate: savedItem.returnDate || defaults?.returnDate || ""
+      } as Package;
+    });
     const missingDefaults = packages.filter(item => !savedPackages.some(savedItem => savedItem.id === item.id));
-    return [...savedPackages, ...missingDefaults];
+    return [...normalizedPackages, ...missingDefaults];
   } catch {
     return packages;
   }
@@ -84,7 +95,6 @@ export default function App() {
   const [selected, setSelected] = useState<Package>(packages[0]);
   const [query, setQuery] = useState(() => readDraft("mgt-draft-destination"));
   const [origin, setOrigin] = useState(() => readDraft("mgt-draft-origin"));
-  const [departureCity, setDepartureCity] = useState(() => readDraft("mgt-draft-departure-city"));
   const [activeLocationField, setActiveLocationField] = useState<"origin" | "destination" | null>(null);
   const locationOptions = ["Buenos Aires, Argentina", "Córdoba, Argentina", "Villa María, Córdoba, Argentina", "Leones, Córdoba, Argentina", "Mendoza, Argentina", "Bariloche, Argentina", "Salta, Argentina", "Iguazú, Misiones, Argentina", "Montevideo, Uruguay", "Punta del Este, Uruguay", "Santiago, Chile", "Río de Janeiro, Brasil", "São Paulo, Brasil", "Salvador de Bahía, Brasil", "Florianópolis, Brasil", "Camboriú, Brasil", "El Chaltén, Santa Cruz, Argentina", "Cancún, México", "Ciudad de México, México", "Punta Cana, República Dominicana", "Nueva York, Estados Unidos", "Miami, Estados Unidos", "Madrid, España", "Barcelona, España", "Roma, Italia", "París, Francia", "Londres, Reino Unido"];
   const [category, setCategory] = useState("Todos");
@@ -92,10 +102,8 @@ export default function App() {
   const [accommodation, setAccommodation] = useState(() => readDraft("mgt-draft-accommodation", "Todos"));
   const today = new Date();
   const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-  const [date, setDate] = useState(() => readDraft("mgt-draft-date", todayISO));
-  const defaultReturn = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
-  const defaultReturnISO = `${defaultReturn.getFullYear()}-${String(defaultReturn.getMonth()+1).padStart(2,"0")}-${String(defaultReturn.getDate()).padStart(2,"0")}`;
-  const [returnDate, setReturnDate] = useState(() => readDraft("mgt-draft-return-date", defaultReturnISO));
+  const [date, setDate] = useState(() => readDraft("mgt-draft-search-date"));
+  const [returnDate, setReturnDate] = useState(() => readDraft("mgt-draft-search-return-date"));
   const [travelers, setTravelers] = useState(() => Math.min(9, Math.max(1, Number(readDraft("mgt-draft-travelers", "2")) || 2)));
   const [favorites, setFavorites] = useState<number[]>([1]);
   const [user, setUser] = useState(localStorage.getItem("mgt-user") || "");
@@ -150,10 +158,9 @@ export default function App() {
     writeDraft("mgt-draft-package-category", newPackageCategory);
     writeDraft("mgt-draft-destination", query);
     writeDraft("mgt-draft-origin", origin);
-    writeDraft("mgt-draft-departure-city", departureCity);
     writeDraft("mgt-draft-accommodation", accommodation);
-    writeDraft("mgt-draft-date", date);
-    writeDraft("mgt-draft-return-date", returnDate);
+    writeDraft("mgt-draft-search-date", date);
+    writeDraft("mgt-draft-search-return-date", returnDate);
     writeDraft("mgt-draft-travelers", String(travelers));
     writeDraft("mgt-draft-profile-email", profileEmail);
     writeDraft("mgt-draft-profile-phone", profilePhone);
@@ -173,7 +180,7 @@ export default function App() {
     writeDraft("mgt-draft-quote-values", JSON.stringify(quoteDrafts));
   }, [
     employeeMessage, newPackageName, newPackagePrice, newPackageCountry, newPackageDays, newPackageCategory,
-    query, origin, departureCity, accommodation, date, returnDate, travelers, profileEmail, profilePhone,
+    query, origin, accommodation, date, returnDate, travelers, profileEmail, profilePhone,
     passengerName, passengerEmail, paymentMethod, authEmail, authFullName,
     employeeEmailDraft, contactName, contactEmail, contactMessage, newsletterEmail,
     incomeConcept, incomeAmount, offerEndDate, quoteDrafts
@@ -201,7 +208,7 @@ export default function App() {
   const submitSearch = () => {
     if (isSearching) return;
     if (!query.trim()) { setToast("Elegí un destino para continuar."); return; }
-    if (!date || !returnDate || returnDate < date) { setToast("Revisá las fechas de ida y vuelta."); return; }
+    if (Boolean(date) !== Boolean(returnDate) || (date && returnDate < date)) { setToast("Elegí una fecha de salida y una de regreso válidas."); return; }
     setIsSearching(true);
     const term = query.trim();
     const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6);
@@ -217,8 +224,9 @@ export default function App() {
     p.price >= minPrice &&
     p.price <= maxPrice &&
     (!onlyOffers || p.tag === "¡Oferta!") &&
-    (!topRatedOnly || p.rating >= 4.8)
-  ), [category, query, employeePackages, maxPrice, onlyOffers, topRatedOnly]);
+    (!topRatedOnly || p.rating >= 4.8) &&
+    (!date || (p.departureDate === date && p.returnDate === returnDate))
+  ), [category, query, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? buildServicePrices(p.price);
   const quoteDraftFor = (p: Package) => { const current = quoteForPackage(p); return quoteDrafts[p.id] ?? { flight: String(current.flight), hotel: String(current.hotel), assistance: String(current.assistance) }; };
@@ -253,8 +261,7 @@ export default function App() {
   const reserve = () => {
     const cleanName = passengerName.trim();
     const cleanEmail = passengerEmail.trim();
-    const cleanDepartureCity = departureCity.trim();
-    if (!cleanDepartureCity) { setToast("Indicá desde qué ciudad salís para continuar con la reserva."); return; }
+    if (!selected.departureCity || !selected.departureDate || !selected.returnDate) { setToast("Este paquete todavía no tiene una salida configurada. Contactá a la agencia."); return; }
     if (cleanName.length < 3) {
       setToast("Ingresá el nombre y apellido del pasajero principal.");
       return;
@@ -265,9 +272,9 @@ export default function App() {
       return;
     }
     const id = `MGT-${Math.floor(100000 + Math.random() * 900000)}`;
-    const next = [...bookings, `${selected.name} · ${id} · ${money(selected.price * travelers)} · Sale desde ${cleanDepartureCity}`];
+    const next = [...bookings, `${selected.name} · ${id} · ${money(selected.price * travelers)} · Sale desde ${selected.departureCity} · Ida ${formatTravelDate(selected.departureDate)} · Vuelta ${formatTravelDate(selected.returnDate)}`];
     setBookings(next); localStorage.setItem("mgt-bookings", JSON.stringify(next));
-    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, destination: selected.name, departureCity: cleanDepartureCity, amount: selected.price * travelers, method: paymentMethod, status: "Pendiente", date: todayISO }, ...items]);
+    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, destination: selected.name, departureCity: selected.departureCity, departureDate: selected.departureDate, returnDate: selected.returnDate, amount: selected.price * travelers, method: paymentMethod, status: "Pendiente", date: todayISO }, ...items]);
     setPassengerEmail("");
     setPaymentMethod("");
     writeDraft("mgt-draft-passenger-email", "");
@@ -338,6 +345,7 @@ export default function App() {
       <div className="package-heading"><div><h3>{p.id===2?"Salvador":p.name}</h3><p>{p.country} <span>·</span> Playas</p></div></div>
       <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small>{p.tag==="¡Oferta!" && <span className="discount">{discount(p)}% OFF</span>}</div>
       <div className="price-line"><strong>{money(p.price)}</strong><del>{money(p.oldPrice)}</del></div>
+      <small className="package-schedule-inline">Desde {p.departureCity} · {formatTravelDate(p.departureDate)}</small>
       <button className="outline-btn full offer-reserve" onClick={() => openPackage(p)}>Reservar <ArrowRight size={16}/></button>
     </div>
   </article>;
@@ -364,10 +372,10 @@ export default function App() {
         <span className="field-icon"><CalendarDays size={18}/></span>
         <span className="search-field-copy">
           <small>Fechas</small>
-          <strong>{displayDate(date)} – {displayDate(returnDate)}</strong>
+          <strong>{date && returnDate ? `${displayDate(date)} – ${displayDate(returnDate)}` : "Filtrar por salida (opcional)"}</strong>
           <span className="date-range-inputs">
-            <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate < nextDate) setReturnDate(nextDate); }} aria-label="Fecha de ida"/>
-            <input type="date" value={returnDate} min={date} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
+            <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate && returnDate < nextDate) setReturnDate(""); }} aria-label="Fecha de salida"/>
+            <input type="date" value={returnDate} min={date || todayISO} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de regreso"/>
           </span>
         </span>
       </div>
@@ -479,11 +487,10 @@ export default function App() {
         <small>por persona · incluye los servicios cotizados abajo</small>
         <div className="employee-quote-breakdown"><div><span>Vuelos</span><b>{money(selectedQuote.flight)}</b></div><div><span>Hotel</span><b>{money(selectedQuote.hotel)}</b></div><div><span>Asistencia al viajero</span><b>{money(selectedQuote.assistance)}</b></div></div>
         <div className="booking-divider"/>
-        <label>Ciudad de salida<input type="text" list="departure-city-options" value={departureCity} onChange={e=>setDepartureCity(e.target.value)} placeholder="¿Desde dónde salís?" autoComplete="address-level2" required/><datalist id="departure-city-options">{locationOptions.map(place=><option key={place} value={place}/>)}</datalist></label>
-        <label>Fecha de salida<input type="date" value={date} min={todayISO} onChange={e=>setDate(e.target.value)}/></label>
+        <div className="package-fixed-itinerary"><div><MapPin size={15}/><span>Salida desde <b>{selected.departureCity || "A coordinar"}</b></span></div><div><CalendarDays size={15}/><span><b>{formatTravelDate(selected.departureDate)}</b> al <b>{formatTravelDate(selected.returnDate)}</b></span></div></div>
         <label>Pasajeros<select value={travelers} onChange={e=>setTravelers(Number(e.target.value))}><option value={1}>1 adulto</option><option value={2}>2 adultos</option><option value={3}>3 adultos</option><option value={4}>4 adultos</option></select></label>
         <div className="booking-total"><span>Total estimado</span><b>{money(selected.price*travelers)}</b></div>
-        <button className="primary-btn full" onClick={()=>{if(!departureCity.trim()){setToast("Indicá desde qué ciudad salís antes de reservar.");return;}go(user?"checkout":"login");}}>Reservar paquete <ArrowRight size={17}/></button>
+        <button className="primary-btn full" onClick={()=>go(user?"checkout":"login")} disabled={!selected.departureCity || !selected.departureDate || !selected.returnDate}>Reservar paquete <ArrowRight size={17}/></button>
         <p className="booking-safe"><LockKeyhole size={14}/> Reserva segura · Sin cargos ocultos</p>
       </aside>
     </div>
@@ -620,7 +627,7 @@ export default function App() {
         </>}
         {employeeTab==="bookings"&&<>
           <div className="employee-section-title"><div><h2>Reservas y pasajeros</h2><p>Revisá operaciones, importes y estado de los pagos.</p></div><span className="demo-label">RESERVAS DE PRUEBA</span></div>
-          <div className="employee-booking-list">{incomeEntries.filter(entry=>entry.reference.startsWith("MG-")||entry.reference.startsWith("MGT-")).map(entry=><article key={entry.id}><span className="booking-icon"><Ticket/></span><div><b>{entry.destination||"Reserva de viaje"}</b><small>{entry.reference} · {entry.client} · Salida: {entry.departureCity || "No indicada"} · {entry.date} · {entry.method}</small></div><strong>{money(entry.amount)}</strong><span className={entry.status==="Acreditado"?"message-done":"message-pending"}>{entry.status==="Acreditado"?"Pago acreditado":"Pendiente de pago"}</span></article>)}</div>
+          <div className="employee-booking-list">{incomeEntries.filter(entry=>entry.reference.startsWith("MG-")||entry.reference.startsWith("MGT-")).map(entry=><article key={entry.id}><span className="booking-icon"><Ticket/></span><div><b>{entry.destination||"Reserva de viaje"}</b><small>{entry.reference} · {entry.client} · Salida: {entry.departureCity || "No indicada"} · {entry.departureDate ? formatTravelDate(entry.departureDate) : "Fecha no indicada"} al {entry.returnDate ? formatTravelDate(entry.returnDate) : "Fecha no indicada"} · {entry.date} · {entry.method}</small></div><strong>{money(entry.amount)}</strong><span className={entry.status==="Acreditado"?"message-done":"message-pending"}>{entry.status==="Acreditado"?"Pago acreditado":"Pendiente de pago"}</span></article>)}</div>
         </>}
       </section>
     </div>
@@ -628,10 +635,10 @@ export default function App() {
   </main>;
 
   const checkoutQuote = quoteForPackage(selected);
-  const renderCheckout = () => <main className="page-container narrow"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span><button onClick={()=>go("detail")}>Paquete</button><span>/</span>Confirmar reserva</div><div className="checkout-title"><span className="kicker">ÚLTIMO PASO</span><h1>Confirmá tu viaje</h1><p>Revisá los detalles antes de confirmar tu reserva de prueba.</p></div><div className="checkout-layout"><div className="checkout-box"><h2>Resumen del paquete</h2><div className="checkout-destination"><SmartImage className="checkout-smart-image" src={selected.image} alt={selected.name} preset="thumb" ratio="auto" fit="cover"/><div><b>{selected.name} · {selected.country}</b><small>{selected.days} días · {travelers} pasajero(s)</small><small>Salida desde: {departureCity.trim() || "A completar"}</small><small>Ida: {date} · Vuelta: {returnDate}</small></div></div><div className="checkout-service"><Plane/> Vuelos ida y vuelta <strong>{money(checkoutQuote.flight)}</strong></div><div className="checkout-service"><Hotel/> Hotel · {selected.days - 1} noches <strong>{money(checkoutQuote.hotel)}</strong></div><div className="checkout-service"><Stethoscope/> Asistencia al viajero <strong>{money(checkoutQuote.assistance)}</strong></div><p className="form-hint">Cada servicio tiene un importe asignado. Estos valores son referenciales de la demostración y se confirman con los proveedores antes de emitir.</p><label className="checkout-departure-field">Ciudad desde donde salís<input type="text" list="checkout-departure-city-options" value={departureCity} onChange={e=>setDepartureCity(e.target.value)} placeholder="Ej. Córdoba, Argentina" autoComplete="address-level2" required/><datalist id="checkout-departure-city-options">{locationOptions.map(place=><option key={place} value={place}/>)}</datalist></label><p className="form-hint">Usaremos esta ciudad como punto de partida para gestionar la cotización del viaje.</p><div className="booking-divider"/><h2>Datos del pasajero principal</h2><label>Nombre y apellido<input value={passengerName} onChange={e=>setPassengerName(e.target.value)} autoComplete="name" placeholder="Nombre completo" maxLength={80}/></label><label>Correo electrónico<input type="email" value={passengerEmail} onChange={e=>setPassengerEmail(e.target.value)} autoComplete="email" placeholder="tu@email.com" maxLength={120}/></label><p className="form-hint">Usaremos estos datos para identificar la reserva y enviar la confirmación.</p><div className="booking-divider"/><h2>Elegí tu medio de pago</h2><p className="form-hint">Seleccioná cómo preferís abonar. En esta demo no se realizará ningún cobro.</p><div className="payment-method-grid"><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de crédito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de crédito")}><span className="payment-visual card-visa">VISA</span><b>Tarjeta de crédito</b><small>Crédito y cuotas</small></button><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de débito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de débito")}><span className="payment-visual card-master"><i></i><i></i></span><b>Tarjeta de débito</b><small>Pago con débito</small></button><button type="button" className={`payment-method ${paymentMethod === "Mercado Pago" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Mercado Pago")}><span className="payment-visual mercado-logo"> Mercado Pago </span><b>Mercado Pago</b><small>Billetera virtual</small></button><button type="button" className={`payment-method ${paymentMethod === "Transferencia bancaria" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Transferencia bancaria")}><span className="payment-visual transfer-visual"><CreditCard size={25}/></span><b>Transferencia</b><small>Desde tu banco</small></button></div><div className="demo-warning"><CircleHelp/> Esta es una simulación académica. No se realizará ningún cobro ni reserva real.</div></div><aside className="booking-card"><h3>Detalle de precio</h3><div className="summary-row"><span>Vuelos · por persona</span><b>{money(checkoutQuote.flight)}</b></div><div className="summary-row"><span>Hotel · por persona</span><b>{money(checkoutQuote.hotel)}</b></div><div className="summary-row"><span>Asistencia · por persona</span><b>{money(checkoutQuote.assistance)}</b></div><div className="summary-row"><span>Pasajeros</span><b>× {travelers}</b></div><div className="booking-divider"/><div className="booking-total"><span>Total</span><b>{money(selected.price*travelers)}</b></div><button className="primary-btn full" onClick={reserve}>Confirmar reserva <Check size={17}/></button><p className="booking-safe"><LockKeyhole size={14}/> Proceso de demostración</p></aside></div></main>;
+  const renderCheckout = () => <main className="page-container narrow"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span><button onClick={()=>go("detail")}>Paquete</button><span>/</span>Confirmar reserva</div><div className="checkout-title"><span className="kicker">ÚLTIMO PASO</span><h1>Confirmá tu viaje</h1><p>Revisá los detalles antes de confirmar tu reserva de prueba.</p></div><div className="checkout-layout"><div className="checkout-box"><h2>Resumen del paquete</h2><div className="checkout-destination"><SmartImage className="checkout-smart-image" src={selected.image} alt={selected.name} preset="thumb" ratio="auto" fit="cover"/><div><b>{selected.name} · {selected.country}</b><small>{selected.days} días · {travelers} pasajero(s)</small><small>Salida desde: {selected.departureCity}</small><small>Ida: {formatTravelDate(selected.departureDate)} · Vuelta: {formatTravelDate(selected.returnDate)}</small></div></div><div className="checkout-service"><Plane/> Vuelos ida y vuelta <strong>{money(checkoutQuote.flight)}</strong></div><div className="checkout-service"><Hotel/> Hotel · {selected.days - 1} noches <strong>{money(checkoutQuote.hotel)}</strong></div><div className="checkout-service"><Stethoscope/> Asistencia al viajero <strong>{money(checkoutQuote.assistance)}</strong></div><p className="form-hint">Cada servicio tiene un importe asignado. Estos valores son referenciales de la demostración y se confirman con los proveedores antes de emitir.</p><p className="form-hint">El origen y las fechas de esta salida fueron definidos por el equipo de la agencia al publicar el paquete.</p><div className="booking-divider"/><h2>Datos del pasajero principal</h2><label>Nombre y apellido<input value={passengerName} onChange={e=>setPassengerName(e.target.value)} autoComplete="name" placeholder="Nombre completo" maxLength={80}/></label><label>Correo electrónico<input type="email" value={passengerEmail} onChange={e=>setPassengerEmail(e.target.value)} autoComplete="email" placeholder="tu@email.com" maxLength={120}/></label><p className="form-hint">Usaremos estos datos para identificar la reserva y enviar la confirmación.</p><div className="booking-divider"/><h2>Elegí tu medio de pago</h2><p className="form-hint">Seleccioná cómo preferís abonar. En esta demo no se realizará ningún cobro.</p><div className="payment-method-grid"><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de crédito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de crédito")}><span className="payment-visual card-visa">VISA</span><b>Tarjeta de crédito</b><small>Crédito y cuotas</small></button><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de débito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de débito")}><span className="payment-visual card-master"><i></i><i></i></span><b>Tarjeta de débito</b><small>Pago con débito</small></button><button type="button" className={`payment-method ${paymentMethod === "Mercado Pago" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Mercado Pago")}><span className="payment-visual mercado-logo"> Mercado Pago </span><b>Mercado Pago</b><small>Billetera virtual</small></button><button type="button" className={`payment-method ${paymentMethod === "Transferencia bancaria" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Transferencia bancaria")}><span className="payment-visual transfer-visual"><CreditCard size={25}/></span><b>Transferencia</b><small>Desde tu banco</small></button></div><div className="demo-warning"><CircleHelp/> Esta es una simulación académica. No se realizará ningún cobro ni reserva real.</div></div><aside className="booking-card"><h3>Detalle de precio</h3><div className="summary-row"><span>Vuelos · por persona</span><b>{money(checkoutQuote.flight)}</b></div><div className="summary-row"><span>Hotel · por persona</span><b>{money(checkoutQuote.hotel)}</b></div><div className="summary-row"><span>Asistencia · por persona</span><b>{money(checkoutQuote.assistance)}</b></div><div className="summary-row"><span>Pasajeros</span><b>× {travelers}</b></div><div className="booking-divider"/><div className="booking-total"><span>Total</span><b>{money(selected.price*travelers)}</b></div><button className="primary-btn full" onClick={reserve}>Confirmar reserva <Check size={17}/></button><p className="booking-safe"><LockKeyhole size={14}/> Proceso de demostración</p></aside></div></main>;
 
   const renderAccount = () => <main className="page-container"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span>Mi cuenta</div><div className="account-heading"><div className="user-avatar"><UserRound/></div><div><span className="kicker">MI ESPACIO MUNDO GLOBAL</span><h1>¡Hola, {user || "Viajero"}!</h1><p>Gestioná tus viajes y preparate para tu próxima aventura.</p></div><button className="outline-btn" onClick={()=>{setUser("");localStorage.removeItem("mgt-user");setAuthPassword("");go("login");}}> <LogOut size={16}/> Cerrar sesión</button></div><div className="account-grid"><aside className="account-menu"><button className={accountSection==="bookings"?"current":""} onClick={()=>setAccountSection("bookings")}><Ticket/> Mis reservas</button><button className={accountSection==="profile"?"current":""} onClick={()=>setAccountSection("profile")}><UserRound/> Mi perfil</button><button className={accountSection==="favorites"?"current":""} onClick={()=>setAccountSection("favorites")}><Heart/> Mis favoritos</button><button className={accountSection==="recent"?"current":""} onClick={()=>setAccountSection("recent")}><Clock3/> Búsquedas recientes</button><button onClick={()=>go("support")}><Headphones/> Ayuda y soporte</button></aside><section className="account-content">
-    {accountSection==="bookings"&&<><div className="section-heading compact"><div><h2>Mis reservas</h2><p>Consultá el estado de tus próximos viajes.</p></div><button className="primary-btn" onClick={()=>go("results")}>Buscar viajes <ArrowRight size={16}/></button></div>{bookings.length===0?<div className="empty-state"><Luggage size={42}/><h3>Todavía no tenés viajes reservados</h3><p>Tu próxima aventura está a un clic de distancia.</p><button className="primary-btn" onClick={()=>go("results")}>Explorar paquetes</button></div>:bookings.map((b,i)=><div className="booking-list-item" key={i}><span className="booking-icon"><Plane/></span><div><b>{b.split(" · ")[0]}</b><small>Código: {b.split(" · ")[1]} · {b.split(" · ")[3] || "Ciudad de salida no registrada"} · Reserva de demostración</small></div><strong>{b.split(" · ")[2]}</strong><span className="status-pill"><CheckCircle2 size={13}/> Confirmada</span></div>)}</>}
+    {accountSection==="bookings"&&<><div className="section-heading compact"><div><h2>Mis reservas</h2><p>Consultá el estado de tus próximos viajes.</p></div><button className="primary-btn" onClick={()=>go("results")}>Buscar viajes <ArrowRight size={16}/></button></div>{bookings.length===0?<div className="empty-state"><Luggage size={42}/><h3>Todavía no tenés viajes reservados</h3><p>Tu próxima aventura está a un clic de distancia.</p><button className="primary-btn" onClick={()=>go("results")}>Explorar paquetes</button></div>:bookings.map((b,i)=><div className="booking-list-item" key={i}><span className="booking-icon"><Plane/></span><div><b>{b.split(" · ")[0]}</b><small>Código: {b.split(" · ")[1]} · {b.split(" · ").slice(3).join(" · ") || "Condiciones de salida no registradas"} · Reserva de demostración</small></div><strong>{b.split(" · ")[2]}</strong><span className="status-pill"><CheckCircle2 size={13}/> Confirmada</span></div>)}</>}
     {accountSection==="profile"&&<><div className="section-heading compact"><div><h2>Mi perfil</h2><p>Actualizá tus datos personales de contacto.</p></div></div><form className="profile-edit-form" onSubmit={e=>{e.preventDefault();const name=passengerName.trim();if(name.length<3){setToast("Ingresá tu nombre y apellido.");return;}setUser(name);localStorage.setItem("mgt-user",name);localStorage.setItem("mgt-email",profileEmail);localStorage.setItem("mgt-phone",profilePhone);setToast("¡Tu perfil fue actualizado!");}}><label>Nombre y apellido<input value={passengerName} onChange={e=>setPassengerName(e.target.value)} required minLength={3} maxLength={80}/></label><label>Correo electrónico<input type="email" value={profileEmail} onChange={e=>setProfileEmail(e.target.value)} placeholder="tu@email.com" required/></label><label>Teléfono<input value={profilePhone} onChange={e=>setProfilePhone(e.target.value)} placeholder="+54 9 353 ..." /></label><button className="primary-btn">Guardar cambios <Check size={16}/></button></form></>}
     {accountSection==="favorites"&&<><div className="section-heading compact"><div><h2>Mis favoritos</h2><p>Los destinos que guardaste para más adelante.</p></div></div><div className="account-favorites-grid">{employeePackages.filter(p=>favorites.includes(p.id)).map(p=>renderPackageCard(p))}</div>{favorites.length===0&&<div className="empty-state"><Heart size={38}/><h3>Todavía no guardaste favoritos</h3><p>Usá el corazón de cada paquete para guardarlo.</p><button className="primary-btn" onClick={()=>go("results")}>Explorar paquetes</button></div>}</>}
     {accountSection==="recent"&&<><div className="section-heading compact"><div><h2>Búsquedas recientes</h2><p>Retomá rápidamente los destinos que estuviste explorando.</p></div></div>{recentSearches.length===0?<div className="empty-state"><Search size={38}/><h3>Aún no tenés búsquedas recientes</h3><p>Cuando busques destinos, aparecerán acá.</p></div>:<div className="recent-search-list">{recentSearches.map((term,i)=><button key={i} onClick={()=>{setQuery(term==="Todos los destinos"?"":term);go("results");}}><span><Search size={16}/>{term}</span><ArrowRight size={16}/></button>)}</div>}</>}
