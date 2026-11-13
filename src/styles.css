@@ -2483,3 +2483,7 @@ html,body,#root{min-height:100%;background:#f4f7fc}
   .search-panel .date-range-field{min-height:112px}
   .search-panel .visible-date-input{font-size:13px}
 }
+
+@media(min-width:1051px){
+  .results-search .search-panel{grid-template-columns:minmax(135px,1fr) minmax(135px,1fr) minmax(165px,1.1fr) minmax(110px,.7fr) minmax(125px,.85fr) 130px}
+}
