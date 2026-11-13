@@ -2163,3 +2163,8 @@ select:focus-visible{
   .detail-hero>.detail-hero-copy{padding:30px 36px}
   .detail-hero-copy h1{font-size:42px}
 }
+
+/* Las imágenes que pasan a contain conservan el blur de fondo en el hero */
+.detail-hero>.detail-smart-image.uses-contain .smart-image-main{
+  object-fit:contain!important;
+}
