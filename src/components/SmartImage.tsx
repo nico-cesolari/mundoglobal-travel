@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { ImageOff } from "lucide-react";
 import "./smart-image.css";
 import { IMAGE_PRESETS } from "./imagePresets";
@@ -19,6 +20,7 @@ export type SmartImageProps = {
   srcSet?: string;
   avifSrcSet?: string;
   webpSrcSet?: string;
+  blurDataURL?: string;
   priority?: boolean;
   rounded?: boolean | number;
   className?: string;
@@ -52,7 +54,7 @@ function smartNeedsContain(safeArea: SafeArea | undefined, imageRatio: number, b
 
 export function SmartImage({
   src, alt, ratio, focalPoint = { x: 50, y: 50 }, safeArea,
-  fit = "smart", sizes, srcSet, avifSrcSet, webpSrcSet, priority = false, rounded = true, className = "",
+  fit = "smart", sizes, srcSet, avifSrcSet, webpSrcSet, blurDataURL, priority = false, rounded = true, className = "",
   preset, onClick
 }: SmartImageProps) {
   const presetConfig = preset ? IMAGE_PRESETS[preset] : undefined;
@@ -63,7 +65,7 @@ export function SmartImage({
   const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
   const focal = { x: clamp(focalPoint.x), y: clamp(focalPoint.y) };
   const [boxSize, setBoxSize] = useState({ width: 0, height: 0 });
-  const wrapperRef = useMemo(() => ({ current: null as HTMLDivElement | null }), []);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const element = wrapperRef.current;
@@ -101,12 +103,13 @@ export function SmartImage({
   return <div
     ref={node => { wrapperRef.current = node; }}
     className={`smart-image ${loaded ? "is-loaded" : ""} ${failed ? "has-failed" : ""} ${shouldContain ? "uses-contain" : ""} ${lowResolution ? "is-low-resolution" : ""} ${className}`}
-    style={{ ...ratioStyle, ...roundedStyle, ["--smart-focal-x" as string]: `${focal.x}%`, ["--smart-focal-y" as string]: `${focal.y}%` }}
+    style={{ ...ratioStyle, ...roundedStyle, ["--smart-focal-x"]: `${focal.x}%`, ["--smart-focal-y"]: `${focal.y}%` } as CSSProperties}
     onClick={onClick}
     role={onClick ? "button" : undefined}
     tabIndex={onClick ? 0 : undefined}
   >
     {!loaded && !failed && <span className="smart-image-skeleton" aria-hidden="true"/>}
+    {!loaded && !failed && blurDataURL && <img className="smart-image-lqip" src={blurDataURL} alt="" aria-hidden="true"/>}
     {shouldContain && !failed && <img className="smart-image-backdrop" src={src} alt="" aria-hidden="true" loading={priority ? "eager" : "lazy"} decoding="async"/>}
     {failed ? <span className="smart-image-fallback" role="img" aria-label={alt || "Imagen no disponible"}><ImageOff size={24}/><small>Imagen no disponible</small></span> :
       <picture className="smart-image-picture">
