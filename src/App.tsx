@@ -220,7 +220,7 @@ export default function App() {
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? buildServicePrices(p.price);
   const quoteDraftFor = (p: Package) => { const current = quoteForPackage(p); return quoteDrafts[p.id] ?? { flight: String(current.flight), hotel: String(current.hotel), assistance: String(current.assistance) }; };
-  const savePackageQuote = (p: Package) => { const draft = quoteDraftFor(p); const flight = Number(draft.flight); const hotel = Number(draft.hotel); const assistance = Number(draft.assistance); if (![flight, hotel, assistance].every(value => Number.isFinite(value) && value > 0)) { setToast("Ingresá importes válidos para vuelo, hotel y asistencia."); return; } const total = flight + hotel + assistance; setEmployeePackages(items => items.map(item => item.id === p.id ? { ...item, price: total, oldPrice: item.tag === "¡Oferta!" ? Math.max(item.oldPrice, total) : total, servicePrices: { flight, hotel, assistance } } : item)); setQuoteDrafts(items => ({ ...items, [p.id]: { flight: String(flight), hotel: String(hotel), assistance: String(assistance) } })); setToast("Cotización guardada y precio del paquete actualizado."); };
+  const savePackageQuote = (p: Package) => { const draft = quoteDraftFor(p); const flight = Number(draft.flight); const hotel = Number(draft.hotel); const assistance = Number(draft.assistance); if (![flight, hotel, assistance].every(value => Number.isFinite(value) && value > 0)) { setToast("Ingresá importes válidos para vuelo, hotel y asistencia."); return; } const total = flight + hotel + assistance; setEmployeePackages(items => items.map(item => { if (item.id !== p.id) return item; const keepOffer = item.tag === "¡Oferta!" && total < item.oldPrice; return { ...item, price: total, oldPrice: keepOffer ? item.oldPrice : total, tag: item.tag === "¡Oferta!" && !keepOffer ? undefined : item.tag, offerExpires: keepOffer ? item.offerExpires : undefined, servicePrices: { flight, hotel, assistance } }; })); setQuoteDrafts(items => ({ ...items, [p.id]: { flight: String(flight), hotel: String(hotel), assistance: String(assistance) } })); setToast("Cotización guardada y precio del paquete actualizado."); };
   const collectedIncome = incomeEntries.filter(entry => entry.status === "Acreditado").reduce((total, entry) => total + entry.amount, 0);
   const pendingIncome = incomeEntries.filter(entry => entry.status === "Pendiente").reduce((total, entry) => total + entry.amount, 0);
   const sortedPackages = useMemo(() => [...filtered].sort((a, b) => {
@@ -327,12 +327,12 @@ export default function App() {
 
   const renderPackageCard = (p: Package, featured = false) => <article key={p.id} className={`package-card ${featured ? "featured" : ""}`}>
     <div className="package-photo"><SmartImage className="package-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="auto" focalPoint={p.focalPoint} safeArea={p.safeArea} priority={featured && p.id <= 4}/>
-      <span className="offer-tag">¡Oferta!</span>
+      {p.tag && <span className="offer-tag">{p.tag}</span>}
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
     <div className="package-info">
       <div className="package-heading"><div><h3>{p.id===2?"Salvador":p.name}</h3><p>{p.country} <span>·</span> Playas</p></div></div>
-      <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small><span className="discount">Hasta {p.id===1?40:p.id===2?35:45}% OFF</span></div>
+      <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating.toFixed(1)} <small>({p.reviews})</small>{p.tag==="¡Oferta!" && <span className="discount">{discount(p)}% OFF</span>}</div>
       <div className="price-line"><strong>{money(p.price)}</strong><del>{money(p.oldPrice)}</del></div>
       <button className="outline-btn full offer-reserve" onClick={() => openPackage(p)}>Reservar <ArrowRight size={16}/></button>
     </div>
@@ -474,7 +474,7 @@ export default function App() {
         <div className="notice"><ShieldCheck/><span><b>Servicios con precio transparente</b><small>La asistencia al viajero tiene un costo y está discriminada en el total. Los importes son orientativos de esta demostración y deben confirmarse con cada proveedor.</small></span></div>
       </div>
       <aside className="booking-card">
-        <span className="discount">Hasta {discount(selected)}% OFF</span>
+        {selected.tag==="¡Oferta!" && discount(selected)>0 && <span className="discount">{discount(selected)}% OFF</span>}
         <div className="price-line"><strong>{money(selected.price)}</strong><del>{money(selected.oldPrice)}</del></div>
         <small>por persona · incluye los servicios cotizados abajo</small>
         <div className="employee-quote-breakdown"><div><span>Vuelos</span><b>{money(selectedQuote.flight)}</b></div><div><span>Hotel</span><b>{money(selectedQuote.hotel)}</b></div><div><span>Asistencia al viajero</span><b>{money(selectedQuote.assistance)}</b></div></div>
