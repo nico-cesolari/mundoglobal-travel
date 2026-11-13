@@ -312,12 +312,13 @@ export default function App() {
   };
   const filtered = useMemo(() => employeePackages.filter(p =>
     (category === "Todos" || p.category === category) &&
+    (!origin.trim() || (p.departureCity ?? "").toLowerCase().includes(origin.trim().split(",")[0].toLowerCase())) &&
     (`${p.name} ${p.country}`.toLowerCase().includes(query.trim().split(",")[0].trim().toLowerCase())) &&
     (!p.price || (p.price >= minPrice && p.price <= maxPrice)) &&
     (!onlyOffers || p.tag === "¡Oferta!") &&
     (!topRatedOnly || (p.rating ?? 0) >= 4.8) &&
     (!date || (p.departureDate === date && p.returnDate === returnDate))
-  ), [category, query, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
+  ), [category, query, origin, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? (p.price ? buildServicePrices(p.price) : undefined);
   const collectedIncome = incomeEntries.filter(entry => entry.status === "Acreditado").reduce((total, entry) => total + entry.amount, 0);
@@ -450,6 +451,16 @@ export default function App() {
     };
     const matches = employeePackages.filter(packageHasPhoto).map(item => `${item.name}, ${item.country}`).filter(place => place.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 7);
     return <div className="search-panel">
+      <div className={`search-field location-field origin-search-field ${activeLocationField === "origin" ? "location-focused" : ""}`}>
+        <span className="field-icon"><MapPin size={18}/></span>
+        <span className="search-field-copy">
+          <small>Origen</small>
+          <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder="¿Desde dónde salís?" autoComplete="off" />
+          {activeLocationField === "origin" && origin.trim().length > 0 && <div className="location-suggestions">
+            {locationOptions.filter(place => place.toLowerCase().includes(origin.trim().toLowerCase())).slice(0,7).map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setOrigin(place); setActiveLocationField(null); }}/>)}
+          </div>}
+        </span>
+      </div>
       <div className={`search-field location-field destination-search-field ${activeLocationField === "destination" ? "location-focused" : ""}`}>
         <span className="field-icon"><MapPin size={18}/></span>
         <span className="search-field-copy">
@@ -463,12 +474,10 @@ export default function App() {
       <div className="search-field date-range-field">
         <span className="field-icon"><CalendarDays size={18}/></span>
         <span className="search-field-copy">
-          <small>Fechas</small>
-          <strong>{date && returnDate ? `${displayDate(date)} – ${displayDate(returnDate)}` : "Filtrar por salida (opcional)"}</strong>
-          <span className="date-range-inputs">
-            <input type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate && returnDate < nextDate) setReturnDate(""); }} aria-label="Fecha de salida"/>
-            <input type="date" value={returnDate} min={date || todayISO} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de regreso"/>
-          </span>
+          <small>Fecha de ida</small>
+          <input className="visible-date-input" type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate && returnDate < nextDate) setReturnDate(""); }} aria-label="Fecha de ida"/>
+          <small className="return-date-label">Fecha de vuelta</small>
+          <input className="visible-date-input" type="date" value={returnDate} min={date || todayISO} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
         </span>
       </div>
       <label className="search-field select-search-field">
