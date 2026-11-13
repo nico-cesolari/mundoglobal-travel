@@ -372,4 +372,5 @@
   .package-detail-actions button.favorite-pop::before,
   .package-detail-actions button.favorite-pop::after{animation:none!important}
   .nav-book-now,.package-other-favorite{transition:none!important}
+  .package-other-favorite.favorite-pop{animation:none!important}
 }
