@@ -28,11 +28,21 @@ const packages: Package[] = [
 
 const money = (n: number) => `USD ${n.toLocaleString("es-AR")}`;
 const discount = (p: Package) => Math.round((1 - p.price / p.oldPrice) * 100);
+const loadSavedPackages = (): Package[] => {
+  const saved = localStorage.getItem("mgt-packages");
+  if (!saved) return packages;
+  try {
+    const parsed: unknown = JSON.parse(saved);
+    return Array.isArray(parsed) ? parsed as Package[] : packages;
+  } catch {
+    return packages;
+  }
+};
 
 export default function App() {
   const [page, setPage] = useState<Page>("home");
   const [heroSlide, setHeroSlide] = useState(0);
-  const [employeePackages, setEmployeePackages] = useState<Package[]>(packages);
+  const [employeePackages, setEmployeePackages] = useState<Package[]>(loadSavedPackages);
   const [focalEditPackageId, setFocalEditPackageId] = useState(1);
   const [employee, setEmployee] = useState("");
   const [employeeTab, setEmployeeTab] = useState<"overview" | "packages" | "messages" | "bookings">("overview");
