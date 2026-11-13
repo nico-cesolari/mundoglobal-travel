@@ -261,12 +261,12 @@ export default function App() {
   };
 
   const heroPromotions = [
-    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/images/hero-mundo.svg", caption: "" }
+    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está esperando<br/> <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: "/images/hero-mundo.svg", caption: "" }
   ];
   const activePromotion = heroPromotions[heroSlide];
   const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
     <div className="hero-art" aria-hidden="true"><img src="/images/hero-mundo.svg" alt="" fetchPriority="high" /></div>
-    <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está<br/>esperando <em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
+    <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está esperando <br/><em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
   </div>{renderSearchBar()}</section>
   <section className="section destinations-section">
     <div className="category-row destination-filters">
