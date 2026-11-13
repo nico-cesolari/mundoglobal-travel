@@ -101,6 +101,10 @@ export default function App() {
   ]);
 
   useEffect(() => {
+    localStorage.setItem("mgt-packages", JSON.stringify(employeePackages));
+  }, [employeePackages]);
+
+  useEffect(() => {
     const interval = window.setInterval(() => setHeroSlide(current => (current + 1) % 4), 3000);
     return () => window.clearInterval(interval);
   }, []);
