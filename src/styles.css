@@ -336,3 +336,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;out
   .hero-caption{display:none}
   .hero-copy{animation-duration:.4s}
 }
+
+/* Formularios: mantener un foco visual consistente y sin recuadros azules */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible{
+  outline:none !important;
+  box-shadow:none !important;
+}
