@@ -27,6 +27,7 @@ const discount = (p: Package) => Math.round((1 - p.price / p.oldPrice) * 100);
 
 export default function App() {
   const [page, setPage] = useState<Page>("home");
+  const [heroSlide, setHeroSlide] = useState(0);
   const [employeePackages, setEmployeePackages] = useState<Package[]>(packages);
   const [employee, setEmployee] = useState("");
   const [employeeTab, setEmployeeTab] = useState<"overview" | "packages" | "messages" | "bookings">("overview");
@@ -79,6 +80,11 @@ export default function App() {
     { id: 2, name: "Lucas Fernández", subject: "Cambio de fecha", body: "Necesitaría saber si puedo modificar la fecha de salida de mi viaje.", status: "Pendiente" },
     { id: 3, name: "Sofía Martínez", subject: "Medios de pago", body: "¿Puedo abonar una parte con tarjeta y otra por transferencia?", status: "Respondido" }
   ]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setHeroSlide(current => (current + 1) % 4), 3000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!toast) return;
@@ -231,10 +237,18 @@ export default function App() {
     </div>;
   };
 
-  const renderHome = () => <><section className="hero-shell"><div className="hero">
-    <div className="hero-copy"><span className="eyebrow"><Plane size={14}/> Tu próxima aventura, más cerca</span><h1>El mundo está<br/>esperando <em>por vos</em></h1><p>Descubrí, viajá y viví experiencias únicas en<br className="desktop-only"/> los destinos más increíbles del planeta.</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver ofertas</button></div></div>
+  const heroPromotions = [
+    { packageId: 1, eyebrow: "Tu próxima aventura, más cerca", title: <>El mundo está<br/>esperando <em>por vos</em></>, description: "Descubrí, viajá y viví experiencias únicas en los destinos más increíbles del planeta.", action: "Explorar destinos", image: packages[0].image, caption: "Experiencias que quedan para siempre" },
+    { packageId: 2, eyebrow: "Oferta especial · Brasil", title: <>Sentí la magia<br/>de <em>Salvador</em></>, description: "Playas, cultura y gastronomía para disfrutar unas vacaciones inolvidables.", action: "Ver oferta", image: packages[1].image, caption: "Salvador de Bahía · 6 días" },
+    { packageId: 6, eyebrow: "Escapada al Caribe", title: <>Tu lugar en<br/><em>el paraíso</em></>, description: "Relajate frente al mar con una experiencia All Inclusive en Punta Cana.", action: "Descubrir Punta Cana", image: packages[5].image, caption: "Punta Cana · 7 días" },
+    { packageId: 4, eyebrow: "Europa te espera", title: <>Una historia<br/>en cada <em>calle</em></>, description: "Viví Roma, su historia, su arquitectura y sus sabores únicos.", action: "Conocer Roma", image: packages[3].image, caption: "Roma · 8 días" }
+  ];
+  const activePromotion = heroPromotions[heroSlide];
+  const renderHome = () => <><section className="hero-shell"><div className="hero" style={{backgroundImage:`linear-gradient(90deg,rgba(0,35,95,.88),rgba(0,55,130,.28)),url("${activePromotion.image}")`}}>
+    <div className="hero-copy" key={heroSlide}><span className="eyebrow"><Plane size={14}/> {activePromotion.eyebrow}</span><h1>{activePromotion.title}</h1><p>{activePromotion.description}</p><div className="hero-buttons"><button className="yellow-btn" onClick={() => openPackage(packages.find(p => p.id === activePromotion.packageId) || packages[0])}>{activePromotion.action} <ArrowRight size={16}/></button><button className="ghost-btn" onClick={() => go("results")}>Ver todos los viajes</button></div></div>
     <div className="hero-plane"><Plane size={92}/></div>
-    <div className="hero-caption"><Sparkles size={16}/> Experiencias que quedan para siempre</div>
+    <div className="hero-caption"><Sparkles size={16}/> {activePromotion.caption}</div>
+    <div className="hero-pagination" aria-label="Promociones destacadas">{heroPromotions.map((slide,index)=><button key={slide.packageId} className={heroSlide===index?"active":""} onClick={()=>setHeroSlide(index)} aria-label={`Ver promoción ${index+1}`}/>)}</div>
   </div>{renderSearchBar()}</section>
   <section className="section destinations-section"><div className="section-heading"><div><span className="kicker">INSPIRATE PARA TU PRÓXIMO VIAJE</span><h2>Destinos que te van a enamorar</h2><p>Elegí tu próxima aventura entre los favoritos de nuestros viajeros.</p></div><button className="text-link" onClick={() => go("results")}>Ver todos los destinos <ArrowRight size={16}/></button></div>
     <div className="category-row">{["Todos","Playas","Ciudades","Aventuras","Cultura"].map(c=><button key={c} className={category===c?"selected":""} onClick={()=>setCategory(c)}>{c}</button>)}</div>
