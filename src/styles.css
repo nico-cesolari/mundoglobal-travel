@@ -2168,3 +2168,109 @@ select:focus-visible{
 .detail-hero>.detail-smart-image.uses-contain .smart-image-main{
   object-fit:contain!important;
 }
+
+
+/* Dashboard operativo MundoGlobal Travel */
+.employee-page{max-width:1240px}
+.employee-sidebar{position:sticky;top:82px;background:#fff}
+.employee-sidebar>button{min-height:40px;font-size:11px}
+.employee-workspace{background:#fff;box-shadow:0 8px 28px rgba(25,50,90,.035)}
+.employee-stats-four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.employee-stats-two{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:18px}
+.employee-stats-four article>b,.employee-stats-two article>b{font-size:clamp(18px,2vw,25px);overflow-wrap:anywhere}
+.employee-quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+.employee-quick-actions>button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;padding:15px;border:1px solid #e5ebf4;border-radius:13px;background:#fff;text-align:left;transition:border-color .2s,transform .2s,box-shadow .2s}
+.employee-quick-actions>button:hover{border-color:#b9cdf5;transform:translateY(-2px);box-shadow:0 8px 22px rgba(24,65,130,.07)}
+.employee-quick-actions>button>span{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#edf3ff;color:#1e55c9}
+.employee-quick-actions>button>span svg{width:17px;height:17px}
+.employee-quick-actions b{font-size:11px;color:#203858}
+.employee-quick-actions small{font-size:9px;color:#8290a5;line-height:1.35}
+.employee-overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0 24px}
+.employee-overview-card{min-width:0;border:1px solid #e5ebf4;border-radius:13px;padding:16px}
+.employee-card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}
+.employee-card-heading h3{font-size:13px;margin:0 0 5px;color:#203858}
+.employee-card-heading p{font-size:9px;color:#8895a8;margin:0}
+.employee-card-heading>button{display:flex;align-items:center;gap:5px;white-space:nowrap;color:#2457c5;font-size:9px;font-weight:700}
+.employee-income-bar{height:9px;overflow:hidden;border-radius:20px;background:#fff0d8}
+.employee-income-bar>span{display:block;height:100%;border-radius:20px;background:#1d9b70;transition:width .25s}
+.employee-income-legend{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:13px}
+.employee-income-legend>span{display:flex;align-items:center;gap:5px;font-size:9px;color:#64748b}
+.employee-income-legend b{color:#263d5d}
+.income-dot{width:7px;height:7px;border-radius:50%}
+.income-dot.paid{background:#1d9b70}.income-dot.pending{background:#e4a43a}
+.employee-activity-link{display:flex;align-items:center;gap:8px;width:100%;padding:10px 0;border-bottom:1px solid #edf1f6;text-align:left;color:#52637c;font-size:10px}
+.employee-activity-link:last-child{border-bottom:0}
+.employee-activity-link svg:first-child{width:15px;height:15px;color:#3265c7}
+.employee-activity-link svg:last-child{width:13px;height:13px;margin-left:auto}
+.employee-form-note,.employee-empty-note{font-size:9px;line-height:1.55;color:#75849b;margin:0 0 16px}
+.employee-promo-form,.employee-income-form{display:grid;grid-template-columns:1.2fr .7fr 1fr auto;gap:9px;align-items:end;margin:4px 0 14px}
+.employee-promo-form label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:9px;font-weight:700;color:#536581}
+.employee-promo-form input,.employee-promo-form select,.employee-income-form input{width:100%;min-width:0;height:40px;padding:0 11px;border:1px solid #dce5f2;border-radius:9px;background:#fff;color:#344768;font:inherit;font-size:10px}
+.employee-promo-form button,.employee-income-form button{height:40px;white-space:nowrap;font-size:9px}
+.employee-income-form{grid-template-columns:1fr .7fr auto;margin:18px 0}
+.employee-income-list{display:grid;gap:0;border-top:1px solid #e9eef5}
+.employee-income-list>article{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #edf0f5}
+.employee-income-list>article>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.employee-income-list b{font-size:10px;color:#293f60}
+.employee-income-list small{font-size:9px;color:#8491a5;overflow-wrap:anywhere}
+.employee-income-list strong{font-size:11px;color:#203858;white-space:nowrap}
+.employee-mark-paid{padding:7px 9px;border:1px solid #cfe7da;border-radius:8px;background:#effaf3;color:#168452;font-size:9px;font-weight:700;white-space:nowrap}
+.employee-quote-warning{display:flex;align-items:flex-start;gap:10px;margin:0 0 16px;padding:13px;border:1px solid #f0dfb8;border-radius:11px;background:#fffaf0;color:#89621b}
+.employee-quote-warning>svg{width:18px;height:18px;flex:0 0 18px;margin-top:1px}
+.employee-quote-warning>span{display:flex;flex-direction:column;gap:5px}
+.employee-quote-warning b{font-size:10px}
+.employee-quote-warning small{font-size:9px;line-height:1.5;color:#8a7955}
+.employee-quote-table{width:100%;overflow-x:auto;border:1px solid #e7edf5;border-radius:12px}
+.employee-quote-table-head,.employee-quote-table-row{display:grid;grid-template-columns:minmax(145px,1.5fr) repeat(3,minmax(95px,1fr)) minmax(110px,1fr);gap:10px;align-items:center;min-width:680px;padding:12px 14px}
+.employee-quote-table-head{background:#f6f8fc;color:#718098;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.35px}
+.employee-quote-table-row{border-top:1px solid #edf0f5}
+.employee-quote-table-row>div{display:flex;flex-direction:column;gap:4px}
+.employee-quote-table-row b{font-size:10px;color:#273f62}
+.employee-quote-table-row small{font-size:8px;color:#8b97a8}
+.employee-quote-table-row>strong{font-size:9px;color:#465a77;white-space:nowrap}
+.employee-quote-table-row>strong:last-child{color:#173c82;font-size:10px}
+.employee-quote-supplier-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:15px}
+.employee-quote-supplier-grid article{display:flex;flex-direction:column;gap:7px;padding:14px;border:1px solid #e7edf5;border-radius:11px}
+.employee-quote-supplier-grid article>span{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#eef4ff;color:#285dc4}
+.employee-quote-supplier-grid article>span svg{width:16px;height:16px}
+.employee-quote-supplier-grid b{font-size:10px;color:#2b4161}
+.employee-quote-supplier-grid small{font-size:9px;line-height:1.45;color:#8290a4}
+.employee-package-list article>div{flex:1}
+.employee-package-list article>strong{color:#183e80}
+.employee-quote-breakdown{display:grid;gap:8px;margin:14px 0;padding:12px 0;border-top:1px solid #e8edf5;border-bottom:1px solid #e8edf5}
+.employee-quote-breakdown>div{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:10px}
+.employee-quote-breakdown span{color:#65758d}
+.employee-quote-breakdown b{font-size:10px;color:#203858}
+.checkout-service{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:9px}
+.checkout-service strong{font-size:11px;color:#1c3d79;white-space:nowrap}
+@media(max-width:1050px){
+ .employee-stats-four{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .employee-quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .employee-layout{grid-template-columns:190px minmax(0,1fr);gap:14px}
+ .employee-promo-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .employee-promo-form button{grid-column:1/-1}
+}
+@media(max-width:850px){
+ .employee-layout{grid-template-columns:1fr}
+ .employee-sidebar{position:static}
+ .employee-sidebar>button{justify-content:flex-start;font-size:10px}
+}
+@media(max-width:650px){
+ .employee-top{flex-direction:column;align-items:flex-start}
+ .employee-top>.outline-btn{align-self:flex-start}
+ .employee-workspace{padding:13px}
+ .employee-stats-four,.employee-stats-two{grid-template-columns:1fr 1fr}
+ .employee-quick-actions{grid-template-columns:1fr 1fr}
+ .employee-overview-grid{grid-template-columns:1fr}
+ .employee-income-legend{flex-direction:column}
+ .employee-promo-form,.employee-income-form{grid-template-columns:1fr}
+ .employee-promo-form button,.employee-income-form button{grid-column:auto;width:100%}
+ .employee-income-list>article{grid-template-columns:minmax(0,1fr) auto;gap:8px}
+ .employee-income-list>article>strong{grid-column:2;grid-row:1}
+ .employee-income-list>article>.message-done,.employee-income-list>article>.message-pending{justify-self:start}
+ .employee-mark-paid{grid-column:2;grid-row:2}
+ .employee-quote-supplier-grid{grid-template-columns:1fr}
+ .employee-quote-breakdown{margin:10px 0}
+ .employee-sidebar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .employee-sidebar>b,.employee-api{grid-column:span 2}
+}
