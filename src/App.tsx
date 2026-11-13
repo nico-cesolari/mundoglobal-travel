@@ -500,7 +500,7 @@ export default function App() {
       {[{name:"Todos",icon:null},{name:"Playas",icon:<Plane size={14}/>},{name:"Ciudades",icon:<Hotel size={14}/>},{name:"Aventuras",icon:<Sparkles size={14}/>},{name:"Cultura",icon:<Star size={14}/>}].map(item=><button type="button" key={item.name} className={category===item.name?"selected":""} onClick={()=>setCategory(item.name)}>{item.icon}{item.name}</button>)}
     </div>
     <div className="destination-grid destination-reference">
-      {employeePackages.filter(packageHasPhoto).slice(0,6).map(p=><article className="destination-card" key={p.id}>
+      {employeePackages.filter(packageHasPhoto).map(p=><article className="destination-card" key={p.id}>
         <div className="destination-photo"><SmartImage className="destination-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="4/3" fit="cover" focalPoint={p.focalPoint} safeArea={p.safeArea}/><button type="button" className={`heart ${favorites.includes(p.id)?"liked":""}`} onClick={()=>toggleFavorite(p.id)} aria-label="Guardar favorito"><Heart size={17} fill={favorites.includes(p.id)?"currentColor":"none"}/></button>{p.id===1&&<span className="destination-badge">★ Más elegido</span>}</div>
         <div className="destination-info"><div><h3>{p.name}</h3><p>{p.country} · {p.category}</p>{p.rating && <span className="destination-rating"><Star size={14} fill="currentColor"/> {p.rating.toFixed(1)} {p.reviews && p.reviews !== "0" ? <small>({p.reviews})</small> : null}</span>}</div><button className="destination-arrow" onClick={()=>openPackage(p)} aria-label={`Ver ${p.name}`}><ArrowRight size={18}/></button></div>
       </article>)}
