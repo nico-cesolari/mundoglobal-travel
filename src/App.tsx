@@ -8,7 +8,7 @@ import {
   ChevronDown, MapPin, Clock3, Check, CheckCircle2, Hotel, BedDouble, Stethoscope,
   Luggage, CarFront, LockKeyhole, Mail, Eye, EyeOff, MessageCircle, Bell, SlidersHorizontal,
   Facebook, Instagram, Youtube, Linkedin, Ticket, LogOut, CircleHelp, Sparkles, Phone,
-  DollarSign, TrendingUp, Percent, Building2, ClipboardList, Wallet
+  DollarSign, TrendingUp, Percent, Building2, ClipboardList, Wallet, Plus
 } from "lucide-react";
 
 type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "support" | "employee-login" | "employee";
