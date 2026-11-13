@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { SmartImage } from "./components/SmartImage";
+import { PackageDetailPage } from "./components/PackageDetailPage";
 import ImageLab from "./components/ImageLab";
 import FocalPointEditor from "./components/FocalPointEditor";
 import {
@@ -13,24 +14,29 @@ import {
 
 type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "support" | "employee-login" | "employee";
 type Package = {
-  id: number; name: string; country: string; category: string; price: number;
-  departureCity: string; departureDate: string; returnDate: string;
-  oldPrice: number; rating: number; reviews: string; days: number; image: string;
+  id: number; name: string; country: string; category: string; image: string;
+  price?: number; oldPrice?: number; currency?: string;
+  departureCity?: string; departureDate?: string; returnDate?: string;
+  days?: number; nights?: number; mode?: string; tripType?: string;
+  rating?: number; reviews?: string;
+  images?: string[]; caption?: string; descriptionTitle?: string;
   focalPoint?: { x: number; y: number }; safeArea?: { x: number; y: number; w: number; h: number };
   imagePosition?: string;
-  tag?: string; offerExpires?: string; description: string;
+  tag?: string; offerExpires?: string; description?: string;
+  includes?: { icon?: string; title?: string; description?: string }[];
+  infoSections?: { icon?: string; title?: string; description?: string }[];
+  flags?: { promo?: boolean; reservaOnline?: boolean; cancelacionGratuita?: boolean; recommended?: boolean };
   servicePrices?: { flight: number; hotel: number; assistance: number };
 };
 type IncomeEntry = { id: number; reference: string; client: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; };
 const packages: Package[] = [
   { id: 1, name: "Cancún", country: "México", category: "Playas", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
-  { id: 2, name: "Salvador de Bahía", country: "Brasil", category: "Playas", price: 1099, oldPrice: 1599, rating: 4.7, reviews: "7.3k", days: 6, departureCity: "Córdoba, Argentina", departureDate: "2027-02-10", returnDate: "2027-02-15", tag: "¡Oferta!", image: "/images/salvador.jpg", focalPoint: {x:50,y:50}, description: "Viví la energía de Brasil entre playas increíbles, gastronomía y cultura local." },
-  { id: 3, name: "Copacabana", country: "Brasil", category: "Ciudades", price: 999, oldPrice: 1499, rating: 4.8, reviews: "6.1k", days: 5, departureCity: "Rosario, Santa Fe, Argentina", departureDate: "2027-01-21", returnDate: "2027-01-25", tag: "¡Oferta!", image: "/images/copacabana.jpg", focalPoint: {x:50,y:50}, description: "Una escapada urbana con vistas inolvidables, playas icónicas y experiencias únicas." },
   { id: 4, name: "Roma", country: "Italia", category: "Cultura", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", image: "/images/roma.jpg", focalPoint: {x:50,y:50}, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
   { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", price: 1699, oldPrice: 1999, rating: 4.8, reviews: "11.1k", days: 6, departureCity: "Córdoba, Argentina", departureDate: "2027-05-12", returnDate: "2027-05-17", image: "/images/nueva-york.jpg", focalPoint: {x:50,y:50}, description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
-  { id: 6, name: "Punta Cana", country: "Rep. Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-03-05", returnDate: "2027-03-11", tag: "¡Oferta!", image: "/images/punta-cana.jpg", focalPoint: {x:50,y:50}, description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." },
-  { id: 7, name: "Camboriú", country: "Brasil", category: "Playas", price: 899, oldPrice: 1199, rating: 4.8, reviews: "0", days: 7, departureCity: "Villa María, Córdoba, Argentina", departureDate: "2027-01-08", returnDate: "2027-01-14", image: "/images/camboriu.png", focalPoint: {x:50,y:50}, description: "Disfrutá las playas de Santa Catarina, sus paseos costeros y la energía de uno de los destinos más elegidos de Brasil." },
-  { id: 8, name: "El Chaltén", country: "Argentina", category: "Aventuras", price: 1199, oldPrice: 1499, rating: 4.9, reviews: "0", days: 6, departureCity: "Córdoba, Argentina", departureDate: "2027-02-20", returnDate: "2027-02-25", image: "/images/el-chalten.png", focalPoint: {x:50,y:50}, description: "Descubrí la capital nacional del trekking, con senderos de montaña, lagunas de deshielo y vistas inolvidables del Fitz Roy." }
+  { id: 6, name: "Punta Cana", country: "República Dominicana", category: "Playas", price: 1399, oldPrice: 1799, rating: 4.7, reviews: "7.9k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-03-05", returnDate: "2027-03-11", tag: "¡Oferta!", image: "/images/punta-cana.jpg", focalPoint: {x:50,y:50}, description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." },
+  { id: 7, name: "Camboriú", country: "Brasil", category: "Playas", price: 899, oldPrice: 1199, rating: 4.8, reviews: "0", days: 8, nights: 7, departureCity: "Villa María, Córdoba, Argentina", departureDate: "2027-01-08", returnDate: "2027-01-15", image: "/images/camboriu.png", focalPoint: {x:50,y:50}, description: "Disfrutá las playas de Santa Catarina, sus paseos costeros y la energía de uno de los destinos más elegidos de Brasil." },
+  { id: 8, name: "El Chaltén", country: "Argentina", category: "Aventuras", price: 1199, oldPrice: 1499, rating: 4.9, reviews: "0", days: 6, departureCity: "Córdoba, Argentina", departureDate: "2027-02-20", returnDate: "2027-02-25", image: "/images/el-chalten.png", focalPoint: {x:50,y:50}, description: "Descubrí la capital nacional del trekking, con senderos de montaña, lagunas de deshielo y vistas inolvidables del Fitz Roy." },
+  { id: 9, name: "Madrid", country: "España", category: "Ciudades", image: "/images/madrid.png", focalPoint: {x:50,y:50}, description: "Madrid, España. Consultá con nuestro equipo las próximas salidas y condiciones disponibles." }
 ];
 
 const readDraft = (key: string, fallback = "") => {
@@ -44,6 +50,42 @@ const discount = (p: Package) => Math.round((1 - p.price / p.oldPrice) * 100);
 const formatTravelDate = (value: string) => { if (!value) return "A coordinar"; const [year, month, day] = value.split("-").map(Number); return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }).replace(".", ""); };
 const packageDuration = (start: string, end: string) => Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86400000) + 1;
 const buildServicePrices = (price: number) => { const flight = Math.max(1, Math.round(price * 0.38)); const hotel = Math.max(1, Math.round(price * 0.54)); return { flight, hotel, assistance: Math.max(1, price - flight - hotel) }; };
+const availableLocalPackageImages = new Set(["/images/cancun.jpg", "/images/roma.jpg", "/images/nueva-york.jpg", "/images/punta-cana.jpg", "/images/camboriu.png", "/images/el-chalten.png", "/images/madrid.png"]);
+const packageHasPhoto = (item: Partial<Package>) => Boolean(item.image && (item.image.startsWith("/images/") ? availableLocalPackageImages.has(item.image) : /^https?:\\/\\//i.test(item.image)));
+const enrichPackage = (item: Package): Package => {
+  const quote = item.servicePrices ?? (item.price ? buildServicePrices(item.price) : undefined);
+  const datesNights = item.departureDate && item.returnDate ? Math.max(0, packageDuration(item.departureDate, item.returnDate) - 1) : undefined;
+  const nights = item.nights ?? datesNights ?? (item.days && item.days > 1 ? item.days - 1 : undefined);
+  const tripType = item.tripType || "Turismo";
+  const includes = item.includes ?? (quote ? [
+    { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Cotización estimada por persona: ${money(quote.flight)}.` },
+    { icon: "hotel", title: nights ? `Hotel · ${nights} noches` : "Alojamiento", description: `Cotización estimada por persona: ${money(quote.hotel)}.` },
+    { icon: "shield", title: "Asistencia al viajero", description: `Cotización estimada por persona: ${money(quote.assistance)}.` }
+  ] : []);
+  const infoSections = item.infoSections ?? [
+    ...(item.description ? [{ icon: "info", title: "Todos los detalles", description: item.description }] : []),
+    { icon: "file", title: "Requisitos y documentación", description: "La documentación de ingreso puede depender de tu nacionalidad y de las condiciones vigentes del destino. Consultá con un asesor antes de viajar." },
+    { icon: "compass", title: "Recomendaciones", description: "Antes de viajar, confirmá horarios, equipaje, políticas del alojamiento y servicios contratados con el equipo de MundoGlobal Travel." },
+    ...(item.departureCity && item.departureDate && item.returnDate ? [{ icon: "calendar", title: "Fechas y condiciones", description: `Salida desde ${item.departureCity}. Ida ${formatTravelDate(item.departureDate)} y regreso ${formatTravelDate(item.returnDate)}. El precio corresponde a esta salida publicada.` }] : [])
+  ];
+  return {
+    ...item,
+    currency: item.currency || "USD",
+    images: item.images?.length ? item.images.filter(Boolean) : [item.image],
+    nights,
+    tripType,
+    caption: item.caption || (item.country ? `Vista panorámica de ${item.name}, ${item.country}` : `Vista panorámica de ${item.name}`),
+    descriptionTitle: item.descriptionTitle || (item.country ? `Tu próxima escapada a ${item.country}` : `Descubrí ${item.name}`),
+    flags: {
+      ...item.flags,
+      promo: item.flags?.promo ?? item.tag === "¡Oferta!",
+      reservaOnline: item.flags?.reservaOnline ?? Boolean(item.price && item.departureCity && item.departureDate && item.returnDate),
+      recommended: item.flags?.recommended ?? Boolean(item.rating && item.rating >= 4.8)
+    },
+    includes,
+    infoSections: infoSections.filter(section => Boolean(section.description?.trim()))
+  };
+};
 const demoIncomeEntries: IncomeEntry[] = [
   { id: 1, reference: "MG-20481", client: "María González", destination: "Cancún", departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", amount: 2598, method: "Tarjeta de crédito", status: "Acreditado", date: "13/11/2026" },
   { id: 2, reference: "MG-20480", client: "Lucas Fernández", destination: "Roma", departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", amount: 1479, method: "Transferencia", status: "Pendiente", date: "12/11/2026" },
@@ -56,17 +98,13 @@ const loadSavedPackages = (): Package[] => {
   try {
     const parsed: unknown = JSON.parse(saved);
     if (!Array.isArray(parsed)) return packages;
-    const savedPackages = parsed as Package[];
+    const savedPackages = (parsed as Package[]).filter(packageHasPhoto);
     const normalizedPackages = savedPackages.map(savedItem => {
       const defaults = packages.find(item => item.id === savedItem.id);
-      return { ...defaults, ...savedItem,
-        departureCity: savedItem.departureCity || defaults?.departureCity || "A coordinar",
-        departureDate: savedItem.departureDate || defaults?.departureDate || "",
-        returnDate: savedItem.returnDate || defaults?.returnDate || ""
-      } as Package;
+      return enrichPackage({ ...defaults, ...savedItem } as Package);
     });
-    const missingDefaults = packages.filter(item => !savedPackages.some(savedItem => savedItem.id === item.id));
-    return [...normalizedPackages, ...missingDefaults];
+    const missingDefaults = packages.filter(item => packageHasPhoto(item) && !savedPackages.some(savedItem => savedItem.id === item.id));
+    return [...normalizedPackages, ...missingDefaults.map(enrichPackage)];
   } catch {
     return packages;
   }
