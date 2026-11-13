@@ -1794,3 +1794,13 @@ select:focus-visible{
   .employee-package-list .employee-package-smart-image{width:58px;height:48px}
 }
 .focal-editor-select{margin:12px 0}.focal-editor-select label{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700}.focal-editor-select select{max-width:260px;border:1px solid #dce5f2;border-radius:8px;padding:8px 10px;background:#fff;color:#344768;font:inherit}
+
+/* Ajuste exclusivo del encuadre del avión en el hero */
+.hero-reference .hero-art img{
+  object-position:70% 30%!important;
+}
+@media(max-width:1023px){
+  .hero-reference .hero-art img{
+    object-position:75% 25%!important;
+  }
+}
