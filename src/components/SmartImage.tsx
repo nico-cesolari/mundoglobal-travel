@@ -130,7 +130,6 @@ export function SmartImage({
           alt={alt}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
-          fetchPriority={priority ? "high" : "auto"}
           onLoad={event => {
             setNaturalSize({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight });
             setLoaded(true);
