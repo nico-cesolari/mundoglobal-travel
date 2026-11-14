@@ -449,7 +449,7 @@ export default function App() {
 
   const downloadReservation = () => {
     const total = money((selected.price ?? 0) * totalTravelers);
-    const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char] || char));
+    const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => { const entities: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }; return entities[char] || char; });
     const details = [
       ["Código de reserva", reservationReference],
       ["Destino", `${selected.name} · ${selected.country}`],
