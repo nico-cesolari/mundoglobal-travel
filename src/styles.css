@@ -2573,7 +2573,11 @@ body{zoom:.9;}
 .employee-package-option input{width:15px;height:15px;accent-color:#1e4fd8;}
 .file-upload-field{display:flex;flex-direction:column;gap:8px;margin:15px 0;padding:14px;border:1px dashed #b8c9e4;border-radius:11px;background:#f7f9fd;}
 .file-upload-field>label{margin:0;color:#344768;font-size:11px;font-weight:750;}
-.file-upload-field input[type=file]{width:100%;min-width:0;padding:9px;border:1px solid #dce5f2;border-radius:8px;background:#fff;color:#435675;font-size:10px;}
+.file-upload-field input[type=file]{width:100%;min-width:0;padding:10px;border:1px solid #dce5f2;border-radius:12px;background:#fff;color:#64748b;font-size:11px;line-height:1.5;cursor:pointer;transition:border-color .2s ease,background .2s ease,box-shadow .2s ease;}
+.file-upload-field input[type=file]::file-selector-button{margin-right:12px;padding:9px 15px;border:0;border-radius:9px;background:linear-gradient(135deg,#2456c7,#3978e8);color:#fff;font:700 11px/1.2 inherit;letter-spacing:.01em;cursor:pointer;box-shadow:0 3px 9px rgba(36,86,199,.18);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;}
+.file-upload-field input[type=file]::file-selector-button:hover{filter:brightness(1.08);box-shadow:0 5px 13px rgba(36,86,199,.25);transform:translateY(-1px);}
+.file-upload-field input[type=file]:hover{border-color:#a9bee6;background:#fbfcff;}
+.file-upload-field input[type=file]:focus-visible{outline:3px solid rgba(57,120,232,.2);outline-offset:2px;border-color:#3978e8;}
 .file-upload-field small{color:#7b8aa2;font-size:9px;}
 .booking-list-copy{min-width:0;}
 .booking-document-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px;}
