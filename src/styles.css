@@ -2487,3 +2487,24 @@ html,body,#root{min-height:100%;background:#f4f7fc}
 @media(min-width:1051px){
   .results-search .search-panel{grid-template-columns:minmax(135px,1fr) minmax(135px,1fr) minmax(165px,1.1fr) minmax(110px,.7fr) minmax(125px,.85fr) 130px}
 }
+
+
+/* Barra de búsqueda horizontal · MundoGlobal Travel */
+.search-panel{display:grid;grid-template-columns:minmax(135px,1.05fr) minmax(135px,1.05fr) minmax(210px,1.45fr) minmax(135px,.9fr) minmax(155px,1.05fr) 126px;align-items:stretch;gap:0;width:100%;max-width:1200px;min-height:92px;margin:-36px auto 0;padding:10px 12px;border:1px solid #e7edf8;border-radius:18px;background:#fff;box-shadow:0 14px 35px #163e7923;}
+.search-panel>.search-field{display:flex;align-items:center;gap:10px;min-width:0;padding:8px 12px;border-right:1px solid #e7edf5;color:var(--blue);transition:background .18s,box-shadow .18s;}
+.search-panel>.search-field:hover,.search-panel>.search-field:focus-within{background:#f7f9ff;box-shadow:inset 0 0 0 1px #e2eaff;border-radius:10px;}
+.search-panel>.search-field:last-of-type{border-right:0;}
+.search-panel .field-icon{display:grid;place-items:center;flex:0 0 35px;width:35px;height:35px;border-radius:50%;background:#eaf1ff;color:#1e4fd8;}
+.search-panel .search-field-copy{display:flex;flex:1;flex-direction:column;justify-content:center;gap:5px;min-width:0;}
+.search-panel .search-field-copy>small{display:block;margin:0;color:#8995a8;font-size:10px;line-height:1.1;font-weight:700;}
+.search-panel .search-field-copy input:not([type=date]),.search-panel .search-field-copy select{width:100%;min-width:0;padding:0;border:0;outline:0;background:transparent;color:#243451;font-size:12px;font-weight:650;}
+.search-panel .search-field-copy input::placeholder{color:#71809a;opacity:1;}
+.search-panel .date-range-inputs{display:flex;align-items:center;gap:6px;min-width:0;}
+.search-panel .date-range-inputs label{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0;color:#8995a8;font-size:9px;font-weight:700;}
+.search-panel .date-range-inputs input[type=date]{width:100%;min-width:0;padding:0;border:0;outline:0;background:transparent;color:#243451;font-family:inherit;font-size:10px;font-weight:650;}
+.search-panel .date-range-inputs i{color:#a3aec0;font-size:12px;font-style:normal;}
+.search-panel .search-button{display:flex;align-items:center;justify-content:center;align-self:center;gap:8px;width:calc(100% - 8px);height:52px;margin:0 0 0 8px;padding:0 12px;border-radius:11px;white-space:nowrap;font-size:12px;}
+.search-panel .search-button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.1);}
+.search-panel .location-suggestions{z-index:40;}
+@media(max-width:1100px){.search-panel{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:8px;padding:12px;}.search-panel>.search-field:nth-child(3){border-right:0;}.search-panel>.search-field:nth-child(4),.search-panel>.search-field:nth-child(5){border-top:1px solid #edf1f7;padding-top:12px;}.search-panel>.search-field:nth-child(4){border-right:1px solid #e7edf5;}.search-panel>.search-field:nth-child(5){border-right:0;}.search-panel .search-button{grid-column:3;width:calc(100% - 8px);height:48px;margin-left:8px;}}
+@media(max-width:640px){.search-panel{grid-template-columns:minmax(0,1fr);gap:0;width:100%;margin:14px auto 0;padding:10px;border-radius:16px;}.search-panel>.search-field,.search-panel>.search-field:nth-child(3),.search-panel>.search-field:nth-child(4),.search-panel>.search-field:nth-child(5){min-height:68px;padding:9px 8px;border-right:0;border-top:0;border-bottom:1px solid #edf1f7;}.search-panel .search-field-copy input:not([type=date]),.search-panel .search-field-copy select{font-size:13px;}.search-panel .date-range-inputs input[type=date]{font-size:11px;}.search-panel .search-button{grid-column:1;width:100%;height:48px;margin:11px 0 0;}}
