@@ -2599,3 +2599,11 @@ body{zoom:.9;}
   .booking-list-item>strong,.booking-list-item>.status-pill{margin-left:51px;}
   .employee-package-option{grid-column:1/-1;}
 }
+
+.employee-claim-attachment{display:inline-flex;align-items:center;gap:7px;max-width:100%;margin-top:9px;padding:8px 10px;border:1px solid #dce7f6;border-radius:8px;background:#fff;color:#2450a4;font-size:10px;font-weight:750;overflow-wrap:anywhere;}
+.employee-claim-attachment:hover{background:#eef4ff;}
+.employee-add-form .employee-package-option{min-width:0;}
+.employee-add-form .employee-package-option input{flex:0 0 15px;}
+@media(min-width:901px){.employee-add-form{grid-template-columns:repeat(3,minmax(0,1fr));}.employee-add-form>.primary-btn{grid-column:span 3;justify-self:start;}}
+@media(max-width:900px){.employee-add-form{grid-template-columns:repeat(2,minmax(0,1fr));}.employee-add-form>.primary-btn{grid-column:1/-1;justify-self:start;}}
+@media(max-width:600px){.employee-add-form{grid-template-columns:1fr;}.employee-add-form>.primary-btn{grid-column:1;justify-self:stretch;}}
