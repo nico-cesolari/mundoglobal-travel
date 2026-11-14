@@ -486,7 +486,7 @@ export default function App() {
         <span className="field-icon"><MapPin size={18}/></span>
         <span className="search-field-copy">
           <small>Origen</small>
-          <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder="¿Desde dónde salís?" autoComplete="off" />
+          <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder="¿Desde dónde salís?" aria-label="Origen" autoComplete="off" />
           {activeLocationField === "origin" && origin.trim().length > 0 && <div className="location-suggestions">
             {locationOptions.filter(place => place.toLowerCase().includes(origin.trim().toLowerCase())).slice(0,7).map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setOrigin(place); setActiveLocationField(null); }}>{place}</button>)}
           </div>}
@@ -496,7 +496,7 @@ export default function App() {
         <span className="field-icon"><MapPin size={18}/></span>
         <span className="search-field-copy">
           <small>Destino</small>
-          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="¿A dónde querés ir?" autoComplete="off" />
+          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="¿A dónde querés ir?" aria-label="Destino" autoComplete="off" />
           {activeLocationField === "destination" && query.trim().length > 0 && <div className="location-suggestions">
             {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setQuery(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
           </div>}
@@ -506,7 +506,7 @@ export default function App() {
         <span className="field-icon"><CalendarDays size={18}/></span>
         <span className="search-field-copy">
           <small>Fechas</small>
-          <button type="button" className="date-range-trigger" aria-expanded={datePickerOpen} onClick={() => { setDraftDate(date); setDraftReturnDate(returnDate); setDatePickerOpen(open => !open); }}>
+          <button type="button" className="date-range-trigger" aria-label="Seleccionar fechas de ida y vuelta" aria-expanded={datePickerOpen} onClick={() => { setDraftDate(date); setDraftReturnDate(returnDate); setDatePickerOpen(open => !open); }}>
             {date && returnDate ? `${displayDate(date)} – ${displayDate(returnDate)}` : "Agregá fechas"}
             <ChevronDown size={13}/>
           </button>
@@ -529,7 +529,7 @@ export default function App() {
             })}</div>
             <p>{draftDate && !draftReturnDate ? "Ahora elegí la fecha de vuelta" : "Seleccioná ida y vuelta"}</p>
             <div className="search-calendar-actions">
-              <button type="button" onClick={() => { setDraftDate(""); setDraftReturnDate(""); }}>Limpiar</button>
+              <button type="button" onClick={() => { setDraftDate(""); setDraftReturnDate(""); setDate(""); setReturnDate(""); setDatePickerOpen(false); }}>Limpiar</button>
               <button type="button" disabled={!draftDate || !draftReturnDate} onClick={() => { setDate(draftDate); setReturnDate(draftReturnDate); setDatePickerOpen(false); }}>Aplicar fechas</button>
             </div>
           </div>}
