@@ -2202,14 +2202,14 @@ select:focus-visible{
 @media(max-width:600px){.employee-add-form{grid-template-columns:1fr}}
 
 
-/* Vista global al 80%: un único factor de escala, sin ensanchar el root */
+/* Vista global al 90%: un único factor de escala, sin ensanchar el root */
 html,body{
   width:100%;
   max-width:100%;
   overflow-x:hidden;
 }
 body{
-  zoom:.8;
+  zoom:.9;
 }
 #root{
   width:100%;
