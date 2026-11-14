@@ -89,7 +89,7 @@ const enrichPackage = (item: Package): Package => {
   };
 };
 
-const escapeDocumentText = (value: string) => value.replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[character] ?? character));
+const escapeDocumentText = (value: string) => value.replace(/[&<>"']/g, character => { switch(character) { case "&": return "&amp;"; case "<": return "&lt;"; case ">": return "&gt;"; case '"': return "&quot;"; default: return "&#39;"; } });
 const travelDocumentHtml = (entry: IncomeEntry) => {
   const installments = Number(entry.method.match(/(\\d+) cuota/)?.[1] || 1);
   const amountPerInstallment = entry.amount / Math.max(1, installments);
