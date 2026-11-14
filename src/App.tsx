@@ -121,9 +121,9 @@ export default function App() {
   const initialPackages = loadSavedPackages();
   const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug));
   const employeeSession = localStorage.getItem("mgt-employee-session") || "";
-  const initialPage: Page = initialBookingSlug ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
+  const initialPage: Page = (initialBookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
   const [page, setPage] = useState<Page>(() => initialPage);
-  const [routeNotFound, setRouteNotFound] = useState(Boolean(initialSlug && !initialRoutePackage));
+  const [routeNotFound, setRouteNotFound] = useState(Boolean((initialSlug || initialBookingSlug) && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
   const [employeePackages, setEmployeePackages] = useState<Package[]>(initialPackages);
   const [focalEditPackageId, setFocalEditPackageId] = useState(1);
@@ -255,7 +255,7 @@ export default function App() {
     const handlePackageRoute = () => {
       const bookingSlug = currentBookingSlug();
       const slug = currentPackageSlug();
-      if (bookingSlug) {
+      if (bookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") {
         const found = employeePackages.find(item => slugifyPackage(item.name) === bookingSlug);
         setActiveNav(""); setPage("checkout"); setRouteNotFound(!found);
         if (found) setSelected(found);
@@ -334,7 +334,7 @@ export default function App() {
     (!p.price || (p.price >= minPrice && p.price <= maxPrice)) &&
     (!onlyOffers || p.tag === "¡Oferta!") &&
     (!topRatedOnly || (p.rating ?? 0) >= 4.8) &&
-    (!date || (p.departureDate === date && (!returnDate || p.returnDate === returnDate)))
+    (!date || !p.departureDate || p.departureDate >= date) && (!returnDate || !p.returnDate || p.returnDate <= returnDate)
   ), [category, query, origin, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? (p.price ? buildServicePrices(p.price) : undefined);
@@ -474,7 +474,7 @@ export default function App() {
           <small>Origen</small>
           <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder="¿Desde dónde salís?" autoComplete="off" />
           {activeLocationField === "origin" && origin.trim().length > 0 && <div className="location-suggestions">
-            {locationOptions.filter(place => place.toLowerCase().includes(origin.trim().toLowerCase())).slice(0,7).map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setOrigin(place); setActiveLocationField(null); }}/>)}
+            {locationOptions.filter(place => place.toLowerCase().includes(origin.trim().toLowerCase())).slice(0,7).map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setOrigin(place); setActiveLocationField(null); }}>{place}</button>)}
           </div>}
         </span>
       </div>
