@@ -75,6 +75,7 @@ type Props = {
   onHome: () => void;
   onPackages: () => void;
   onOpenPackage: (item: PackageDetailData) => void;
+  onReserve: () => void;
   onConsultAvailability: (payload: InquiryPayload) => void;
   onContact: () => void;
 };
@@ -143,6 +144,7 @@ export function PackageDetailPage({
   onHome,
   onPackages,
   onOpenPackage,
+  onReserve,
   onConsultAvailability,
   onContact
 }: Props) {
@@ -302,8 +304,8 @@ export function PackageDetailPage({
         {nights && <span><CalendarDays size={16}/>{nights} noches</span>}
         {(hasFlight || hasHotel) && <span>{hasFlight && <Plane size={16}/>} {hasFlight && hasHotel ? "Vuelo + Hotel" : hasFlight ? "Vuelo incluido" : "Hotel incluido"}</span>}
       </div>}
-      <button className="package-consult-button" onClick={() => setAvailabilityOpen(true)}>
-        Consultar disponibilidad <ArrowRight size={17}/>
+      <button type="button" className="package-consult-button" onClick={() => packageData.flags?.reservaOnline ? onReserve() : setAvailabilityOpen(true)}>
+        {packageData.flags?.reservaOnline ? "Reservar ahora" : "Consultar disponibilidad"} <ArrowRight size={17}/>
       </button>
       <p className="package-booking-caption">¡Reservá ahora y asegurá tu lugar en este destino soñado!</p>
       {packageData.flags?.cancelacionGratuita && <div className="package-cancellation-note"><ShieldCheck size={17}/><span>Cancelación gratuita hasta 48 hs antes del viaje</span></div>}
