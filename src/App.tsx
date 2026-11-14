@@ -158,6 +158,10 @@ export default function App() {
   const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
   const [date, setDate] = useState(() => readDraft("mgt-draft-search-date"));
   const [returnDate, setReturnDate] = useState(() => readDraft("mgt-draft-search-return-date"));
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [draftDate, setDraftDate] = useState(() => readDraft("mgt-draft-search-date"));
+  const [draftReturnDate, setDraftReturnDate] = useState(() => readDraft("mgt-draft-search-return-date"));
+  const [calendarMonth, setCalendarMonth] = useState(() => { const initial = readDraft("mgt-draft-search-date"); const base = initial ? new Date(`${initial}T00:00:00`) : new Date(); return new Date(base.getFullYear(), base.getMonth(), 1); });
   const [travelers, setTravelers] = useState(() => Math.min(9, Math.max(1, Number(readDraft("mgt-draft-travelers", "2")) || 2)));
   const [childrenTravelers, setChildrenTravelers] = useState(0);
   const [infantTravelers, setInfantTravelers] = useState(0);
@@ -471,6 +475,11 @@ export default function App() {
       return new Date(year, month - 1, day).toLocaleDateString("es-AR", { day: "2-digit", month: "short" }).replace(".", "");
     };
     const matches = employeePackages.filter(packageHasPhoto).map(item => `${item.name}, ${item.country}`).filter(place => place.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 7);
+    const calendarOffset = (new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1).getDay() + 6) % 7;
+    const calendarDaysCount = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate();
+    const calendarCells = [...Array(calendarOffset).fill(null), ...Array.from({ length: calendarDaysCount }, (_, index) => index + 1)];
+    const isoForDay = (day: number) => `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const monthLabel = calendarMonth.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
     return <div className="search-panel">
       <div className={`search-field location-field origin-search-field ${activeLocationField === "origin" ? "location-focused" : ""}`}>
         <span className="field-icon"><MapPin size={18}/></span>
@@ -496,11 +505,33 @@ export default function App() {
         <span className="field-icon"><CalendarDays size={18}/></span>
         <span className="search-field-copy">
           <small>Fechas</small>
-          <span className="date-range-inputs">
-            <label><span>Ida</span><input className="visible-date-input" type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate && returnDate < nextDate) setReturnDate(""); }} aria-label="Fecha de ida"/></label>
-            <i aria-hidden="true">–</i>
-            <label><span>Vuelta</span><input className="visible-date-input" type="date" value={returnDate} min={date || todayISO} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/></label>
-          </span>
+          <button type="button" className="date-range-trigger" aria-expanded={datePickerOpen} onClick={() => { setDraftDate(date); setDraftReturnDate(returnDate); setDatePickerOpen(open => !open); }}>
+            {date && returnDate ? `${displayDate(date)} – ${displayDate(returnDate)}` : "Agregá fechas"}
+            <ChevronDown size={13}/>
+          </button>
+          {datePickerOpen && <div className="search-calendar" role="dialog" aria-label="Seleccionar fechas de viaje">
+            <div className="search-calendar-heading">
+              <button type="button" aria-label="Mes anterior" onClick={() => setCalendarMonth(current => new Date(current.getFullYear(), current.getMonth() - 1, 1))}>‹</button>
+              <strong>{monthLabel}</strong>
+              <button type="button" aria-label="Mes siguiente" onClick={() => setCalendarMonth(current => new Date(current.getFullYear(), current.getMonth() + 1, 1))}>›</button>
+            </div>
+            <div className="search-calendar-grid search-calendar-weekdays">{["Lu","Ma","Mi","Ju","Vi","Sá","Do"].map(day => <span key={day}>{day}</span>)}</div>
+            <div className="search-calendar-grid">{calendarCells.map((day,index) => {
+              if (day === null) return <span key={`empty-${index}`}/>;
+              const value = isoForDay(day);
+              const selectedDay = value === draftDate || value === draftReturnDate;
+              const inRange = Boolean(draftDate && draftReturnDate && value > draftDate && value < draftReturnDate);
+              return <button key={value} type="button" disabled={value < todayISO} className={`search-calendar-day ${selectedDay ? "selected" : ""} ${inRange ? "in-range" : ""}`} onClick={() => {
+                if (!draftDate || draftReturnDate || value < draftDate) { setDraftDate(value); setDraftReturnDate(""); }
+                else setDraftReturnDate(value);
+              }}>{day}</button>;
+            })}</div>
+            <p>{draftDate && !draftReturnDate ? "Ahora elegí la fecha de vuelta" : "Seleccioná ida y vuelta"}</p>
+            <div className="search-calendar-actions">
+              <button type="button" onClick={() => { setDraftDate(""); setDraftReturnDate(""); }}>Limpiar</button>
+              <button type="button" disabled={!draftDate || !draftReturnDate} onClick={() => { setDate(draftDate); setReturnDate(draftReturnDate); setDatePickerOpen(false); }}>Aplicar fechas</button>
+            </div>
+          </div>}
         </span>
       </div>
       <div className="search-field select-search-field passenger-search-field">
