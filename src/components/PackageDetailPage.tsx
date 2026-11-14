@@ -441,7 +441,7 @@ export function PackageDetailPage({
       <span className="package-help-decoration" aria-hidden="true"><Headphones size={120}/></span>
     </section>
 
-    {priceLabel && <div className="package-mobile-cta"><div><small>Desde</small><b>{priceLabel}</b></div><button type="button" onClick={() => setAvailabilityOpen(true)}>Consultar disponibilidad <ArrowRight size={16}/></button></div>}
+    {priceLabel && <div className="package-mobile-cta"><div><small>Desde</small><b>{priceLabel}</b></div><button type="button" onClick={() => packageData.flags?.reservaOnline ? onReserve() : setAvailabilityOpen(true)}>{packageData.flags?.reservaOnline ? "Reservar ahora" : "Consultar disponibilidad"} <ArrowRight size={16}/></button></div>}
 
     {lightboxIndex !== null && <div className="package-lightbox" role="dialog" aria-modal="true" aria-label="Galería de imágenes" onClick={() => setLightboxIndex(null)}>
       <button className="package-lightbox-close" onClick={() => setLightboxIndex(null)} aria-label="Cerrar galería" autoFocus><X/></button>
