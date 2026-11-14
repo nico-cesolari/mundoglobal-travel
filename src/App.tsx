@@ -422,7 +422,7 @@ export default function App() {
       return;
     }
     if (!paymentMethod) { setToast("Seleccioná un medio de pago para continuar."); return; }
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(cleanEmail)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       setToast("Ingresá un correo electrónico válido para continuar.");
       return;
     }
