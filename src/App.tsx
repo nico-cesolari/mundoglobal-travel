@@ -306,7 +306,9 @@ export default function App() {
   const toggleFavorite = (id: number) => { setAnimatingFavorite(id); window.setTimeout(() => setAnimatingFavorite(current => current === id ? null : current), 480); setFavorites(v => { const next = v.includes(id) ? v.filter(x => x !== id) : [...v, id]; setToast(next.includes(id) ? "¡Paquete guardado en tus favoritos!" : "Paquete quitado de favoritos."); return next; }); };
   const submitSearch = () => {
     if (isSearching) return;
+    if (!origin.trim()) { setToast("Elegí una ciudad de origen para continuar."); return; }
     if (!query.trim()) { setToast("Elegí un destino para continuar."); return; }
+    if (!date || !returnDate) { setToast("Elegí las fechas de ida y vuelta para continuar."); return; }
     if (date && returnDate && returnDate < date) { setToast("La fecha de vuelta no puede ser anterior a la fecha de ida."); return; }
     setIsSearching(true);
     const term = query.trim();
@@ -481,10 +483,12 @@ export default function App() {
       <div className="search-field date-range-field">
         <span className="field-icon"><CalendarDays size={18}/></span>
         <span className="search-field-copy">
-          <small>Fecha de ida</small>
-          <input className="visible-date-input" type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate && returnDate < nextDate) setReturnDate(""); }} aria-label="Fecha de ida"/>
-          <small className="return-date-label">Fecha de vuelta</small>
-          <input className="visible-date-input" type="date" value={returnDate} min={date || todayISO} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/>
+          <small>Fechas</small>
+          <span className="date-range-inputs">
+            <label><span>Ida</span><input className="visible-date-input" type="date" value={date} min={todayISO} onChange={e => { const nextDate=e.target.value; setDate(nextDate); if(returnDate && returnDate < nextDate) setReturnDate(""); }} aria-label="Fecha de ida"/></label>
+            <i aria-hidden="true">–</i>
+            <label><span>Vuelta</span><input className="visible-date-input" type="date" value={returnDate} min={date || todayISO} onChange={e => setReturnDate(e.target.value)} aria-label="Fecha de vuelta"/></label>
+          </span>
         </span>
       </div>
       <label className="search-field select-search-field">
@@ -496,10 +500,10 @@ export default function App() {
       <label className="search-field select-search-field accommodation-field">
         <span className="field-icon"><BedDouble size={18}/></span>
         <span className="search-field-copy"><small>Alojamiento</small>
-          <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>Hotel 3 estrellas</option><option>Hotel 4 estrellas</option><option>Hotel 5 estrellas</option><option>All Inclusive</option></select>
+          <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>All Inclusive</option><option>Media pensión</option><option>Solo alojamiento</option></select>
         </span>
       </label>
-      <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
+      <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching || !origin.trim() || !query.trim() || !date || !returnDate || returnDate < date}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
     </div>;
   };
 
