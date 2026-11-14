@@ -604,7 +604,7 @@ export default function App() {
           <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>All Inclusive</option><option>Media pensión</option><option>Solo alojamiento</option></select>
         </span>
       </label>
-      <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching || !origin.trim() || !query.trim() || !date || !returnDate || returnDate < date}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
+      <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
     </div>;
   };
 
