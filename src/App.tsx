@@ -121,7 +121,7 @@ export default function App() {
   const initialPackages = loadSavedPackages();
   const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug));
   const employeeSession = localStorage.getItem("mgt-employee-session") || "";
-  const initialPage: Page = initialBookingSlug ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
+  const initialPage: Page = initialBookingSlug ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
   const [page, setPage] = useState<Page>(() => initialPage);
   const [routeNotFound, setRouteNotFound] = useState(Boolean(initialSlug && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
@@ -265,6 +265,14 @@ export default function App() {
         if (found) setSelected(found);
       } else if (window.location.pathname === "/paquetes") {
         setRouteNotFound(false); setActiveNav("Paquetes"); setPage("results");
+      } else if (window.location.pathname === "/mi-cuenta") {
+        setRouteNotFound(false); setActiveNav(""); setPage("account");
+      } else if (window.location.pathname === "/iniciar-sesion") {
+        setRouteNotFound(false); setActiveNav(""); setPage("login");
+      } else if (window.location.pathname === "/crear-cuenta") {
+        setRouteNotFound(false); setActiveNav(""); setPage("register");
+      } else if (window.location.pathname === "/contacto") {
+        setRouteNotFound(false); setActiveNav("Contacto"); setPage("support");
       } else if (window.location.pathname === "/employee-login") {
         setRouteNotFound(false); setActiveNav(""); setPage("employee-login");
       } else if (window.location.pathname === "/employee") {
@@ -293,7 +301,7 @@ export default function App() {
   const go = (p: Page) => {
     setPage(p); setMobileMenu(false); setRouteNotFound(false);
     if (p === "home") setActiveNav("Inicio"); else if (p === "support") setActiveNav("Contacto"); else if (p !== "results" && p !== "detail") setActiveNav("");
-    const routePaths: Partial<Record<Page, string>> = { home: "/", results: "/paquetes", checkout: `/reservar/${slugifyPackage(selected.name)}`, "employee-login": "/employee-login", employee: "/employee" };
+    const routePaths: Partial<Record<Page, string>> = { home: "/", results: "/paquetes", checkout: `/reservar/${slugifyPackage(selected.name)}`, account: "/mi-cuenta", login: "/iniciar-sesion", register: "/crear-cuenta", support: "/contacto", "employee-login": "/employee-login", employee: "/employee" };
     const nextPath = routePaths[p];
     if (nextPath && window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
     window.scrollTo({ top: 0, behavior: "smooth" });
