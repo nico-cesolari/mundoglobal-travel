@@ -154,7 +154,7 @@ export default function App() {
   const initialPackages = loadSavedPackages();
   const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug)) || packages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug));
   const employeeSession = localStorage.getItem("mgt-employee-session") || "";
-  const initialPage: Page = (initialBookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
+  const initialPage: Page = (initialBookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? "employee" : "home";
   const [page, setPage] = useState<Page>(() => initialPage);
   const [routeNotFound, setRouteNotFound] = useState(Boolean((initialSlug || initialBookingSlug) && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
@@ -340,8 +340,7 @@ export default function App() {
         setRouteNotFound(false); setActiveNav(""); setPage("employee-login");
       } else if (window.location.pathname === "/employee") {
         setRouteNotFound(false); setActiveNav("");
-        if (localStorage.getItem("mgt-employee-session")) setPage("employee");
-        else setPage("employee-login");
+        setPage("employee");
       } else {
         setRouteNotFound(false); setActiveNav("Inicio"); setPage("home");
       }
@@ -380,10 +379,6 @@ export default function App() {
   const unreadNotifications = notifications.filter(item => !item.read).length;
   const submitSearch = () => {
     if (isSearching) return;
-    if (!origin.trim()) { setToast("Elegí una ciudad de origen para continuar."); return; }
-    if (!query.trim()) { setToast("Elegí un destino para continuar."); return; }
-    if (!date || !returnDate) { setToast("Elegí las fechas de ida y vuelta para continuar."); return; }
-    if (date && returnDate && returnDate < date) { setToast("La fecha de vuelta no puede ser anterior a la fecha de ida."); return; }
     setIsSearching(true);
     const term = query.trim();
     const next = [term, ...recentSearches.filter(x => x.toLowerCase() !== term.toLowerCase())].slice(0, 6);
@@ -433,20 +428,7 @@ export default function App() {
     setUser(name); localStorage.setItem("mgt-user", name); go("account"); setToast(`¡Bienvenido/a, ${name}!`);
   };
   const reserve = () => {
-    const cleanName = passengerName.trim();
-    const cleanEmail = passengerEmail.trim();
-    const selectedPrice = selected.price;
-    if (!selectedPrice || !selected.departureCity || !selected.departureDate || !selected.returnDate) { setToast("Este destino todavía no tiene una salida y cotización publicadas. Contactá a la agencia."); return; }
-    if (cleanName.length < 3) { setToast("Ingresá el nombre y apellido del pasajero principal."); return; }
-    if (passengerDocument.trim().length < 5 || !passengerBirthDate || !passengerNationality.trim() || passengerPhone.trim().length < 6) { setToast("Completá DNI/pasaporte, fecha de nacimiento, nacionalidad y teléfono del pasajero principal."); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) { setToast("Ingresá un correo electrónico válido para continuar."); return; }
-    const incompleteCompanion = additionalPassengers.findIndex(p => p.fullName.trim().length < 3 || p.documentNumber.trim().length < 5 || !p.birthDate || !p.nationality.trim());
-    if (incompleteCompanion >= 0) { setToast("Completá todos los datos del acompañante número " + (incompleteCompanion + 1) + "."); return; }
-    if (!paymentMethod) { setToast("Seleccioná un medio de pago para continuar."); return; }
-    if (paymentMethod === "Tarjeta de crédito" || paymentMethod === "Tarjeta de débito") {
-      const digits = cardNumber.replace(/\D/g, "");
-      if (cardholderName.trim().length < 3 || digits.length < 13 || digits.length > 19 || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry) || !/^[0-9]{3,4}$/.test(cardCvv)) { setToast("Revisá los datos de la tarjeta: titular, número, vencimiento y código de seguridad."); return; }
-    }
+    // Modo demostración: permite avanzar sin completar datos personales ni de pago.
     setCheckoutConfirmed(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -506,7 +488,7 @@ export default function App() {
         <button className={activeNav === "Contacto" ? "active" : ""} onClick={() => { setActiveNav("Contacto"); go("support"); }}>Contacto</button>
       </nav>
       <div className="nav-actions">
-        {page === "employee" ? <span className="employee-role-pill"><UserRound size={16}/> Empleado <i/></span> : <button className="account-pill" onClick={() => go(user ? "account" : "login")}><UserRound size={16}/>{user || "Iniciar sesión"}{user && <ChevronDown size={14}/>}</button>}
+        {page === "employee" ? <span className="employee-role-pill"><UserRound size={16}/> Empleado <i/></span> : <button className="account-pill" onClick={() => go("account")}><UserRound size={16}/>{user || "Iniciar sesión"}{user && <ChevronDown size={14}/>}</button>}
         {page === "detail" && !routeNotFound && <button className="nav-book-now" onClick={() => document.querySelector<HTMLButtonElement>(".package-consult-button")?.click()}>Reservar ahora</button>}
         <button className="menu-toggle" onClick={() => setMobileMenu(!mobileMenu)}>{mobileMenu ? <X/> : <Menu/>}</button>
       </div>
@@ -518,7 +500,7 @@ export default function App() {
       <div><div className="brand brand-light"><img className="brand-logo brand-logo-light" src="/images/mundoglobal_travel.svg" alt="MundoGlobal Travel" /></div><p>Tu mundo, nuestro destino.<br/>Viajá más lejos, viví más experiencias.</p><div className="socials"><Facebook/><Instagram/><Youtube/><Linkedin/></div></div>
       <div><b>Explorá</b><button onClick={() => go("results")}>Paquetes</button><button onClick={() => go("results")}>Destinos</button><button onClick={() => go("results")}>Ofertas</button></div>
       <div><b>Ayuda</b><button onClick={() => go("support")}>Preguntas frecuentes</button><button onClick={() => go("support")}>Contacto</button><button onClick={() => go("support")}>Asistencia al viajero</button></div>
-      <div><b>Medios de pago</b><div className="payment-tags"><span>VISA</span><span>mastercard</span><span>Transferencia</span></div><p className="secure-note"><ShieldCheck size={16}/> Compra segura y protegida</p><button className="footer-employee-link" onClick={() => go("employee-login")}>Acceso para empleados <ArrowRight size={13}/></button></div>
+      <div><b>Medios de pago</b><div className="payment-tags"><span>VISA</span><span>mastercard</span><span>Transferencia</span></div><p className="secure-note"><ShieldCheck size={16}/> Compra segura y protegida</p><button className="footer-employee-link" onClick={() => go("employee")}>Acceso para empleados <ArrowRight size={13}/></button></div>
     </div>
     <div className="footer-bottom"><span>© 2026 MundoGlobal Travel. Todos los derechos reservados.</span><span>Turismo · Privacidad · Cookies</span></div>
   </footer>;
