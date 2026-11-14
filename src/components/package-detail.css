@@ -376,3 +376,13 @@
   .nav-book-now,.package-other-favorite{transition:none!important}
   .package-other-favorite.favorite-pop{animation:none!important}
 }
+
+/* Opciones de cuotas en el detalle del paquete */
+.package-installments{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 10px;width:100%;margin-top:15px;padding:13px;border:1px solid #E0EAFB;border-radius:12px;background:#F5F8FF}
+.package-installments>label{color:#30466B;font-size:10px;font-weight:800}
+.package-installments>select{min-width:100px;padding:8px 10px;border:1px solid #D7E2F5;border-radius:8px;background:#fff;color:#24385D;font:inherit;font-size:10px;font-weight:700}
+.package-installment-result{display:flex;flex-direction:column;gap:2px;grid-column:1/-1;padding-top:7px;border-top:1px solid #E0E8F6}
+.package-installment-result strong{color:#1E4FD8;font-size:19px;line-height:1.2;font-weight:850}
+.package-installment-result span{color:#71819A;font-size:9px}
+.package-installments>small{grid-column:1/-1;color:#8793A7;font-size:8px;line-height:1.5}
+@media(max-width:640px){.package-installments{padding:12px}.package-installment-result strong{font-size:18px}}
