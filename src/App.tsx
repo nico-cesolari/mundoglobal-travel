@@ -445,7 +445,7 @@ export default function App() {
     if (!paymentMethod) { setToast("Seleccioná un medio de pago para continuar."); return; }
     if (paymentMethod === "Tarjeta de crédito" || paymentMethod === "Tarjeta de débito") {
       const digits = cardNumber.replace(/\D/g, "");
-      if (cardholderName.trim().length < 3 || digits.length < 13 || digits.length > 19 || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry) || !/^\\d{3,4}$/.test(cardCvv)) { setToast("Revisá los datos de la tarjeta: titular, número, vencimiento y código de seguridad."); return; }
+      if (cardholderName.trim().length < 3 || digits.length < 13 || digits.length > 19 || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry) || !/^[0-9]{3,4}$/.test(cardCvv)) { setToast("Revisá los datos de la tarjeta: titular, número, vencimiento y código de seguridad."); return; }
     }
     setCheckoutConfirmed(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
