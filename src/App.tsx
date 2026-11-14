@@ -151,7 +151,7 @@ export default function App() {
   const initialSlug = currentPackageSlug();
   const initialBookingSlug = currentBookingSlug();
   const initialPackages = loadSavedPackages();
-  const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug));
+  const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug)) || packages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug));
   const employeeSession = localStorage.getItem("mgt-employee-session") || "";
   const initialPage: Page = (initialBookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
   const [page, setPage] = useState<Page>(() => initialPage);
@@ -307,11 +307,11 @@ export default function App() {
       const bookingSlug = currentBookingSlug();
       const slug = currentPackageSlug();
       if (bookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") {
-        const found = employeePackages.find(item => slugifyPackage(item.name) === bookingSlug);
+        const found = employeePackages.find(item => slugifyPackage(item.name) === bookingSlug) || packages.find(item => slugifyPackage(item.name) === bookingSlug);
         setActiveNav(""); setPage("checkout"); setRouteNotFound(Boolean(bookingSlug && !found));
         if (found) setSelected(found);
       } else if (slug) {
-        const found = employeePackages.find(item => slugifyPackage(item.name) === slug);
+        const found = employeePackages.find(item => slugifyPackage(item.name) === slug) || packages.find(item => slugifyPackage(item.name) === slug);
         setActiveNav("Paquetes"); setPage("detail"); setRouteNotFound(!found);
         if (found) setSelected(found);
       } else if (window.location.pathname === "/paquetes") {
