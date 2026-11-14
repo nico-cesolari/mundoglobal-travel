@@ -113,13 +113,15 @@ const loadSavedPackages = (): Package[] => {
 
 const slugifyPackage = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const currentPackageSlug = () => window.location.pathname.match(/^\/paquetes\/([^/]+)\/?$/)?.[1] || "";
+const currentBookingSlug = () => window.location.pathname.match(/^\/reservar\/([^/]+)\/?$/)?.[1] || "";
 
 export default function App() {
   const initialSlug = currentPackageSlug();
+  const initialBookingSlug = currentBookingSlug();
   const initialPackages = loadSavedPackages();
-  const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === initialSlug);
+  const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug));
   const employeeSession = localStorage.getItem("mgt-employee-session") || "";
-  const initialPage: Page = initialSlug ? "detail" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
+  const initialPage: Page = initialBookingSlug ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/employee-login" ? "employee-login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "employee-login") : "home";
   const [page, setPage] = useState<Page>(() => initialPage);
   const [routeNotFound, setRouteNotFound] = useState(Boolean(initialSlug && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
@@ -251,8 +253,13 @@ export default function App() {
 
   useEffect(() => {
     const handlePackageRoute = () => {
+      const bookingSlug = currentBookingSlug();
       const slug = currentPackageSlug();
-      if (slug) {
+      if (bookingSlug) {
+        const found = employeePackages.find(item => slugifyPackage(item.name) === bookingSlug);
+        setActiveNav(""); setPage("checkout"); setRouteNotFound(!found);
+        if (found) setSelected(found);
+      } else if (slug) {
         const found = employeePackages.find(item => slugifyPackage(item.name) === slug);
         setActiveNav("Paquetes"); setPage("detail"); setRouteNotFound(!found);
         if (found) setSelected(found);
@@ -286,7 +293,7 @@ export default function App() {
   const go = (p: Page) => {
     setPage(p); setMobileMenu(false); setRouteNotFound(false);
     if (p === "home") setActiveNav("Inicio"); else if (p === "support") setActiveNav("Contacto"); else if (p !== "results" && p !== "detail") setActiveNav("");
-    const routePaths: Partial<Record<Page, string>> = { home: "/", results: "/paquetes", "employee-login": "/employee-login", employee: "/employee" };
+    const routePaths: Partial<Record<Page, string>> = { home: "/", results: "/paquetes", checkout: `/reservar/${slugifyPackage(selected.name)}`, "employee-login": "/employee-login", employee: "/employee" };
     const nextPath = routePaths[p];
     if (nextPath && window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -547,6 +554,7 @@ export default function App() {
         onHome={()=>go("home")}
         onPackages={()=>go("results")}
         onOpenPackage={item=>openPackage(item as Package)}
+        onReserve={()=>go("checkout")}
         onConsultAvailability={payload=>{
           setStaffMessages(items=>[{id:Date.now(),name:payload.name,subject:`Disponibilidad · ${selected.name}`,body:`Correo: ${payload.email || "No indicado"} · Teléfono: ${payload.phone || "No indicado"} · Pasajeros: ${payload.travelers} · Fecha solicitada: ${payload.requestedDate || formatTravelDate(selected.departureDate) || "A coordinar"}`,status:"Pendiente"},...items]);
           setToast("Tu consulta fue enviada. El equipo de MundoGlobal Travel se comunicará con vos.");
