@@ -3,7 +3,7 @@ import type { FormEvent, TouchEvent } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight, BedDouble, CalendarDays, Check, CheckCircle2,
-  ChevronLeft, ChevronRight, Clock3, Compass, FileText, Headphones, Info,
+  ChevronLeft, ChevronRight, Clock3, Compass, FileText, Headphones, Heart, Info,
   MapPin, MessageCircle, Phone, Plane, Share2, ShieldCheck, Sparkles, Star, X
 } from "lucide-react";
 import { SmartImage } from "./SmartImage";
