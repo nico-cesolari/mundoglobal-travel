@@ -2629,3 +2629,6 @@ body{zoom:.9;}
 .account-notification-mark{font-size:9px;font-weight:700;color:var(--blue);white-space:nowrap;padding:5px 0 5px 5px}
 .account-notification.read{opacity:.82}
 @media(max-width:650px){.account-notification{gap:9px;padding:12px}.account-notification-icon{width:34px;height:34px;flex-basis:34px}.account-notification-mark{font-size:8px}.account-menu button .account-notification-count{min-width:17px;height:17px}}
+
+/* Datos de pasajeros en el checkout */
+.passenger-form-section{margin:18px 0 22px;padding:18px;border:1px solid #e5eaf2;border-radius:14px;background:#fbfcff}.passenger-form-section h3{margin:0 0 14px;font-size:15px;color:#1d3152}.passenger-fields-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.passenger-fields-grid label{display:flex;flex-direction:column;gap:7px;min-width:0}.passenger-fields-grid input{width:100%;min-width:0;box-sizing:border-box}.companion-passenger{margin-top:14px}@media(max-width:640px){.passenger-fields-grid{grid-template-columns:1fr}.passenger-form-section{padding:14px}}
