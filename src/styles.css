@@ -2611,3 +2611,21 @@ body{zoom:.9;}
 @media(min-width:901px){.employee-add-form{grid-template-columns:repeat(3,minmax(0,1fr));}.employee-add-form>.primary-btn{grid-column:span 3;justify-self:start;}}
 @media(max-width:900px){.employee-add-form{grid-template-columns:repeat(2,minmax(0,1fr));}.employee-add-form>.primary-btn{grid-column:1/-1;justify-self:start;}}
 @media(max-width:600px){.employee-add-form{grid-template-columns:1fr;}.employee-add-form>.primary-btn{grid-column:1;justify-self:stretch;}}
+
+
+.account-menu button .account-notification-count{margin-left:auto;min-width:19px;height:19px;padding:0 5px;border-radius:20px;background:#eaf1ff;color:#0756dc;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
+.account-notification-list{display:grid;gap:11px}
+.account-notification{display:flex;align-items:flex-start;gap:13px;padding:15px;border:1px solid var(--line);border-radius:13px;background:#fff;transition:background .2s,border-color .2s}
+.account-notification.unread{background:#f7faff;border-color:#d8e5ff}
+.account-notification-icon{width:39px;height:39px;flex:0 0 39px;border-radius:12px;background:#edf3ff;color:var(--blue);display:grid;place-items:center}
+.account-notification-icon.booking{background:#eaf8f0;color:#07945b}
+.account-notification-icon.payment{background:#fff6e5;color:#b77908}
+.account-notification-icon.offer{background:#fff0f2;color:#d94b68}
+.account-notification-copy{min-width:0;flex:1}
+.account-notification-copy b{display:block;font-size:11px;color:#172c51;margin:2px 0 5px}
+.account-notification-copy p{font-size:10px;line-height:1.55;color:#61718c;margin:0 0 7px}
+.account-notification-copy small{font-size:9px;color:#94a0b4}
+.account-notification-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#1765e8;margin-top:7px}
+.account-notification-mark{font-size:9px;font-weight:700;color:var(--blue);white-space:nowrap;padding:5px 0 5px 5px}
+.account-notification.read{opacity:.82}
+@media(max-width:650px){.account-notification{gap:9px;padding:12px}.account-notification-icon{width:34px;height:34px;flex-basis:34px}.account-notification-mark{font-size:8px}.account-menu button .account-notification-count{min-width:17px;height:17px}}
