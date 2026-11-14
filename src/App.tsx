@@ -88,6 +88,35 @@ const enrichPackage = (item: Package): Package => {
     infoSections: infoSections.filter(section => Boolean(section.description?.trim()))
   };
 };
+
+const escapeDocumentText = (value: string) => value.replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[character] ?? character));
+const travelDocumentHtml = (entry: IncomeEntry) => {
+  const installments = Number(entry.method.match(/(\\d+) cuota/)?.[1] || 1);
+  const amountPerInstallment = entry.amount / Math.max(1, installments);
+  const rows = [
+    ["Código de reserva", entry.reference], ["Pasajero principal", entry.client],
+    ["Destino", entry.destination || "No indicado"], ["Origen", entry.departureCity || "No indicado"],
+    ["Salida", formatTravelDate(entry.departureDate) || "A coordinar"], ["Regreso", formatTravelDate(entry.returnDate) || "A coordinar"],
+    ["Importe total", money(entry.amount)], ["Medio / plan de pago", entry.method],
+    ...(installments > 1 ? [["Cuota estimada", `${installments} cuotas de ${money(amountPerInstallment)}`] as [string,string]] : []),
+    ["Estado", entry.status === "Acreditado" ? "Pago acreditado" : "Pendiente de pago"], ["Fecha de emisión", entry.date]
+  ];
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Comprobante ${escapeDocumentText(entry.reference)} · MundoGlobal Travel</title><style>body{font-family:Arial,sans-serif;color:#1c2e50;margin:0;padding:38px;background:#f4f7fc}.sheet{max-width:760px;margin:auto;padding:38px;background:white;border:1px solid #e2e9f3;border-radius:16px}.brand{color:#1e4fd8;font-size:22px;font-weight:800}.eyebrow{margin:8px 0 26px;color:#71809a;font-size:11px;letter-spacing:1px}.code{padding:14px;border-radius:10px;background:#eff4ff;color:#1e4fd8;font-weight:800}.row{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid #edf1f7;font-size:13px}.row span{color:#71809a}.row b{text-align:right}.note{margin-top:24px;padding:13px;border-radius:9px;background:#fff8e7;color:#755b21;font-size:11px;line-height:1.6}.actions{display:flex;gap:10px;margin-top:24px}.actions button{padding:11px 17px;border:0;border-radius:8px;background:#1e4fd8;color:white;font-weight:700;cursor:pointer}.actions button:last-child{background:#eaf0fa;color:#29436d}@media print{body{padding:0;background:#fff}.sheet{max-width:none;border:0;border-radius:0;padding:15mm}.actions{display:none}.note{break-inside:avoid}}</style></head><body><main class="sheet"><div class="brand">MundoGlobal Travel</div><div class="eyebrow">COMPROBANTE DE RESERVA · ${escapeDocumentText(entry.reference)}</div><div class="code">Reserva ${escapeDocumentText(entry.reference)}</div>${rows.map(([label,value])=>`<div class="row"><span>${escapeDocumentText(label)}</span><b>${escapeDocumentText(value)}</b></div>`).join("")}<div class="note"><b>Documento de demostración.</b> Acredita el registro local de una reserva en MundoGlobal Travel. No es un pasaje aéreo emitido ni confirma servicios de proveedores. Los importes y cuotas son referenciales hasta la confirmación de la agencia y del medio de pago.</div><div class="actions"><button onclick="window.print()">Imprimir / Guardar como PDF</button><button onclick="window.close()">Cerrar</button></div></main></body></html>`;
+};
+const downloadTravelDocument = (entry: IncomeEntry) => {
+  const blob = new Blob([travelDocumentHtml(entry)], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url; link.download = `MundoGlobal-reserva-${entry.reference}.html`;
+  document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+};
+const printTravelDocument = (entry: IncomeEntry) => {
+  const printWindow = window.open("", "_blank", "width=900,height=750");
+  if (!printWindow) return;
+  printWindow.document.open(); printWindow.document.write(travelDocumentHtml(entry)); printWindow.document.close();
+  printWindow.focus(); printWindow.print();
+};
+
 const demoIncomeEntries: IncomeEntry[] = [
   { id: 1, reference: "MG-20481", client: "María González", destination: "Cancún", departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", amount: 2598, method: "Tarjeta de crédito", status: "Acreditado", date: "13/11/2026" },
   { id: 2, reference: "MG-20480", client: "Lucas Fernández", destination: "Roma", departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", amount: 1479, method: "Transferencia", status: "Pendiente", date: "12/11/2026" },
@@ -138,6 +167,9 @@ export default function App() {
   const [employeeMessage, setEmployeeMessage] = useState(() => readDraft("mgt-draft-employee-message"));
   const [newPackageName, setNewPackageName] = useState(() => readDraft("mgt-draft-package-name"));
   const [newPackagePrice, setNewPackagePrice] = useState(() => readDraft("mgt-draft-package-price"));
+  const [newPackageOldPrice, setNewPackageOldPrice] = useState(() => readDraft("mgt-draft-package-old-price"));
+  const [newPackageFeatured, setNewPackageFeatured] = useState(false);
+  const [newPackagePromo, setNewPackagePromo] = useState(false);
   const [newPackageCountry, setNewPackageCountry] = useState(() => readDraft("mgt-draft-package-country"));
   const [newPackageDepartureCity, setNewPackageDepartureCity] = useState(() => readDraft("mgt-draft-package-departure-city"));
   const [newPackageDepartureDate, setNewPackageDepartureDate] = useState(() => readDraft("mgt-draft-package-departure-date"));
@@ -199,6 +231,7 @@ export default function App() {
   const [contactName, setContactName] = useState(() => readDraft("mgt-draft-contact-name"));
   const [contactEmail, setContactEmail] = useState(() => readDraft("mgt-draft-contact-email"));
   const [contactMessage, setContactMessage] = useState(() => readDraft("mgt-draft-contact-message"));
+  const [claimFile, setClaimFile] = useState<File | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState(() => readDraft("mgt-draft-newsletter-email"));
   const [animatingFavorite, setAnimatingFavorite] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState("recommended");
@@ -217,6 +250,7 @@ export default function App() {
     writeDraft("mgt-draft-employee-message", employeeMessage);
     writeDraft("mgt-draft-package-name", newPackageName);
     writeDraft("mgt-draft-package-price", newPackagePrice);
+    writeDraft("mgt-draft-package-old-price", newPackageOldPrice);
     writeDraft("mgt-draft-package-country", newPackageCountry);
     writeDraft("mgt-draft-package-departure-city", newPackageDepartureCity);
     writeDraft("mgt-draft-package-departure-date", newPackageDepartureDate);
@@ -245,7 +279,7 @@ export default function App() {
     writeDraft("mgt-draft-income-amount", incomeAmount);
     writeDraft("mgt-draft-offer-end", offerEndDate);
   }, [
-    employeeMessage, newPackageName, newPackagePrice, newPackageCountry, newPackageCategory,
+    employeeMessage, newPackageName, newPackagePrice, newPackageOldPrice, newPackageCountry, newPackageCategory,
     newPackageDepartureCity, newPackageDepartureDate, newPackageReturnDate, newPackageImage,
     query, origin, accommodation, date, returnDate, travelers, profileEmail, profilePhone,
     passengerName, passengerEmail, paymentMethod, authEmail, authFullName,
@@ -708,7 +742,7 @@ export default function App() {
         </>}
         {employeeTab==="packages"&&<>
           <div className="employee-section-title"><div><h2>Paquetes y productos turísticos</h2><p>Publicá salidas concretas con origen, fechas y precio por persona.</p></div><span className="demo-label">CATÁLOGO LOCAL</span></div>
-          <form className="employee-add-form" onSubmit={e=>{e.preventDefault();const price=Number(newPackagePrice);const days=packageDuration(newPackageDepartureDate,newPackageReturnDate);if(newPackageName.trim().length<2||newPackageCountry.trim().length<2||newPackageDepartureCity.trim().length<2||!packageHasPhoto({image:newPackageImage})||!newPackageDepartureDate||!newPackageReturnDate||newPackageDepartureDate<todayISO||newPackageReturnDate<=newPackageDepartureDate||!Number.isFinite(price)||price<100||days<2||days>60){setToast("Completá destino, foto disponible, origen, fechas válidas y un precio final mayor a USD 100.");return;}const item:Package={id:Date.now(),name:newPackageName.trim(),country:newPackageCountry.trim(),category:newPackageCategory,tripType:"Turismo",price,oldPrice:price,days,departureCity:newPackageDepartureCity.trim(),departureDate:newPackageDepartureDate,returnDate:newPackageReturnDate,image:newPackageImage,images:[newPackageImage],description:"Nuevo paquete cargado por el equipo de la agencia.",servicePrices:buildServicePrices(price)};setEmployeePackages(v=>[enrichPackage(item),...v]);setNewPackageName("");setNewPackageCountry("");setNewPackagePrice("");setNewPackageDepartureCity("");setNewPackageDepartureDate("");setNewPackageReturnDate("");setNewPackageCategory("Playas");setNewPackageImage("");setToast("Paquete publicado con imagen, origen, fechas y precio definidos.");}}>
+          <form className="employee-add-form" onSubmit={e=>{e.preventDefault();const price=Number(newPackagePrice);const days=packageDuration(newPackageDepartureDate,newPackageReturnDate);const oldPrice=Number(newPackageOldPrice);if(newPackageName.trim().length<2||newPackageCountry.trim().length<2||newPackageDepartureCity.trim().length<2||!packageHasPhoto({image:newPackageImage})||!newPackageDepartureDate||!newPackageReturnDate||newPackageDepartureDate<todayISO||newPackageReturnDate<=newPackageDepartureDate||!Number.isFinite(price)||price<100||days<2||days>60||(newPackagePromo&&(!Number.isFinite(oldPrice)||oldPrice<=price))){setToast("Completá destino, foto, origen, fechas y precio. Si marcás oferta, el precio anterior debe superar al actual.");return;}const item:Package={id:Date.now(),name:newPackageName.trim(),country:newPackageCountry.trim(),category:newPackageCategory,tripType:"Turismo",price,oldPrice:newPackagePromo?oldPrice:undefined,days,nights:days-1,rating:4.8,reviews:"Nuevo",reviewCount:0,tag:newPackagePromo?"¡Oferta!":newPackageFeatured?"Destacado":"Nuevo",flags:{promo:newPackagePromo,recommended:newPackageFeatured,reservaOnline:true},departureCity:newPackageDepartureCity.trim(),departureDate:newPackageDepartureDate,returnDate:newPackageReturnDate,image:newPackageImage,images:[newPackageImage],description:"Nuevo paquete cargado por el equipo de la agencia.",servicePrices:buildServicePrices(price)};setEmployeePackages(v=>[enrichPackage(item),...v]);setNewPackageName("");setNewPackageCountry("");setNewPackagePrice("");setNewPackageOldPrice("");setNewPackageFeatured(false);setNewPackagePromo(false);setNewPackageDepartureCity("");setNewPackageDepartureDate("");setNewPackageReturnDate("");setNewPackageCategory("Playas");setNewPackageImage("");setToast("Paquete publicado con imagen, origen, fechas y precio definidos.");}}>
             <input value={newPackageName} onChange={e=>setNewPackageName(e.target.value)} placeholder="Destino (ej. Bariloche)" required/><input value={newPackageCountry} onChange={e=>setNewPackageCountry(e.target.value)} placeholder="País" required/><select value={newPackageCategory} onChange={e=>setNewPackageCategory(e.target.value)}><option>Playas</option><option>Ciudades</option><option>Cultura</option><option>Aventuras</option></select><input value={newPackageDepartureCity} onChange={e=>setNewPackageDepartureCity(e.target.value)} placeholder="Ciudad de salida" list="new-package-departure-options" required/><datalist id="new-package-departure-options">{locationOptions.map(place=><option key={place} value={place}/>)}</datalist><select value={newPackageImage} onChange={e=>setNewPackageImage(e.target.value)} required aria-label="Imagen del destino"><option value="">Elegí una foto del catálogo</option>{packageImageOptions.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select><input type="date" value={newPackageDepartureDate} min={todayISO} onChange={e=>setNewPackageDepartureDate(e.target.value)} aria-label="Fecha de salida" required/><input type="date" value={newPackageReturnDate} min={newPackageDepartureDate||todayISO} onChange={e=>setNewPackageReturnDate(e.target.value)} aria-label="Fecha de regreso" required/><input type="number" min="100" value={newPackagePrice} onChange={e=>setNewPackagePrice(e.target.value)} placeholder="Precio por persona USD" required/><button className="primary-btn"><Plus size={15}/> Publicar paquete</button>
           </form>
           <p className="employee-form-note">Cada publicación representa una salida concreta. Definí ciudad de origen, fechas de ida y regreso y precio por persona para esa combinación. Para ofrecer otra salida al mismo destino, publicá otra opción con su propia cotización.</p>
