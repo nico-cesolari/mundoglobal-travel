@@ -153,6 +153,7 @@ export function PackageDetailPage({
   const [activeInfo, setActiveInfo] = useState<PackageInfoSection | null>(null);
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [travelerCount, setTravelerCount] = useState(2);
+  const [installmentCount, setInstallmentCount] = useState(1);
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -163,6 +164,7 @@ export function PackageDetailPage({
   const days = durationDays(packageData);
   const savings = discountAmount(packageData);
   const priceLabel = money(packageData.price, packageData.currency || "USD");
+  const installmentAmount = typeof packageData.price === "number" && installmentCount > 0 ? packageData.price / installmentCount : 0;
   const originalPriceLabel = money(packageData.originalPrice ?? packageData.oldPrice, packageData.currency || "USD");
   const galleryClass = images.length <= 1 ? "package-gallery package-gallery-single" : images.length === 2 ? "package-gallery package-gallery-double" : "package-gallery";
   const includes = (packageData.includes || []).filter(item => item.title || item.description);
@@ -294,6 +296,7 @@ export function PackageDetailPage({
         <strong>{priceLabel}</strong>
         <small>por persona{packageData.price ? " en base doble" : ""}</small>
         {originalPriceLabel && savings && <div className="package-saving-row"><del>{originalPriceLabel}</del><span>Ahorrá {money(savings, packageData.currency || "USD")}</span></div>}
+        {typeof packageData.price === "number" && packageData.price > 0 && <div className="package-installments"><label htmlFor="package-installment-count">Opciones de pago</label><select id="package-installment-count" value={installmentCount} onChange={event => setInstallmentCount(Number(event.target.value))}><option value={1}>1 pago</option><option value={3}>3 cuotas</option><option value={6}>6 cuotas</option><option value={12}>12 cuotas</option></select><div className="package-installment-result"><strong>{money(installmentAmount, packageData.currency || "USD")}</strong><span>por cuota estimada</span></div><small>Simulación informativa dividida en partes iguales. La financiación, intereses y medios habilitados deben confirmarse al reservar.</small></div>}
       </div>}
       {(nights || hasFlight || hasHotel) && <div className="package-booking-meta">
         {nights && <span><CalendarDays size={16}/>{nights} noches</span>}
