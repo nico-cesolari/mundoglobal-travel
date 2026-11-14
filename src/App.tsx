@@ -28,7 +28,7 @@ type Package = {
   flags?: { promo?: boolean; reservaOnline?: boolean; cancelacionGratuita?: boolean; recommended?: boolean };
   servicePrices?: { flight: number; hotel: number; assistance: number };
 };
-type IncomeEntry = { id: number; reference: string; client: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; };
+type IncomeEntry = { id: number; reference: string; client: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; travelers?: number; nights?: number; };
 const packages: Package[] = [
   { id: 1, name: "Cancún", country: "México", category: "Playas", tripType: "Turismo", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
   { id: 4, name: "Roma", country: "Italia", category: "Cultura", tripType: "Turismo", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", image: "/images/roma.jpg", focalPoint: {x:50,y:50}, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
@@ -96,6 +96,8 @@ const travelDocumentHtml = (entry: IncomeEntry) => {
   const rows = [
     ["Código de reserva", entry.reference], ["Pasajero principal", entry.client],
     ["Destino", entry.destination || "No indicado"], ["Origen", entry.departureCity || "No indicado"],
+    ...(entry.travelers ? [["Pasajeros", String(entry.travelers)] as [string,string]] : []),
+    ...(entry.nights ? [["Duración", `${entry.nights} noches`] as [string,string]] : []),
     ["Salida", formatTravelDate(entry.departureDate) || "A coordinar"], ["Regreso", formatTravelDate(entry.returnDate) || "A coordinar"],
     ["Importe total", money(entry.amount)], ["Medio / plan de pago", entry.method],
     ...(installments > 1 ? [["Cuota estimada", `${installments} cuotas de ${money(amountPerInstallment)}`] as [string,string]] : []),
@@ -108,7 +110,7 @@ const downloadTravelDocument = (entry: IncomeEntry) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url; link.download = `MundoGlobal-reserva-${entry.reference}.html`;
-  document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+  document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1200);
 };
 const downloadClaimAttachment = (fileName: string, fileData: string) => { const link=document.createElement("a"); link.href=fileData; link.download=fileName || "documentacion-reclamo"; document.body.appendChild(link); link.click(); link.remove(); };
 const printTravelDocument = (entry: IncomeEntry) => {
@@ -427,7 +429,7 @@ export default function App() {
     const id = `MGT-${Math.floor(100000 + Math.random() * 900000)}`;
     const next = [...bookings, `${selected.name} · ${id} · ${money(selectedPrice * totalTravelers)} · Sale desde ${selected.departureCity} · Ida ${formatTravelDate(selected.departureDate)} · Vuelta ${formatTravelDate(selected.returnDate)}`];
     setBookings(next); localStorage.setItem("mgt-bookings", JSON.stringify(next));
-    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, destination: selected.name, departureCity: selected.departureCity, departureDate: selected.departureDate, returnDate: selected.returnDate, amount: selectedPrice * totalTravelers, method: paymentMethod === "Tarjeta de crédito" ? `Tarjeta de crédito · ${checkoutInstallments} cuota(s)` : paymentMethod, status: "Pendiente", date: todayISO }, ...items]);
+    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, destination: selected.name, departureCity: selected.departureCity, departureDate: selected.departureDate, returnDate: selected.returnDate, amount: selectedPrice * totalTravelers, method: paymentMethod === "Tarjeta de crédito" ? `Tarjeta de crédito · ${checkoutInstallments} cuota(s)` : paymentMethod, status: "Pendiente", date: todayISO, travelers: totalTravelers, nights: selected.nights ?? (selected.days ? selected.days - 1 : undefined) }, ...items]);
     setPassengerEmail("");
     setPaymentMethod("");
     writeDraft("mgt-draft-passenger-email", "");
