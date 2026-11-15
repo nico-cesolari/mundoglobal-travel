@@ -143,6 +143,8 @@ const demoIncomeEntries: IncomeEntry[] = [
   { id: 2, reference: "MG-20480", client: "Lucas Fernández", destination: "Roma", departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", amount: 2450, method: "Transferencia", status: "Pendiente", date: "12/11/2026" },
   { id: 4, reference: "MG-20478", client: "Tomás Romero", destination: "Camboriú", departureCity: "Córdoba, Argentina", departureDate: "2027-01-07", returnDate: "2027-01-14", amount: 795, method: "Tarjeta de débito", status: "Pendiente", date: "10/11/2026" }
 ];
+const PACKAGE_PRICE_CATALOG_VERSION = "2026-11-15-realistic-v1";
+
 const PACKAGE_PRICE_OVERRIDES: Record<number, Partial<Package>> = {
   1: { price: 2725, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined },
   4: { price: 2450, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined },
@@ -155,20 +157,29 @@ const PACKAGE_PRICE_OVERRIDES: Record<number, Partial<Package>> = {
 
 const loadSavedPackages = (): Package[] => {
   const saved = localStorage.getItem("mgt-packages");
-  if (!saved) return packages.filter(packageHasPhoto).map(enrichPackage);
+  const applyPriceCatalog = readDraft("mgt-package-price-catalog-version") !== PACKAGE_PRICE_CATALOG_VERSION;
+  if (!saved) {
+    writeDraft("mgt-package-price-catalog-version", PACKAGE_PRICE_CATALOG_VERSION);
+    return packages.filter(packageHasPhoto).map(enrichPackage);
+  }
   try {
     const parsed: unknown = JSON.parse(saved);
-    if (!Array.isArray(parsed)) return packages.filter(packageHasPhoto).map(enrichPackage);
+    if (!Array.isArray(parsed)) {
+      writeDraft("mgt-package-price-catalog-version", PACKAGE_PRICE_CATALOG_VERSION);
+      return packages.filter(packageHasPhoto).map(enrichPackage);
+    }
     const savedPackages = (parsed as Package[]).filter(packageHasPhoto);
     const normalizedPackages = savedPackages.map(savedItem => {
       const defaults = packages.find(item => item.id === savedItem.id);
-      const priceUpdate = PACKAGE_PRICE_OVERRIDES[savedItem.id];
+      const priceUpdate = applyPriceCatalog ? PACKAGE_PRICE_OVERRIDES[savedItem.id] : undefined;
       const localCurrencyUpdate = priceUpdate ? { ...priceUpdate, servicePrices: undefined, includes: defaults?.includes, infoSections: defaults?.infoSections } : {};
       return enrichPackage({ ...defaults, ...savedItem, ...localCurrencyUpdate } as Package);
     });
     const missingDefaults = packages.filter(item => packageHasPhoto(item) && !savedPackages.some(savedItem => savedItem.id === item.id));
+    writeDraft("mgt-package-price-catalog-version", PACKAGE_PRICE_CATALOG_VERSION);
     return [...normalizedPackages, ...missingDefaults.map(enrichPackage)];
   } catch {
+    writeDraft("mgt-package-price-catalog-version", PACKAGE_PRICE_CATALOG_VERSION);
     return packages.filter(packageHasPhoto).map(enrichPackage);
   }
 };
@@ -614,7 +625,7 @@ export default function App() {
     <div className="package-info">
       <div className="package-heading"><div><h3>{p.name}</h3><p>{p.country} <span>·</span> {p.category}</p></div></div>
       {(p.rating || (p.reviews && p.reviews !== "0")) && <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating ? p.rating.toFixed(1) : ""} {p.reviews && p.reviews !== "0" ? <small>({p.reviews})</small> : null}{p.tag==="¡Oferta!" && discount(p)>0 && <span className="discount">{discount(p)}% OFF</span>}</div>}
-      <div className="price-line"><strong>{money(p.price, p.currency)}</strong><del>{money(p.originalPrice ?? p.oldPrice, p.currency)}</del></div>
+      <div className="price-line"><div className="price-line-main">{p.priceApproximate && <small>Desde aproximadamente · por persona en base doble</small>}<strong>{money(p.price, p.currency)}</strong></div>{(p.originalPrice ?? p.oldPrice) && <del>{money(p.originalPrice ?? p.oldPrice, p.currency)}</del>}</div>
       <div className="package-card-facts">{(p.nights || (p.days && p.days>1))&&<span><CalendarDays size={13}/>{p.nights ?? p.days!-1} noches</span>}{p.flags?.promo&&<span className="package-card-offer"><Tag size={12}/> En oferta</span>}{p.flags?.recommended&&<span className="package-card-featured"><Star size={12}/> Destacado</span>}</div>
       {p.departureCity && p.departureDate && <small className="package-schedule-inline">Desde {p.departureCity} · {formatTravelDate(p.departureDate)}</small>}
       <button className="outline-btn full offer-reserve" onClick={() => openPackage(p)}>Reservar <ArrowRight size={16}/></button>
