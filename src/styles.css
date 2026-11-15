@@ -3152,3 +3152,64 @@ body{zoom:.9;}
 @media(max-width:600px){
   .booking-cancel-button{min-height:32px;padding:7px 9px;font-size:8px}
 }
+
+
+/* Herramientas para completar y reutilizar datos de pasajeros */
+.passenger-autofill-tools{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 15px;
+}
+.passenger-autofill-tools select{
+  flex:1 1 210px;
+  min-width:0;
+  min-height:36px;
+  padding:8px 10px;
+  border:1px solid #dce5f0;
+  border-radius:8px;
+  background:#fff;
+  color:#344968;
+  font:inherit;
+  font-size:10px;
+}
+.passenger-autofill-tools select:disabled{
+  color:#9aa7ba;
+  background:#f4f6fa;
+  cursor:not-allowed;
+}
+.passenger-tool-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:36px;
+  padding:8px 10px;
+  border:1px solid #d7e2f1;
+  border-radius:8px;
+  background:#fff;
+  color:#31558e;
+  font-size:10px;
+  font-weight:750;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,color .18s ease;
+}
+.passenger-tool-button:hover{
+  border-color:#9db8e4;
+  background:#f1f6ff;
+  color:#174fae;
+}
+.account-autofill-button{
+  border-color:#b9cdf0;
+  background:#edf4ff;
+  color:#1755bc;
+}
+@media(max-width:640px){
+  .passenger-autofill-tools{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .passenger-autofill-tools select,
+  .passenger-tool-button{width:100%;min-height:39px}
+}
