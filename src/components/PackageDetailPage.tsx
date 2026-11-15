@@ -173,7 +173,7 @@ export function PackageDetailPage({
   const infoSections = (packageData.infoSections || []).filter(item => item.title && item.description);
   const otherPackages = packages.filter(item => item.id !== packageData.id && item.image);
   const hasFlight = includes.some(item => (item.icon || "").toLowerCase() === "plane");
-  const hasHotel = includes.some(item => ["hotel", "bed"].includes((item.icon || "").toLowerCase()));
+  const hasHotel = includes.some(item => ["hotel", "bed"].includes((item.icon || "").toLowerCase()));\n  const hotelMapQuery = encodeURIComponent([packageData.hotelName, packageData.hotelLocation].filter(Boolean).join(", "));
 
   useEffect(() => {
     const description = packageData.description || `Conocé el paquete ${packageData.name} de MundoGlobal Travel.`;
@@ -388,7 +388,16 @@ export function PackageDetailPage({
         </div>
       </section>}
 
-      {infoSections.length > 0 && <section className="package-info-sections">
+
+      {packageData.hotelName && <section className="package-hotel-section">
+        <div className="package-hotel-heading"><span className="package-section-eyebrow">ALOJAMIENTO DEL VIAJE</span><h2>Conocé dónde te vas a hospedar</h2><p>Consultá imágenes y ubicación del hotel de referencia incluido en este paquete.</p></div>
+        <div className="package-hotel-card">
+          {packageData.hotelImage && <div className="package-hotel-photo"><img src={packageData.hotelImage} alt={`Vista del hotel ${packageData.hotelName}`} loading="lazy"/></div>}
+          <div className="package-hotel-copy"><span className="package-hotel-label"><BedDouble size={15}/> HOTEL DE REFERENCIA</span><h3>{packageData.hotelName}</h3><p><MapPin size={15}/>{packageData.hotelLocation}</p><a className="package-hotel-map-link" href={`https://www.google.com/maps/search/?api=1&query=${hotelMapQuery}`} target="_blank" rel="noreferrer"><MapPin size={16}/> Ver ubicación en Google Maps <ArrowRight size={15}/></a><small>La imagen es ilustrativa. La asignación y disponibilidad del hotel deben confirmarse con la agencia.</small></div>
+        </div>
+        <div className="package-hotel-map"><iframe title={`Mapa de ubicación de ${packageData.hotelName}`} src={`https://www.google.com/maps?q=${hotelMapQuery}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen/></div>
+      </section>}
+\n      {infoSections.length > 0 && <section className="package-info-sections">
         <div className="package-section-heading-row"><div><h2>Antes de viajar, confirmá los detalles</h2><p>Información importante para preparar tu experiencia.</p></div><button type="button" onClick={() => setActiveInfo(infoSections[0])}>Ver más <ChevronRight size={16}/></button></div>
         <div className="package-info-card-grid">
           {infoSections.slice(0, 4).map((section, index) => {
