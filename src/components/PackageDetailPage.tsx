@@ -306,6 +306,7 @@ export function PackageDetailPage({
       </div>}
       {(nights || hasFlight || hasHotel) && <div className="package-booking-meta">
         {nights && <span><CalendarDays size={16}/>{nights} noches</span>}
+        {packageData.departureDate && <span><CalendarDays size={16}/>{`Del ${formatDate(packageData.departureDate)}${packageData.returnDate ? ` al ${formatDate(packageData.returnDate)}` : ""}`}</span>}
         {(hasFlight || hasHotel) && <span>{hasFlight && <Plane size={16}/>} {hasFlight && hasHotel ? "Vuelo + Hotel" : hasFlight ? "Vuelo incluido" : "Hotel incluido"}</span>}
       </div>}
       <button type="button" className="package-consult-button" onClick={() => packageData.flags?.reservaOnline ? onReserve() : setAvailabilityOpen(true)}>
