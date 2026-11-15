@@ -12,7 +12,7 @@ import {
   DollarSign, TrendingUp, Percent, Building2, ClipboardList, Wallet, Plus
 } from "lucide-react";
 
-type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "support" | "employee-login" | "employee";
+type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "support" | "employee";
 type Package = {
   id: number; name: string; country: string; category: string; image: string;
   price?: number; oldPrice?: number; originalPrice?: number; currency?: string;
@@ -255,9 +255,6 @@ export default function App() {
   const [authFullName, setAuthFullName] = useState(() => readDraft("mgt-draft-auth-name"));
   const [authPassword, setAuthPassword] = useState("");
   const [authPasswordVisible, setAuthPasswordVisible] = useState(false);
-  const [employeePasswordVisible, setEmployeePasswordVisible] = useState(false);
-  const [employeeEmailDraft, setEmployeeEmailDraft] = useState(() => readDraft("mgt-draft-employee-email", "empleado@mundoglobal.com"));
-  const [employeePasswordDraft, setEmployeePasswordDraft] = useState("");
   const [contactName, setContactName] = useState(() => readDraft("mgt-draft-contact-name"));
   const [contactEmail, setContactEmail] = useState(() => readDraft("mgt-draft-contact-email"));
   const [contactMessage, setContactMessage] = useState(() => readDraft("mgt-draft-contact-message"));
@@ -300,7 +297,6 @@ export default function App() {
     writeDraft("mgt-draft-payment-method", paymentMethod);
     writeDraft("mgt-draft-auth-email", authEmail);
     writeDraft("mgt-draft-auth-name", authFullName);
-    writeDraft("mgt-draft-employee-email", employeeEmailDraft);
     writeDraft("mgt-draft-contact-name", contactName);
     writeDraft("mgt-draft-contact-email", contactEmail);
     writeDraft("mgt-draft-contact-message", contactMessage);
@@ -313,7 +309,7 @@ export default function App() {
     newPackageDepartureCity, newPackageDepartureDate, newPackageReturnDate, newPackageImage,
     query, origin, accommodation, date, returnDate, travelers, profileEmail, profilePhone,
     passengerName, passengerEmail, paymentMethod, authEmail, authFullName,
-    employeeEmailDraft, contactName, contactEmail, contactMessage, newsletterEmail,
+    contactName, contactEmail, contactMessage, newsletterEmail,
     incomeConcept, incomeAmount, offerEndDate
   ]);
 
@@ -347,7 +343,8 @@ export default function App() {
       } else if (window.location.pathname === "/contacto") {
         setRouteNotFound(false); setActiveNav("Contacto"); setPage("support");
       } else if (window.location.pathname === "/employee-login") {
-        setRouteNotFound(false); setActiveNav(""); setPage("employee-login");
+        window.history.replaceState({}, "", "/iniciar-sesion");
+        setRouteNotFound(false); setActiveNav(""); setPage("login");
       } else if (window.location.pathname === "/employee") {
         setRouteNotFound(false); setActiveNav("");
         setPage("employee");
@@ -358,6 +355,12 @@ export default function App() {
     window.addEventListener("popstate", handlePackageRoute);
     return () => window.removeEventListener("popstate", handlePackageRoute);
   }, [employeePackages]);
+
+  useEffect(() => {
+    if (window.location.pathname === "/employee-login") {
+      window.history.replaceState({}, "", "/iniciar-sesion");
+    }
+  }, []);
 
   useEffect(() => {
     const interval = window.setInterval(() => setHeroSlide(current => (current + 1) % 4), 3000);
@@ -373,7 +376,7 @@ export default function App() {
   const go = (p: Page) => {
     setPage(p); setMobileMenu(false); setRouteNotFound(false);
     if (p === "home") setActiveNav("Inicio"); else if (p === "support") setActiveNav("Contacto"); else if (p !== "results" && p !== "detail") setActiveNav("");
-    const routePaths: Partial<Record<Page, string>> = { home: "/", results: "/paquetes", checkout: `/reservar/${slugifyPackage(selected.name)}`, account: "/mi-cuenta", login: "/iniciar-sesion", register: "/crear-cuenta", support: "/contacto", "employee-login": "/employee-login", employee: "/employee" };
+    const routePaths: Partial<Record<Page, string>> = { home: "/", results: "/paquetes", checkout: `/reservar/${slugifyPackage(selected.name)}`, account: "/mi-cuenta", login: "/iniciar-sesion", register: "/crear-cuenta", support: "/contacto", employee: "/employee" };
     const nextPath = routePaths[p];
     if (nextPath && window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -441,9 +444,10 @@ export default function App() {
     setEmployee("Camila Torres");
     localStorage.setItem("mgt-employee-session", "Camila Torres");
     setEmployeeTab("overview");
-    setEmployeeEmailDraft("");
-    setEmployeePasswordDraft("");
-    writeDraft("mgt-draft-employee-email", "");
+    setAuthEmail("");
+    setAuthPassword("");
+    setAuthPasswordVisible(false);
+    writeDraft("mgt-draft-auth-email", "");
     go("employee");
     setToast("Bienvenida al panel de gestión.");
   };
@@ -759,14 +763,13 @@ export default function App() {
       </form>
       <div className="auth-switch">{register ? <>¿Ya tenés cuenta? <button type="button" onClick={()=>go("login")}>Iniciá sesión</button></> : <>¿Todavía no tenés cuenta? <button type="button" onClick={()=>go("register")}>Crear cuenta</button></>}</div>
       <div className="auth-switch"><button type="button" onClick={()=>go("home")}>Volver al sitio</button></div>
-      <div className="demo-warning"><CircleHelp/> Acceso de demostración: el registro y el inicio de sesión no validan una cuenta contra un servidor.</div>
+      <div className="demo-warning"><CircleHelp/> {register ? "El registro es una simulación y no crea una cuenta en un servidor." : <>Inicio de sesión de demostración. Para acceder como personal: empleado@mundoglobal.com · MundoGlobal2026.</>}</div>
     </div></div>
   </main>;
 
-  const renderEmployeeLogin = () => <main className="auth-page employee-auth"><div className="auth-promo"><div className="auth-promo-content"><span className="eyebrow"><LockKeyhole size={14}/> Portal interno</span><h1>Gestioná cada viaje desde un solo lugar.</h1><p>Un espacio de trabajo para el equipo de MundoGlobal Travel: paquetes, consultas y reservas.</p><ul><li><Check/> Administración de paquetes</li><li><Check/> Atención de consultas</li><li><Check/> Seguimiento de reservas</li></ul><div className="promo-globe"><Globe2 size={220}/></div></div></div><div className="auth-form-side"><div className="auth-form"><div className="auth-avatar"><LockKeyhole/></div><span className="kicker">ACCESO DEL PERSONAL</span><h1>Portal de empleados</h1><p>Ingresá con tus credenciales internas para continuar.</p><form onSubmit={e=>{e.preventDefault();employeeLogin(employeeEmailDraft,employeePasswordDraft);}}><label>Correo corporativo<div className="input-icon"><Mail/><input name="email" type="email" value={employeeEmailDraft} onChange={e=>setEmployeeEmailDraft(e.target.value)} autoComplete="username" required placeholder="empleado@mundoglobal.com"/></div></label><label>Contraseña<div className="input-icon"><LockKeyhole/><input name="password" type={employeePasswordVisible ? "text" : "password"} value={employeePasswordDraft} onChange={e=>setEmployeePasswordDraft(e.target.value)} autoComplete="current-password" required placeholder="Contraseña"/><button type="button" onClick={()=>setEmployeePasswordVisible(visible=>!visible)} aria-label={employeePasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={employeePasswordVisible}>{employeePasswordVisible ? <EyeOff/> : <Eye/>}</button></div></label><button className="primary-btn full auth-submit">Ingresar al panel <ArrowRight size={17}/></button></form><div className="demo-warning employee-demo"><CircleHelp/> Acceso de prueba: empleado@mundoglobal.com · MundoGlobal2026</div><div className="auth-switch"><button onClick={()=>go("home")}>Volver al sitio público</button></div></div></div></main>;
 
   const renderEmployeePanel = () => <main className="page-container employee-page">
-    <div className="employee-top"><div><span className="kicker">MUNDO GLOBAL TRAVEL · OPERACIONES</span><h1>Centro de operaciones</h1><p>Hola, {employee}. Administrá ventas, productos y atención al viajero.</p></div><button className="outline-btn" onClick={()=>{setEmployee("");localStorage.removeItem("mgt-employee-session");setEmployeePasswordDraft("");go("employee-login");}}><LogOut size={16}/> Cerrar sesión</button></div>
+    <div className="employee-top"><div><span className="kicker">MUNDO GLOBAL TRAVEL · OPERACIONES</span><h1>Centro de operaciones</h1><p>Hola, {employee}. Administrá ventas, productos y atención al viajero.</p></div><button className="outline-btn" onClick={()=>{setEmployee("");localStorage.removeItem("mgt-employee-session");setAuthEmail("");setAuthPassword("");setAuthPasswordVisible(false);go("login");}}><LogOut size={16}/> Cerrar sesión</button></div>
     <div className="employee-layout">
       <aside className="employee-sidebar">
         <b>Gestión de la agencia</b>
@@ -881,7 +884,7 @@ export default function App() {
 
   if (import.meta.env.DEV && window.location.pathname === "/dev/image-lab") return <ImageLab/>;
 
-  return <>{renderHeader()}{page==="home"&&renderHome()}{page==="results"&&renderResults()}{page==="detail"&&renderDetail()}{(page==="login"||page==="register")&&renderAuthPage(page==="register")}{page==="checkout"&&renderCheckout()}{page==="account"&&renderAccount()}{page==="support"&&renderSupport()}{page==="employee-login"&&renderEmployeeLogin()}{page==="employee"&&renderEmployeePanel()}{renderFooter()}<div className="assistant-widget">
+  return <>{renderHeader()}{page==="home"&&renderHome()}{page==="results"&&renderResults()}{page==="detail"&&renderDetail()}{(page==="login"||page==="register")&&renderAuthPage(page==="register")}{page==="checkout"&&renderCheckout()}{page==="account"&&renderAccount()}{page==="support"&&renderSupport()}{page==="employee"&&renderEmployeePanel()}{renderFooter()}<div className="assistant-widget">
     {assistantOpen&&<section className="assistant-panel" aria-label="Asistente virtual">
       <div className="assistant-header"><img className="assistant-avatar-img" src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=120&h=120&q=85" alt="Asesora virtual de MundoGlobal"/><div><b>Asistente MundoGlobal</b><small><i/> En línea · Atención virtual</small></div><button onClick={()=>setAssistantOpen(false)} aria-label="Cerrar chat"><X size={18}/></button></div>
       <div className="assistant-messages" aria-live="polite">
