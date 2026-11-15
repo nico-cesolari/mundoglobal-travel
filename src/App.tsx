@@ -60,11 +60,14 @@ const enrichPackage = (item: Package): Package => {
   const datesNights = item.departureDate && item.returnDate ? Math.max(0, packageDuration(item.departureDate, item.returnDate) - 1) : undefined;
   const nights = item.nights ?? datesNights ?? (item.days && item.days > 1 ? item.days - 1 : undefined);
   const tripType = item.tripType;
-  const includes = item.includes ?? (quote ? [
-    { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Cotización estimada por persona: ${money(quote.flight)}.` },
-    { icon: "hotel", title: nights ? `Hotel · ${nights} noches` : "Alojamiento", description: `Cotización estimada por persona: ${money(quote.hotel)}.` },
-    { icon: "shield", title: "Asistencia al viajero", description: `Cotización estimada por persona: ${money(quote.assistance)}.` }
-  ] : []);
+  const includes = [
+    ...(item.includes ?? (quote ? [
+      { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Cotización estimada por persona: ${money(quote.flight)}.` },
+      { icon: "hotel", title: nights ? `Hotel · ${nights} noches` : "Alojamiento", description: `Cotización estimada por persona: ${money(quote.hotel)}.` },
+      { icon: "shield", title: "Asistencia al viajero", description: `Cotización estimada por persona: ${money(quote.assistance)}.` }
+    ] : [])),
+    ...(item.transferIncluded ? [{ icon: "car", title: "Alquiler de vehículo incluido", description: "Incluye alquiler de vehículo durante la estadía. Categoría, condiciones y disponibilidad a confirmar." }] : [])
+  ];
   const infoSections = item.infoSections ?? [
     ...(item.description ? [{ icon: "info", title: "Todos los detalles", description: item.description }] : []),
     ...(item.departureCity && item.departureDate && item.returnDate ? [{ icon: "calendar", title: "Fechas y condiciones", description: `Salida desde ${item.departureCity}. Ida ${formatTravelDate(item.departureDate)} y regreso ${formatTravelDate(item.returnDate)}. El precio corresponde a esta salida publicada.` }] : [])
