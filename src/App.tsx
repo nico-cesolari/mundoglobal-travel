@@ -515,7 +515,7 @@ export default function App() {
       .map(value => value.trim().toLocaleLowerCase()).filter(Boolean);
     return loadSavedReservationEntries().find(entry => {
       if (entry.reservationStatus === "Cancelada") return false;
-      const samePackage = (entry.packageId === packageItem.id) ||
+      const samePackage = (entry.packageId === packageItem.id && entry.departureDate === packageItem.departureDate) ||
         (entry.destination?.trim().toLocaleLowerCase() === packageItem.name.trim().toLocaleLowerCase() &&
           entry.departureDate === packageItem.departureDate);
       if (!samePackage) return false;
@@ -1207,7 +1207,7 @@ export default function App() {
       <div className="breadcrumb"><button onClick={() => { setAccountSection("bookings"); go("account"); }}>Mi cuenta</button><span>/</span><button onClick={() => { setAccountSection("bookings"); go("account"); }}>Mis reservas</button><span>/</span>Detalle de reserva</div>
       <div className="reservation-detail-heading">
         <div><span className="kicker">DETALLE DE RESERVA</span><h1>{destinationName}{reservationPackage?.country ? " · " + reservationPackage.country : ""}</h1><p>Toda la información de tu viaje en un solo lugar.</p></div>
-        <span className={cancelled ? "reservation-status cancelled" : confirmed || !entry ? "reservation-status confirmed" : "reservation-status pending"}>{cancelled ? <X size={15}/> : <CheckCircle2 size={15}/ >}{cancelled ? "Reserva cancelada" : confirmed || !entry ? "Reserva confirmada" : entry.status}</span>
+        <span className={cancelled ? "reservation-status cancelled" : confirmed || !entry ? "reservation-status confirmed" : "reservation-status pending"}>{cancelled ? <X size={15}/> : <CheckCircle2 size={15}/>}{cancelled ? "Reserva cancelada" : confirmed || !entry ? "Reserva confirmada" : entry.status}</span>
       </div>
       <section className="reservation-overview">
         <div className="reservation-overview-item"><span><Ticket/></span><div><small>Código de reserva</small><b>{selectedBookingReference || "No disponible"}</b></div></div>
