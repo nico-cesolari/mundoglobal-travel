@@ -3036,3 +3036,14 @@ body{zoom:.9;}
   .destination-reference .destination-price-values del{font-size:9px}
   .destination-reference .destination-price>small{font-size:8px}
 }
+
+/* Aclaración de precios orientativos en la ficha de los paquetes */
+.package-price-estimate-note{
+  display:block;
+  max-width:340px;
+  margin-top:8px;
+  color:#75839a;
+  font-size:10px;
+  font-weight:500;
+  line-height:1.5;
+}
