@@ -2956,3 +2956,27 @@ body{zoom:.9;}
 }
 .destination-badge-scarcity svg,
 .destination-badge-validity svg{flex:0 0 auto}
+
+
+/* Garantizar que las etiquetas se dibujen por encima de la fotografía en Inicio */
+.destination-reference .destination-photo .destination-badges{
+  position:absolute!important;
+  top:10px!important;
+  left:10px!important;
+  z-index:12!important;
+  display:flex!important;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  gap:5px;
+  max-width:calc(100% - 58px);
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none;
+}
+.destination-reference .destination-photo .destination-badge{
+  position:static!important;
+  display:inline-flex!important;
+  align-items:center;
+  visibility:visible!important;
+  opacity:1!important;
+}
