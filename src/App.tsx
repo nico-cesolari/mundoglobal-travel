@@ -13,18 +13,10 @@ import {
 } from "lucide-react";
 
 type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "booking-detail" | "support" | "employee";
-type FlightRoute = {
-  departureAirport: string;
-  departureCode: string;
-  arrivalAirport: string;
-  arrivalCode: string;
-  status: "direct" | "connection-required" | "date-to-confirm";
-  note: string;
-};
 type Package = {
   id: number; name: string; country: string; category: string; image: string;
   price?: number; oldPrice?: number; originalPrice?: number; currency?: string; priceApproximate?: boolean; fewSeats?: boolean; validUntil?: string;
-  departureCity?: string; departureDate?: string; returnDate?: string; flightRoute?: FlightRoute;
+  departureCity?: string; departureDate?: string; returnDate?: string;
   days?: number; nights?: number; mode?: string; tripType?: string;
   rating?: number; reviews?: string; reviewCount?: number | string;
   images?: string[]; caption?: string; descriptionTitle?: string;
@@ -41,55 +33,13 @@ type BookingPassenger = { fullName: string; documentNumber: string; birthDate: s
 type SavedPassenger = BookingPassenger & { id: string; contactEmail?: string; contactPhone?: string; };
 type IncomeEntry = { id: number; reference: string; packageId?: number; client: string; contactEmail?: string; contactPhone?: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; currency?: string; method: string; status: "Acreditado" | "Pendiente"; reservationStatus?: "Confirmada" | "Cancelada"; cancellationDate?: string; date: string; createdAt?: string; travelers?: number; nights?: number; passengers?: BookingPassenger[]; };
 const packages: Package[] = [
-  { id: 1, name: "Cancún", country: "México", category: "Playas", tripType: "Turismo", price: 2725, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "12.5k", days: 7, departureCity: "Buenos Aires, Argentina", flightRoute: {
-    departureAirport: "Aeropuerto Internacional Ministro Pistarini (Ezeiza)",
-    departureCode: "EZE",
-    arrivalAirport: "Aeropuerto Internacional de Cancún",
-    arrivalCode: "CUN",
-    status: "date-to-confirm",
-    note: "La ruta EZE–CUN tiene servicios sin escalas en determinadas fechas, pero la programación consultada no muestra un vuelo directo para el 15/01/2027. Confirmar una conexión o ajustar la fecha antes de ofrecerlo como vuelo directo."
-  }, departureDate: "2027-01-15", returnDate: "2027-01-21", tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, hotelName: "Hotel Riu Cancun", hotelLocation: "Boulevard Kukulcan, Zona Hotelera, Cancún, México", hotelImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
-  { id: 4, name: "Roma", country: "Italia", category: "Cultura", tripType: "Turismo", price: 2450, currency: "USD", priceApproximate: true, rating: 4.7, reviews: "8.2k", days: 8, departureCity: "Buenos Aires, Argentina", flightRoute: {
-    departureAirport: "Aeropuerto Internacional Ministro Pistarini (Ezeiza)",
-    departureCode: "EZE",
-    arrivalAirport: "Aeropuerto Leonardo da Vinci–Fiumicino",
-    arrivalCode: "FCO",
-    status: "direct",
-    note: "Hay servicios sin escalas publicados entre EZE y FCO, incluido el sábado 03/04/2027. La aerolínea, el horario y los cupos deben confirmarse antes de emitir."
-  }, departureDate: "2027-04-03", returnDate: "2027-04-10", image: "/images/roma.jpg", focalPoint: {x:50,y:50}, hotelName: "Hotel Artemide", hotelLocation: "Via Nazionale 22, Roma, Italia", hotelImage: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=85", transferIncluded: false, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
-  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", tripType: "Turismo", price: 2250, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "11.1k", days: 6, departureCity: "Córdoba, Argentina", flightRoute: {
-    departureAirport: "Aeropuerto Internacional Ingeniero Ambrosio Taravella",
-    departureCode: "COR",
-    arrivalAirport: "Aeropuerto Internacional John F. Kennedy",
-    arrivalCode: "JFK",
-    status: "connection-required",
-    note: "Actualmente no hay vuelos sin escalas entre COR y JFK. El itinerario requiere al menos una escala; la ciudad de conexión, la aerolínea y los horarios para el 12/05/2027 deben confirmarse al cotizar."
-  }, departureDate: "2027-05-12", returnDate: "2027-05-17", image: "/images/nueva-york.jpg", focalPoint: {x:50,y:50}, hotelName: "Hotel Edison", hotelLocation: "228 West 47th Street, New York, Estados Unidos", hotelImage: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
-  { id: 6, name: "Punta Cana", country: "República Dominicana", category: "Playas", tripType: "Turismo", price: 2150, currency: "USD", priceApproximate: true, rating: 4.7, reviews: "7.9k", days: 7, departureCity: "Buenos Aires, Argentina", flightRoute: {
-    departureAirport: "Aeropuerto Internacional Ministro Pistarini (Ezeiza)",
-    departureCode: "EZE",
-    arrivalAirport: "Aeropuerto Internacional de Punta Cana",
-    arrivalCode: "PUJ",
-    status: "direct",
-    note: "La programación consultada publica un vuelo sin escalas EZE–PUJ los viernes desde el 05/03/2027. Los horarios, la operación efectiva y los cupos deben validarse antes de emitir."
-  }, departureDate: "2027-03-05", returnDate: "2027-03-11", tag: "¡Oferta!", image: "/images/punta-cana.jpg", focalPoint: {x:50,y:50}, hotelName: "Barceló Bávaro Palace", hotelLocation: "Playa Bávaro, Punta Cana, República Dominicana", hotelImage: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." },
+  { id: 1, name: "Cancún", country: "México", category: "Playas", tripType: "Turismo", price: 2725, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "12.5k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, hotelName: "Hotel Riu Cancun", hotelLocation: "Boulevard Kukulcan, Zona Hotelera, Cancún, México", hotelImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
+  { id: 4, name: "Roma", country: "Italia", category: "Cultura", tripType: "Turismo", price: 2450, currency: "USD", priceApproximate: true, rating: 4.7, reviews: "8.2k", days: 8, departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", image: "/images/roma.jpg", focalPoint: {x:50,y:50}, hotelName: "Hotel Artemide", hotelLocation: "Via Nazionale 22, Roma, Italia", hotelImage: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=85", transferIncluded: false, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
+  { id: 5, name: "Nueva York", country: "Estados Unidos", category: "Ciudades", tripType: "Turismo", price: 2250, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "11.1k", days: 6, departureCity: "Buenos Aires, Argentina", departureDate: "2027-05-12", returnDate: "2027-05-17", image: "/images/nueva-york.jpg", focalPoint: {x:50,y:50}, hotelName: "Hotel Edison", hotelLocation: "228 West 47th Street, New York, Estados Unidos", hotelImage: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Descubrí la ciudad que nunca duerme, sus barrios, espectáculos y gastronomía." },
+  { id: 6, name: "Punta Cana", country: "República Dominicana", category: "Playas", tripType: "Turismo", price: 2150, currency: "USD", priceApproximate: true, rating: 4.7, reviews: "7.9k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-03-05", returnDate: "2027-03-11", tag: "¡Oferta!", image: "/images/punta-cana.jpg", focalPoint: {x:50,y:50}, hotelName: "Barceló Bávaro Palace", hotelLocation: "Playa Bávaro, Punta Cana, República Dominicana", hotelImage: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Un paraíso caribeño con resorts frente al mar y servicio All Inclusive." },
   { id: 7, name: "Camboriú", country: "Brasil", category: "Playas", tripType: "Turismo", price: 795, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "6.8k", days: 8, nights: 7, departureCity: "Córdoba, Argentina", departureDate: "2027-01-07", returnDate: "2027-01-14", image: "/images/camboriu.png", focalPoint: {x:50,y:50}, hotelName: "Hotel Vieiras", hotelLocation: "Balneário Camboriú, Santa Catarina, Brasil", hotelImage: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=85", includes: [{ icon: "bus", title: "Transporte terrestre ida y vuelta", description: "Salida grupal desde Córdoba en servicio de bus, sujeto a confirmación del operador." }, { icon: "hotel", title: "Hotel Vieiras · 7 noches", description: "Alojamiento en habitación doble con media pensión: desayuno y cena." }], transferIncluded: false, description: "Disfrutá las playas de Santa Catarina, sus paseos costeros y la energía de uno de los destinos más elegidos de Brasil." },
-  { id: 8, name: "El Chaltén", country: "Argentina", category: "Aventuras", tripType: "Turismo", price: 1090000, currency: "ARS", priceApproximate: true, fewSeats: true, validUntil: "2026-11-30", rating: 4.9, reviews: "2.3k", days: 6, nights: 5, departureCity: "Córdoba, Argentina", flightRoute: {
-    departureAirport: "Aeropuerto Internacional Ingeniero Ambrosio Taravella",
-    departureCode: "COR",
-    arrivalAirport: "Aeropuerto Internacional Comandante Armando Tola (El Calafate)",
-    arrivalCode: "FTE",
-    status: "connection-required",
-    note: "Actualmente no hay vuelos sin escalas publicados entre COR y FTE. El viaje requiere una conexión; Buenos Aires figura entre las alternativas posibles, pero la combinación concreta para el 20/02/2027 debe confirmarse."
-  }, departureDate: "2027-02-20", returnDate: "2027-02-25", image: "/images/el-chalten.png", focalPoint: {x:50,y:50}, hotelName: "Los Cerros del Chaltén Boutique Hotel", hotelLocation: "Av. San Martín 260, El Chaltén, Santa Cruz, Argentina", hotelImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85", includes: [{ icon: "plane", title: "Vuelo ida y vuelta Córdoba – El Calafate", description: "Tarifa aérea de referencia, con horarios, equipaje y tasas a confirmar." }, { icon: "hotel", title: "Los Cerros Boutique Hotel · 5 noches", description: "Alojamiento en habitación doble compartida." }, { icon: "bus", title: "Traslados ida y vuelta El Calafate – El Chaltén", description: "Servicio regular terrestre. Horarios y disponibilidad sujetos a confirmación." }, { icon: "shield", title: "Asistencia al viajero", description: "Cobertura y condiciones a confirmar." }], transferIncluded: false, description: "Descubrí la capital nacional del trekking, con senderos de montaña, lagunas de deshielo y vistas inolvidables del Fitz Roy." },
-  { id: 9, name: "Madrid", country: "España", category: "Ciudades", tripType: "Turismo", price: 2450, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "6.4k", days: 8, nights: 7, departureCity: "Buenos Aires, Argentina", flightRoute: {
-    departureAirport: "Aeropuerto Internacional Ministro Pistarini (Ezeiza)",
-    departureCode: "EZE",
-    arrivalAirport: "Aeropuerto Adolfo Suárez Madrid-Barajas",
-    arrivalCode: "MAD",
-    status: "direct",
-    note: "La programación consultada muestra servicios sin escalas EZE–MAD el jueves 10/06/2027. Aerolínea, horario, disponibilidad y condiciones del pasaje quedan sujetos a confirmación antes de emitir."
-  }, departureDate: "2027-06-10", returnDate: "2027-06-17", tag: "Recomendado", image: "/images/madrid.png", focalPoint: {x:50,y:50}, hotelName: "Hotel Riu Plaza España", hotelLocation: "Calle Gran Vía 84, Madrid, España", hotelImage: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Recorré la capital española entre sus plazas históricas, museos, gastronomía y barrios llenos de vida. Una escapada urbana ideal para descubrir Madrid a tu ritmo." }
+  { id: 8, name: "El Chaltén", country: "Argentina", category: "Aventuras", tripType: "Turismo", price: 1090000, currency: "ARS", priceApproximate: true, fewSeats: true, validUntil: "2026-11-30", rating: 4.9, reviews: "2.3k", days: 6, nights: 5, departureCity: "Buenos Aires, Argentina", departureDate: "2027-02-20", returnDate: "2027-02-25", image: "/images/el-chalten.png", focalPoint: {x:50,y:50}, hotelName: "Los Cerros del Chaltén Boutique Hotel", hotelLocation: "Av. San Martín 260, El Chaltén, Santa Cruz, Argentina", hotelImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85", includes: [{ icon: "plane", title: "Vuelo ida y vuelta Buenos Aires (Ezeiza) – El Calafate", description: "Tarifa aérea de referencia, con horarios, equipaje y tasas a confirmar." }, { icon: "hotel", title: "Los Cerros Boutique Hotel · 5 noches", description: "Alojamiento en habitación doble compartida." }, { icon: "bus", title: "Traslados ida y vuelta El Calafate – El Chaltén", description: "Servicio regular terrestre. Horarios y disponibilidad sujetos a confirmación." }, { icon: "shield", title: "Asistencia al viajero", description: "Cobertura y condiciones a confirmar." }], transferIncluded: false, description: "Descubrí la capital nacional del trekking, con senderos de montaña, lagunas de deshielo y vistas inolvidables del Fitz Roy." },
+  { id: 9, name: "Madrid", country: "España", category: "Ciudades", tripType: "Turismo", price: 2450, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "6.4k", days: 8, nights: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-06-10", returnDate: "2027-06-17", tag: "Recomendado", image: "/images/madrid.png", focalPoint: {x:50,y:50}, hotelName: "Hotel Riu Plaza España", hotelLocation: "Calle Gran Vía 84, Madrid, España", hotelImage: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Recorré la capital española entre sus plazas históricas, museos, gastronomía y barrios llenos de vida. Una escapada urbana ideal para descubrir Madrid a tu ritmo." }
 ];
 
 const savedPassengerStorageKey = (identity: string) => identity.trim()
@@ -167,18 +117,11 @@ const enrichPackage = (item: Package): Package => {
     { icon: "hotel", title: nights ? `${item.hotelName || "Alojamiento"} · ${nights} noches` : "Alojamiento", description: "Habitación compartida en base doble. Régimen y condiciones según el hotel indicado." },
     { icon: "shield", title: "Asistencia al viajero", description: "Cobertura y condiciones sujetas a confirmación antes de emitir." }
   ] : [];
-  const generatedIncludes = quote ? [
+  const baseIncludes = item.includes ?? (quote ? [
     { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Cotización estimada por persona: ${money(quote.flight, item.currency || "USD")}.` },
     { icon: "hotel", title: nights ? `Hotel · ${nights} noches` : "Alojamiento", description: `Cotización estimada por persona: ${money(quote.hotel, item.currency || "USD")}.` },
     { icon: "shield", title: "Asistencia al viajero", description: `Cotización estimada por persona: ${money(quote.assistance, item.currency || "USD")}.` }
-  ] : approximateIncludes;
-  const rawIncludes = item.includes ?? generatedIncludes;
-  const routeDescription = item.flightRoute
-    ? `${item.flightRoute.departureAirport} (${item.flightRoute.departureCode}) → ${item.flightRoute.arrivalAirport} (${item.flightRoute.arrivalCode}). ${item.flightRoute.note}`
-    : "";
-  const baseIncludes = item.flightRoute
-    ? [{ icon: "plane", title: `Tramo de ida · ${item.flightRoute.departureCode} → ${item.flightRoute.arrivalCode}`, description: routeDescription }, ...rawIncludes.filter(include => include.icon !== "plane")]
-    : rawIncludes;
+  ] : approximateIncludes);
   const vehicleInclude = { icon: "car", title: "Alquiler de vehículo incluido", description: "Incluye alquiler de vehículo durante la estadía. Categoría, condiciones y disponibilidad a confirmar." };
   const vehicleIncludes = baseIncludes.filter(include => include.icon === "car" || include.title?.trim().toLocaleLowerCase() === vehicleInclude.title.toLocaleLowerCase());
   const includes = [
@@ -279,15 +222,15 @@ const loadIncomeEntries = (): IncomeEntry[] => {
   const savedEntries = loadSavedReservationEntries();
   return savedEntries.length ? savedEntries : demoIncomeEntries;
 };
-const PACKAGE_PRICE_CATALOG_VERSION = "2026-11-15-realistic-v4";
+const PACKAGE_PRICE_CATALOG_VERSION = "2026-11-16-origin-airports-v1";
 
 const PACKAGE_PRICE_OVERRIDES: Record<number, Partial<Package>> = {
   1: { price: 2725, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined },
   4: { price: 2450, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined },
-  5: { price: 2250, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined },
+  5: { price: 2250, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined, departureCity: "Buenos Aires, Argentina" },
   6: { price: 2150, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined },
   7: { price: 795, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined, departureCity: "Córdoba, Argentina", departureDate: "2027-01-07", returnDate: "2027-01-14", hotelName: "Hotel Vieiras", hotelLocation: "Balneário Camboriú, Santa Catarina, Brasil" },
-  8: { price: EL_CHALTEN_PRICE_ARS, currency: "ARS", priceApproximate: true, oldPrice: undefined, originalPrice: undefined, fewSeats: true, validUntil: "2026-11-30" },
+  8: { price: EL_CHALTEN_PRICE_ARS, currency: "ARS", priceApproximate: true, oldPrice: undefined, originalPrice: undefined, fewSeats: true, validUntil: "2026-11-30", departureCity: "Buenos Aires, Argentina" },
   9: { price: 2450, currency: "USD", priceApproximate: true, oldPrice: undefined, originalPrice: undefined }
 };
 
@@ -308,7 +251,7 @@ const loadSavedPackages = (): Package[] => {
     const normalizedPackages = savedPackages.map(savedItem => {
       const defaults = packages.find(item => item.id === savedItem.id);
       const priceUpdate = applyPriceCatalog ? PACKAGE_PRICE_OVERRIDES[savedItem.id] : undefined;
-      const localCurrencyUpdate = priceUpdate ? { ...priceUpdate, servicePrices: undefined, includes: defaults?.includes, infoSections: defaults?.infoSections } : {};
+      const localCurrencyUpdate = priceUpdate ? { ...priceUpdate, servicePrices: undefined, includes: defaults?.includes, infoSections: defaults?.infoSections, flightRoute: undefined } : {};
       return enrichPackage({ ...defaults, ...savedItem, ...localCurrencyUpdate } as Package);
     });
     const missingDefaults = packages.filter(item => packageHasPhoto(item) && !savedPackages.some(savedItem => savedItem.id === item.id));
