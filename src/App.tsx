@@ -457,8 +457,9 @@ export default function App() {
   ), [category, query, origin, employeePackages, minPrice, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
   const focalEditingPackage = employeePackages.find(p => p.id === focalEditPackageId) ?? employeePackages[0];
   const quoteForPackage = (p: Package) => p.servicePrices ?? (p.price ? buildServicePrices(p.price) : undefined);
-  const collectedIncome = incomeEntries.filter(entry => entry.status === "Acreditado").reduce((total, entry) => total + entry.amount, 0);
-  const pendingIncome = incomeEntries.filter(entry => entry.status === "Pendiente").reduce((total, entry) => total + entry.amount, 0);
+  const incomeInUSD = (entry: IncomeEntry) => entry.currency === "ARS" ? entry.amount / USD_REFERENCE_RATE : entry.amount;
+  const collectedIncome = incomeEntries.filter(entry => entry.status === "Acreditado").reduce((total, entry) => total + incomeInUSD(entry), 0);
+  const pendingIncome = incomeEntries.filter(entry => entry.status === "Pendiente").reduce((total, entry) => total + incomeInUSD(entry), 0);
   const sortedPackages = useMemo(() => [...filtered].sort((a, b) => {
     if (sortBy === "price") return priceForFilter(a) - priceForFilter(b);
     if (sortBy === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
