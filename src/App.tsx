@@ -30,7 +30,7 @@ type Package = {
   hotelName?: string; hotelLocation?: string; hotelImage?: string; transferIncluded?: boolean;
 };
 type BookingPassenger = { fullName: string; documentNumber: string; birthDate: string; nationality: string; };
-type IncomeEntry = { id: number; reference: string; client: string; contactEmail?: string; contactPhone?: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; currency?: string; method: string; status: "Acreditado" | "Pendiente"; date: string; createdAt?: string; travelers?: number; nights?: number; passengers?: BookingPassenger[]; };
+type IncomeEntry = { id: number; reference: string; packageId?: number; client: string; contactEmail?: string; contactPhone?: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; currency?: string; method: string; status: "Acreditado" | "Pendiente"; reservationStatus?: "Confirmada" | "Cancelada"; cancellationDate?: string; date: string; createdAt?: string; travelers?: number; nights?: number; passengers?: BookingPassenger[]; };
 const packages: Package[] = [
   { id: 1, name: "Cancún", country: "México", category: "Playas", tripType: "Turismo", price: 2725, currency: "USD", priceApproximate: true, rating: 4.8, reviews: "12.5k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, hotelName: "Hotel Riu Cancun", hotelLocation: "Boulevard Kukulcan, Zona Hotelera, Cancún, México", hotelImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
   { id: 4, name: "Roma", country: "Italia", category: "Cultura", tripType: "Turismo", price: 2450, currency: "USD", priceApproximate: true, rating: 4.7, reviews: "8.2k", days: 8, departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", image: "/images/roma.jpg", focalPoint: {x:50,y:50}, hotelName: "Hotel Artemide", hotelLocation: "Via Nazionale 22, Roma, Italia", hotelImage: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=85", transferIncluded: false, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
@@ -58,6 +58,17 @@ const readStoredReservationEntry = (reference: string): IncomeEntry | undefined 
     return undefined;
   }
 };
+
+const getDaysUntilDeparture = (departureDate?: string): number | null => {
+  if (!departureDate) return null;
+  const [year, month, day] = departureDate.split("-").map(Number);
+  if (![year, month, day].every(Number.isFinite)) return null;
+  const departure = Date.UTC(year, month - 1, day);
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.ceil((departure - today) / 86400000);
+};
+
 const USD_REFERENCE_RATE = 1581;
 const EL_CHALTEN_PRICE_ARS = 1090000;
 const money = (n?: number, currency = "USD") => typeof n === "number" && Number.isFinite(n) && n > 0 ? (currency === "ARS" ? `$ ${n.toLocaleString("es-AR", { maximumFractionDigits: 0 })}` : `${currency} ${n.toLocaleString("es-AR")}`) : "";
@@ -497,6 +508,72 @@ export default function App() {
   const toggleFavorite = (id: number) => { setAnimatingFavorite(id); window.setTimeout(() => setAnimatingFavorite(current => current === id ? null : current), 480); setFavorites(v => { const next = v.includes(id) ? v.filter(x => x !== id) : [...v, id]; setToast(next.includes(id) ? "¡Paquete guardado en tus favoritos!" : "Paquete quitado de favoritos."); return next; }); };
   const addNotification = (title: string, message: string, kind: "booking" | "payment" | "offer" | "system" = "system") => setNotifications(items => { const next = [{ id: Date.now(), title, message, date: new Date().toISOString(), read: false, kind }, ...items]; try { localStorage.setItem("mgt-notifications", JSON.stringify(next)); } catch { /* La bandeja sigue disponible durante esta sesión. */ } return next; });
   const markNotificationRead = (id: number) => setNotifications(items => { const next = items.map(item => item.id === id ? { ...item, read: true } : item); try { localStorage.setItem("mgt-notifications", JSON.stringify(next)); } catch { /* Sin almacenamiento persistente. */ } return next; });
+  const findExistingReservation = (packageItem: Package, emailOverride = "", nameOverride = "") => {
+    const emails = [emailOverride, profileEmail, localStorage.getItem("mgt-email") || "", passengerEmail]
+      .map(value => value.trim().toLowerCase()).filter(Boolean);
+    const names = [nameOverride, user, passengerName]
+      .map(value => value.trim().toLocaleLowerCase()).filter(Boolean);
+    return loadSavedReservationEntries().find(entry => {
+      if (entry.reservationStatus === "Cancelada") return false;
+      const samePackage = (entry.packageId === packageItem.id) ||
+        (entry.destination?.trim().toLocaleLowerCase() === packageItem.name.trim().toLocaleLowerCase() &&
+          entry.departureDate === packageItem.departureDate);
+      if (!samePackage) return false;
+      const savedEmail = entry.contactEmail?.trim().toLowerCase() || "";
+      return savedEmail ? emails.includes(savedEmail) : names.includes(entry.client.trim().toLocaleLowerCase());
+    });
+  };
+
+  const startPackageReservation = (packageItem: Package) => {
+    const existing = findExistingReservation(packageItem, passengerEmail, passengerName);
+    if (existing) {
+      setToast(`Ya tenés una reserva activa para ${packageItem.name}. No podés reservarla nuevamente.`);
+      openBookingDetail(existing.reference);
+      return;
+    }
+    setSelected(packageItem);
+    setCheckoutConfirmed(false);
+    go("checkout");
+  };
+
+  const cancelReservation = (entry: IncomeEntry) => {
+    if (entry.reservationStatus === "Cancelada") {
+      setToast("Esta reserva ya está cancelada.");
+      return;
+    }
+    const daysRemaining = getDaysUntilDeparture(entry.departureDate);
+    if (daysRemaining === null) {
+      setToast("No se puede verificar la fecha de salida. Contactá a MundoGlobal Travel para gestionar la cancelación.");
+      return;
+    }
+    if (daysRemaining < 7) {
+      setToast("La cancelación online solo está permitida hasta 7 días antes de la salida. Contactá a la agencia.");
+      return;
+    }
+    const accepted = window.confirm(
+      `¿Confirmás la cancelación de la reserva ${entry.reference} para ${entry.destination || "este viaje"}?\n\nLa cancelación no se puede deshacer desde la plataforma. Esta demostración no procesa reintegros automáticamente.`
+    );
+    if (!accepted) return;
+
+    const cancelledEntry: IncomeEntry = {
+      ...entry,
+      reservationStatus: "Cancelada",
+      cancellationDate: new Date().toISOString()
+    };
+    try {
+      localStorage.setItem(`mgt-reservation-${entry.reference}`, JSON.stringify(cancelledEntry));
+      const nextEntries = [cancelledEntry, ...loadSavedReservationEntries().filter(item => item.reference !== entry.reference)];
+      localStorage.setItem("mgt-reservations", JSON.stringify(nextEntries));
+      localStorage.setItem("mgt-income-entries", JSON.stringify(nextEntries));
+    } catch {
+      setToast("No se pudo guardar la cancelación. Volvé a intentarlo.");
+      return;
+    }
+    setIncomeEntries(items => [cancelledEntry, ...items.filter(item => item.reference !== entry.reference)]);
+    addNotification("Reserva cancelada", `La reserva ${entry.reference} para ${entry.destination || "tu viaje"} fue cancelada.`, "booking");
+    setToast("La reserva fue cancelada correctamente.");
+  };
+
   const unreadNotifications = notifications.filter(item => !item.read).length;
   const submitSearch = () => {
     if (isSearching) return;
@@ -564,9 +641,15 @@ export default function App() {
   const login = (email: string, fullName = "") => {
     const generatedName = email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, c => c.toUpperCase()) || "Viajero";
     const name = fullName.trim() || generatedName;
-    setUser(name); localStorage.setItem("mgt-user", name); go("account"); setToast(`¡Bienvenido/a, ${name}!`);
+    setUser(name); localStorage.setItem("mgt-user", name); localStorage.setItem("mgt-email", email.trim().toLowerCase()); go("account"); setToast(`¡Bienvenido/a, ${name}!`);
   };
   const reserve = () => {
+    const existingReservation = findExistingReservation(selected, passengerEmail, passengerName);
+    if (existingReservation) {
+      setToast("Ya existe una reserva activa para este paquete y esta salida. No podés reservar de nuevo.");
+      openBookingDetail(existingReservation.reference);
+      return;
+    }
     const mainPassengerComplete = Boolean(
       passengerName.trim() &&
       passengerDocument.trim() &&
@@ -611,6 +694,7 @@ export default function App() {
     const reservationEntry: IncomeEntry = {
       id: Date.now(),
       reference: id,
+      packageId: selected.id,
       client: cleanName,
       contactEmail: passengerEmail.trim(),
       contactPhone: passengerPhone.trim(),
@@ -622,6 +706,7 @@ export default function App() {
       currency: selected.currency || "USD",
       method: paymentMethod === "Tarjeta de crédito" ? `Tarjeta de crédito · ${checkoutInstallments} cuota(s)` : (paymentMethod || "Medio de pago de demostración"),
       status: "Acreditado",
+      reservationStatus: "Confirmada",
       date: todayISO,
       createdAt: new Date().toISOString(),
       travelers: passengers.length,
@@ -715,7 +800,7 @@ export default function App() {
       </nav>
       <div className="nav-actions">
         {page === "employee" ? <span className="employee-role-pill"><UserRound size={16}/> Empleado <i/></span> : <button className="account-pill" onClick={() => go("account")}><UserRound size={16}/>{user || "Iniciar sesión"}{user && <ChevronDown size={14}/>}</button>}
-        {page === "detail" && !routeNotFound && <button className="nav-book-now" onClick={() => document.querySelector<HTMLButtonElement>(".package-consult-button")?.click()}>Reservar ahora</button>}
+        {page === "detail" && !routeNotFound && <button className="nav-book-now" onClick={() => document.querySelector<HTMLButtonElement>(".package-consult-button")?.click()}>{findExistingReservation(selected) ? "Ver mi reserva" : "Reservar ahora"}</button>}
         <button className="menu-toggle" onClick={() => setMobileMenu(!mobileMenu)}>{mobileMenu ? <X/> : <Menu/>}</button>
       </div>
     </div>
@@ -738,11 +823,12 @@ export default function App() {
     </div>
     <div className="package-info">
       <div className="package-heading"><div><h3>{p.name}</h3><p>{p.country} <span>·</span> {p.category}</p></div></div>
+      {findExistingReservation(p) && <span className="package-already-reserved"><CheckCircle2 size={12}/> Ya tenés una reserva activa</span>}
       {(p.rating || (p.reviews && p.reviews !== "0")) && <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating ? p.rating.toFixed(1) : ""} {p.reviews && p.reviews !== "0" ? <small>({p.reviews})</small> : null}{p.tag==="¡Oferta!" && discount(p)>0 && <span className="discount">{discount(p)}% OFF</span>}</div>}
       <div className="price-line"><div className="price-line-main">{p.priceApproximate && <small>Desde aproximadamente · por persona en base doble</small>}<strong>{money(p.price, p.currency)}</strong></div>{(p.originalPrice ?? p.oldPrice) && <del>{money(p.originalPrice ?? p.oldPrice, p.currency)}</del>}</div>
       <div className="package-card-facts">{(p.nights || (p.days && p.days>1))&&<span><CalendarDays size={13}/>{p.nights ?? p.days!-1} noches</span>}{p.departureDate && <span className="package-date-range"><CalendarDays size={12}/>{formatPackageDateRange(p.departureDate,p.returnDate)}</span>}{p.flags?.promo&&<span className="package-card-offer"><Tag size={12}/> En oferta</span>}{p.flags?.recommended&&<span className="package-card-featured"><Star size={12}/> Destacado</span>}</div>
       {p.departureCity && <small className="package-schedule-inline">Sale desde {p.departureCity}</small>}
-      <button className="outline-btn full offer-reserve" onClick={() => openPackage(p)}>Reservar <ArrowRight size={16}/></button>
+      <button className="outline-btn full offer-reserve" onClick={() => { const existing = findExistingReservation(p); if (existing) openBookingDetail(existing.reference); else openPackage(p); }}>{findExistingReservation(p) ? "Ver mi reserva" : "Reservar"} <ArrowRight size={16}/></button>
     </div>
   </article>;
 
@@ -882,6 +968,8 @@ export default function App() {
     ? <main className="package-not-found"><span className="package-section-eyebrow">DESTINO NO DISPONIBLE</span><h1>No encontramos este paquete</h1><p>Puede que haya sido retirado del catálogo o que la dirección no sea correcta.</p><button className="primary-btn" onClick={()=>go("results")}>Ver paquetes disponibles <ArrowRight size={16}/></button></main>
     : <PackageDetailPage
         packageData={selected}
+        reservationReference={findExistingReservation(selected)?.reference}
+        onViewReservation={() => { const existing = findExistingReservation(selected); if (existing) openBookingDetail(existing.reference); }}
         packages={employeePackages}
         isFavorite={favorites.includes(selected.id)}
         favoriteIds={favorites}
@@ -890,7 +978,7 @@ export default function App() {
         onHome={()=>go("home")}
         onPackages={()=>go("results")}
         onOpenPackage={item=>openPackage(item as Package)}
-        onReserve={()=>go("checkout")}
+        onReserve={()=>startPackageReservation(selected)}
         onConsultAvailability={payload=>{
           setStaffMessages(items=>[{id:Date.now(),name:payload.name,subject:`Disponibilidad · ${selected.name}`,body:`Correo: ${payload.email || "No indicado"} · Teléfono: ${payload.phone || "No indicado"} · Pasajeros: ${payload.travelers} · Fecha solicitada: ${payload.requestedDate || formatTravelDate(selected.departureDate) || "A coordinar"}`,status:"Pendiente"},...items]);
           setToast("Tu consulta fue enviada. El equipo de MundoGlobal Travel se comunicará con vos.");
@@ -1095,8 +1183,8 @@ export default function App() {
   const checkoutQuote = quoteForPackage(selected) ?? { flight: undefined, hotel: undefined, assistance: undefined };
   const renderCheckout = () => checkoutConfirmed ? <main className="page-container narrow checkout-success-page"><div className="checkout-success-card"><div className="checkout-success-check"><Check size={48}/></div><span className="kicker">RESERVA CONFIRMADA</span><h1>¡Pago aprobado!</h1><p>El pago fue aprobado en esta simulación y tu reserva quedó confirmada. Ya podés descargar el comprobante.</p><div className="checkout-success-summary"><span>Destino</span><b>{selected.name} · {selected.country}</b><span>Pasajeros</span><b>{totalTravelers}</b><span>Medio de pago</span><b>{paymentMethod}{paymentMethod === "Tarjeta de crédito" ? " · " + checkoutInstallments + " cuota(s)" : ""}</b><span>Total</span><b>{money((selected.price ?? 0) * totalTravelers, selected.currency)}</b></div><div className="demo-warning"><CircleHelp/> Pago y reserva simulados: no se realizó un cobro real.</div><div className="checkout-reservation-code"><span>Código de reserva</span><b>{reservationReference}</b></div><button className="primary-btn full" onClick={downloadReservation}><FileText size={18}/> Descargar comprobante de reserva</button><button className="outline-btn checkout-back-button" onClick={()=>go("account")}>Ir a mis reservas <ArrowRight size={17}/></button></div></main> : routeNotFound ? <main className="package-not-found"><span className="package-section-eyebrow">RESERVA NO DISPONIBLE</span><h1>No encontramos este paquete</h1><p>Volvé al catálogo y elegí un paquete con salida y precio publicados para iniciar la reserva.</p><button className="primary-btn" onClick={()=>go("results")}>Ver paquetes disponibles <ArrowRight size={16}/></button></main> : <main className="page-container narrow"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span><button onClick={()=>go("detail")}>Paquete</button><span>/</span>Confirmar reserva</div><div className="checkout-title"><span className="kicker">ÚLTIMO PASO</span><h1>Confirmá tu viaje</h1><p>Revisá los detalles antes de confirmar tu reserva de prueba.</p></div><div className="checkout-payment-intro"><b>Medios de pago disponibles</b><span>Tarjetas Visa y Mastercard · Mercado Pago · Transferencia bancaria</span><small>Elegí tu opción en el paso de pago. Esta experiencia es una demostración y no procesa cobros reales.</small></div><div className="checkout-layout"><div className="checkout-box"><h2>Resumen del paquete</h2><div className="checkout-destination"><SmartImage className="checkout-smart-image" src={selected.image} alt={selected.name} preset="thumb" ratio="auto" fit="cover"/><div><b>{selected.name} · {selected.country}</b><small>{selected.days ? `${selected.days} días · ` : ""}{totalTravelers} pasajero(s)</small>{selected.departureCity && <small>Salida desde: {selected.departureCity}</small>}{selected.departureDate && <small>Ida: {formatTravelDate(selected.departureDate)}{selected.returnDate ? ` · Vuelta: ${formatTravelDate(selected.returnDate)}` : ""}</small>}</div></div>{checkoutQuote.flight && <div className="checkout-service"><Plane/> Vuelos ida y vuelta <strong>{money(checkoutQuote.flight, selected.currency)}</strong></div>}{checkoutQuote.hotel && <div className="checkout-service"><Hotel/> Hotel{selected.nights || (selected.days && selected.days > 1) ? ` · ${selected.nights ?? selected.days! - 1} noches` : ""} <strong>{money(checkoutQuote.hotel, selected.currency)}</strong></div>}{checkoutQuote.assistance && <div className="checkout-service"><Stethoscope/> Asistencia al viajero <strong>{money(checkoutQuote.assistance, selected.currency)}</strong></div>}<p className="form-hint">Cada servicio tiene un importe asignado. Estos valores son referenciales de la demostración y se confirman con los proveedores antes de emitir.</p><p className="form-hint">El origen y las fechas de esta salida fueron definidos por el equipo de la agencia al publicar el paquete.</p><div className="booking-divider"/><h2>Datos del pasajero principal</h2><div className="passenger-form-section"><h3>Pasajero principal</h3><div className="passenger-fields-grid"><label>Nombre y apellido<input value={passengerName} onChange={e=>setPassengerName(e.target.value)} autoComplete="name" placeholder="Como figura en el documento" maxLength={100} required/></label><label>DNI o pasaporte<input value={passengerDocument} onChange={e=>setPassengerDocument(e.target.value)} placeholder="Número de documento" maxLength={25} required/></label><label>Fecha de nacimiento<input type="date" value={passengerBirthDate} onChange={e=>setPassengerBirthDate(e.target.value)} max={todayISO} required/></label><label>Nacionalidad<input value={passengerNationality} onChange={e=>setPassengerNationality(e.target.value)} placeholder="Nacionalidad" maxLength={60} required/></label><label>Correo electrónico<input type="email" value={passengerEmail} onChange={e=>setPassengerEmail(e.target.value)} autoComplete="email" placeholder="tu@email.com" maxLength={120} required/></label><label>Teléfono de contacto<input type="tel" value={passengerPhone} onChange={e=>setPassengerPhone(e.target.value)} autoComplete="tel" placeholder="+54 9 ..." maxLength={30} required/></label></div><p className="form-hint">Completá los datos exactamente como aparecen en el DNI o pasaporte. El correo y teléfono serán los medios de contacto de la reserva.</p></div>{additionalPassengers.length>0&&<><div className="booking-divider"/><h2>Datos de los acompañantes</h2><p className="form-hint">Necesitamos los datos individuales de cada persona que viajará.</p>{additionalPassengers.map((passenger,index)=><div className="passenger-form-section companion-passenger" key={index}><h3>Acompañante {index+1}</h3><div className="passenger-fields-grid"><label>Nombre y apellido<input value={passenger.fullName} onChange={e=>setAdditionalPassengers(items=>items.map((item,i)=>i===index?{...item,fullName:e.target.value}:item))} placeholder="Como figura en el documento" maxLength={100} required/></label><label>DNI o pasaporte<input value={passenger.documentNumber} onChange={e=>setAdditionalPassengers(items=>items.map((item,i)=>i===index?{...item,documentNumber:e.target.value}:item))} placeholder="Número de documento" maxLength={25} required/></label><label>Fecha de nacimiento<input type="date" value={passenger.birthDate} max={todayISO} onChange={e=>setAdditionalPassengers(items=>items.map((item,i)=>i===index?{...item,birthDate:e.target.value}:item))} required/></label><label>Nacionalidad<input value={passenger.nationality} onChange={e=>setAdditionalPassengers(items=>items.map((item,i)=>i===index?{...item,nationality:e.target.value}:item))} placeholder="Nacionalidad" maxLength={60} required/></label></div></div>)}</>}<div className="booking-divider"/><h2>Elegí tu medio de pago</h2><p className="form-hint">Seleccioná cómo preferís abonar. En esta demo no se realizará ningún cobro.</p><div className="payment-method-grid"><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de crédito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de crédito")}><span className="payment-visual card-visa">VISA</span><b>Tarjeta de crédito</b><small>Crédito y cuotas</small></button><button type="button" className={`payment-method ${paymentMethod === "Tarjeta de débito" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Tarjeta de débito")}><span className="payment-visual card-master"><i></i><i></i></span><b>Tarjeta de débito</b><small>Pago con débito</small></button><button type="button" className={`payment-method ${paymentMethod === "Mercado Pago" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Mercado Pago")}><span className="payment-visual mercado-logo"> Mercado Pago </span><b>Mercado Pago</b><small>Billetera virtual</small></button><button type="button" className={`payment-method ${paymentMethod === "Transferencia bancaria" ? "chosen" : ""}`} onClick={() => setPaymentMethod("Transferencia bancaria")}><span className="payment-visual transfer-visual"><CreditCard size={25}/></span><b>Transferencia</b><small>Desde tu banco</small></button></div>{(paymentMethod === "Tarjeta de crédito" || paymentMethod === "Tarjeta de débito") && <div className="checkout-card-panel"><h3>Datos de la tarjeta</h3><p>Ingresá datos de prueba para simular la autorización. No uses una tarjeta real.</p><div className="passenger-fields-grid"><label>Nombre del titular<input autoComplete="off" value={cardholderName} onChange={e=>setCardholderName(e.target.value)} placeholder="Como figura en la tarjeta" maxLength={80}/></label><label>Número de tarjeta<input inputMode="numeric" autoComplete="off" value={cardNumber} onChange={e=>setCardNumber(e.target.value.replace(/[^0-9 ]/g,"").slice(0,23))} placeholder="0000 0000 0000 0000" maxLength={23}/></label><label>Vencimiento (MM/AA)<input autoComplete="off" value={cardExpiry} onChange={e=>setCardExpiry(e.target.value.replace(/[^0-9/]/g,"").slice(0,5))} placeholder="MM/AA" maxLength={5}/></label><label>Código de seguridad<input inputMode="numeric" type="password" autoComplete="off" value={cardCvv} onChange={e=>setCardCvv(e.target.value.replace(/\D/g,"").slice(0,4))} placeholder="CVV" maxLength={4}/></label></div><small>Los datos de tarjeta se usan sólo temporalmente en esta pantalla y no se guardan ni se envían a ningún servidor.</small></div>}{paymentMethod === "Tarjeta de crédito" && <div className="checkout-installment-panel"><label htmlFor="checkout-installments">Plan de cuotas</label><select id="checkout-installments" value={checkoutInstallments} onChange={event=>setCheckoutInstallments(Number(event.target.value))}><option value={1}>1 pago</option><option value={3}>3 cuotas</option><option value={6}>6 cuotas</option><option value={12}>12 cuotas</option></select><p><strong>{money(((selected.price ?? 0) * totalTravelers) / checkoutInstallments, selected.currency)}</strong> por cuota estimada</p><small>La financiación final depende de las condiciones de la tarjeta y del proveedor.</small></div>}<div className="demo-warning"><CircleHelp/> Esta es una simulación académica. No se realizará ningún cobro ni reserva real.</div></div><aside className="booking-card"><h3>Detalle de precio</h3><div className="summary-row"><span>Vuelos · por persona</span><b>{money(checkoutQuote.flight, selected.currency)}</b></div><div className="summary-row"><span>Hotel · por persona</span><b>{money(checkoutQuote.hotel, selected.currency)}</b></div><div className="summary-row"><span>Asistencia · por persona</span><b>{money(checkoutQuote.assistance, selected.currency)}</b></div><div className="summary-row"><span>Pasajeros</span><b>× {totalTravelers}</b></div><div className="booking-divider"/><div className="booking-total"><span>Total</span><b>{money((selected.price ?? 0)*totalTravelers, selected.currency)}</b></div><button className="primary-btn full" onClick={reserve}>Continuar y revisar <ArrowRight size={17}/></button><p className="booking-safe"><LockKeyhole size={14}/> Proceso de demostración</p></aside></div></main>;
 
-  const renderAccount = () => <main className="page-container"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span>Mi cuenta</div><div className="account-heading"><div className="user-avatar"><UserRound/></div><div><span className="kicker">MI ESPACIO MUNDO GLOBAL</span><h1>¡Hola, {user || "Viajero"}!</h1><p>Gestioná tus viajes y preparate para tu próxima aventura.</p></div><button className="outline-btn" onClick={()=>{setUser("");localStorage.removeItem("mgt-user");setAuthPassword("");go("login");}}> <LogOut size={16}/> Cerrar sesión</button></div><div className="account-grid"><aside className="account-menu"><button className={accountSection==="bookings"?"current":""} onClick={()=>setAccountSection("bookings")}><Ticket/> Mis reservas</button><button className={accountSection==="profile"?"current":""} onClick={()=>setAccountSection("profile")}><UserRound/> Mi perfil</button><button className={accountSection==="notifications"?"current":""} onClick={()=>setAccountSection("notifications")}><Bell/> Notificaciones{unreadNotifications>0&&<span className="account-notification-count">{unreadNotifications}</span>}</button><button className={accountSection==="favorites"?"current":""} onClick={()=>setAccountSection("favorites")}><Heart/> Mis favoritos</button><button className={accountSection==="recent"?"current":""} onClick={()=>setAccountSection("recent")}><Clock3/> Búsquedas recientes</button><button onClick={()=>go("support")}><Headphones/> Ayuda y soporte</button></aside><section className="account-content">
-    {accountSection==="bookings"&&<><div className="section-heading compact"><div><h2>Mis reservas</h2><p>Consultá el estado de tus próximos viajes.</p></div><button className="primary-btn" onClick={()=>go("results")}>Buscar viajes <ArrowRight size={16}/></button></div>{bookings.length===0?<div className="empty-state"><Luggage size={42}/><h3>Todavía no tenés viajes reservados</h3><p>Tu próxima aventura está a un clic de distancia.</p><button className="primary-btn" onClick={()=>go("results")}>Explorar paquetes</button></div>:bookings.map((b,i)=>{const reference=b.split(" · ")[1];const entry=incomeEntries.find(item=>item.reference===reference) ?? readStoredReservationEntry(reference);return <div className="booking-list-item" key={reference||i}><span className="booking-icon"><Plane/></span><div className="booking-list-copy"><b>{b.split(" · ")[0]}</b><small>Código: {reference} · {b.split(" · ").slice(3).join(" · ") || "Condiciones de salida no registradas"} · Reserva de demostración</small><div className="booking-document-actions"><button type="button" className="booking-detail-button" onClick={()=>openBookingDetail(reference)}><FileText size={14}/> Ver detalle</button>{entry&&<><button type="button" onClick={()=>downloadTravelDocument(entry)}><FileText size={14}/> Descargar comprobante</button><button type="button" onClick={()=>printTravelDocument(entry)}><Ticket size={14}/> Imprimir / Guardar PDF</button></>}</div></div><strong>{b.split(" · ")[2]}</strong><span className="status-pill"><CheckCircle2 size={13}/> Confirmada</span></div>;})}</>}
+  const renderAccount = () => <main className="page-container"><div className="breadcrumb"><button onClick={()=>go("home")}>Inicio</button><span>/</span>Mi cuenta</div><div className="account-heading"><div className="user-avatar"><UserRound/></div><div><span className="kicker">MI ESPACIO MUNDO GLOBAL</span><h1>¡Hola, {user || "Viajero"}!</h1><p>Gestioná tus viajes y preparate para tu próxima aventura.</p></div><button className="outline-btn" onClick={()=>{setUser("");localStorage.removeItem("mgt-user");localStorage.removeItem("mgt-email");setAuthPassword("");go("login");}}> <LogOut size={16}/> Cerrar sesión</button></div><div className="account-grid"><aside className="account-menu"><button className={accountSection==="bookings"?"current":""} onClick={()=>setAccountSection("bookings")}><Ticket/> Mis reservas</button><button className={accountSection==="profile"?"current":""} onClick={()=>setAccountSection("profile")}><UserRound/> Mi perfil</button><button className={accountSection==="notifications"?"current":""} onClick={()=>setAccountSection("notifications")}><Bell/> Notificaciones{unreadNotifications>0&&<span className="account-notification-count">{unreadNotifications}</span>}</button><button className={accountSection==="favorites"?"current":""} onClick={()=>setAccountSection("favorites")}><Heart/> Mis favoritos</button><button className={accountSection==="recent"?"current":""} onClick={()=>setAccountSection("recent")}><Clock3/> Búsquedas recientes</button><button onClick={()=>go("support")}><Headphones/> Ayuda y soporte</button></aside><section className="account-content">
+    {accountSection==="bookings"&&<><div className="section-heading compact"><div><h2>Mis reservas</h2><p>Consultá el estado de tus próximos viajes.</p></div><button className="primary-btn" onClick={()=>go("results")}>Buscar viajes <ArrowRight size={16}/></button></div>{bookings.length===0?<div className="empty-state"><Luggage size={42}/><h3>Todavía no tenés viajes reservados</h3><p>Tu próxima aventura está a un clic de distancia.</p><button className="primary-btn" onClick={()=>go("results")}>Explorar paquetes</button></div>:bookings.map((b,i)=>{const reference=b.split(" · ")[1];const entry=incomeEntries.find(item=>item.reference===reference) ?? readStoredReservationEntry(reference);return <div className="booking-list-item" key={reference||i}><span className="booking-icon"><Plane/></span><div className="booking-list-copy"><b>{b.split(" · ")[0]}</b><small>Código: {reference} · {b.split(" · ").slice(3).join(" · ") || "Condiciones de salida no registradas"} · Reserva de demostración</small><div className="booking-document-actions"><button type="button" className="booking-detail-button" onClick={()=>openBookingDetail(reference)}><FileText size={14}/> Ver detalle</button>{entry&&<><button type="button" onClick={()=>downloadTravelDocument(entry)}><FileText size={14}/> Descargar comprobante</button><button type="button" onClick={()=>printTravelDocument(entry)}><Ticket size={14}/> Imprimir / Guardar PDF</button></>}{entry && entry.reservationStatus !== "Cancelada" && <button type="button" className="booking-cancel-button" onClick={()=>cancelReservation(entry)}><X size={14}/> Cancelar reserva</button>}</div></div><strong>{b.split(" · ")[2]}</strong><span className={entry?.reservationStatus === "Cancelada" ? "status-pill booking-status-cancelled" : "status-pill"}>{entry?.reservationStatus === "Cancelada" ? <><X size={13}/> Cancelada</> : <><CheckCircle2 size={13}/> Confirmada</>}</span></div>;})}</>}
     {accountSection==="profile"&&<><div className="section-heading compact"><div><h2>Mi perfil</h2><p>Actualizá tus datos personales de contacto.</p></div></div><form className="profile-edit-form" onSubmit={e=>{e.preventDefault();const name=passengerName.trim();if(name.length<3){setToast("Ingresá tu nombre y apellido.");return;}setUser(name);localStorage.setItem("mgt-user",name);localStorage.setItem("mgt-email",profileEmail);localStorage.setItem("mgt-phone",profilePhone);setToast("¡Tu perfil fue actualizado!");}}><label>Nombre y apellido<input value={passengerName} onChange={e=>setPassengerName(e.target.value)} required minLength={3} maxLength={80}/></label><label>Correo electrónico<input type="email" value={profileEmail} onChange={e=>setProfileEmail(e.target.value)} placeholder="tu@email.com" required/></label><label>Teléfono<input value={profilePhone} onChange={e=>setProfilePhone(e.target.value)} placeholder="+54 9 353 ..." /></label><button className="primary-btn">Guardar cambios <Check size={16}/></button></form></>}
     {accountSection==="notifications"&&<><div className="section-heading compact"><div><h2>Notificaciones</h2><p>Enterate de las novedades y actualizaciones de tu cuenta.</p></div>{unreadNotifications>0&&<button type="button" className="outline-btn" onClick={()=>setNotifications(items=>{const next=items.map(item=>({...item,read:true}));try{localStorage.setItem("mgt-notifications",JSON.stringify(next));}catch{/* Sin almacenamiento persistente. */}return next;})}>Marcar todas como leídas</button>}</div>{notifications.length===0?<div className="empty-state"><Bell size={38}/><h3>No tenés notificaciones</h3><p>Cuando haya novedades sobre tus viajes, las vas a encontrar acá.</p></div>:<div className="account-notification-list">{notifications.map(item=><article key={item.id} className={`account-notification ${item.read?"read":"unread"}`}><span className={`account-notification-icon ${item.kind}`}>{item.kind==="booking"?<Ticket size={18}/>:item.kind==="payment"?<CreditCard size={18}/>:item.kind==="offer"?<Tag size={18}/>:<Bell size={18}/>}</span><div className="account-notification-copy"><b>{item.title}</b><p>{item.message}</p><small>{new Date(item.date).toLocaleString("es-AR",{dateStyle:"medium",timeStyle:"short"})}</small></div>{!item.read&&<><span className="account-notification-dot" aria-label="No leída"/><button type="button" className="account-notification-mark" onClick={()=>markNotificationRead(item.id)}>Marcar leída</button></>}</article>)}</div>}</>}
     {accountSection==="favorites"&&<><div className="section-heading compact"><div><h2>Mis favoritos</h2><p>Los destinos que guardaste para más adelante.</p></div></div><div className="account-favorites-grid">{employeePackages.filter(p=>favorites.includes(p.id)).map(p=>renderPackageCard(p))}</div>{favorites.length===0&&<div className="empty-state"><Heart size={38}/><h3>Todavía no guardaste favoritos</h3><p>Usá el corazón de cada paquete para guardarlo.</p><button className="primary-btn" onClick={()=>go("results")}>Explorar paquetes</button></div>}</>}
@@ -1112,12 +1200,14 @@ export default function App() {
     const prettyDate = (value?: string) => value ? (value.includes("-") ? formatTravelDate(value) : value) : "A confirmar";
     const reservationDate = entry?.createdAt ? prettyDate(entry.createdAt.slice(0, 10)) : entry?.date ? prettyDate(entry.date) : "No disponible";
     const passengerList = entry?.passengers?.length ? entry.passengers : entry ? [{ fullName: entry.client, documentNumber: "", birthDate: "", nationality: "" }] : [];
-    const confirmed = entry?.status === "Acreditado";
+    const cancelled = entry?.reservationStatus === "Cancelada";
+    const confirmed = entry?.status === "Acreditado" && !cancelled;
+    const departureDaysRemaining = getDaysUntilDeparture(entry?.departureDate);
     return <main className="page-container reservation-detail-page">
       <div className="breadcrumb"><button onClick={() => { setAccountSection("bookings"); go("account"); }}>Mi cuenta</button><span>/</span><button onClick={() => { setAccountSection("bookings"); go("account"); }}>Mis reservas</button><span>/</span>Detalle de reserva</div>
       <div className="reservation-detail-heading">
         <div><span className="kicker">DETALLE DE RESERVA</span><h1>{destinationName}{reservationPackage?.country ? " · " + reservationPackage.country : ""}</h1><p>Toda la información de tu viaje en un solo lugar.</p></div>
-        <span className={confirmed || !entry ? "reservation-status confirmed" : "reservation-status pending"}><CheckCircle2 size={15}/>{confirmed || !entry ? "Reserva confirmada" : entry.status}</span>
+        <span className={cancelled ? "reservation-status cancelled" : confirmed || !entry ? "reservation-status confirmed" : "reservation-status pending"}>{cancelled ? <X size={15}/> : <CheckCircle2 size={15}/ >}{cancelled ? "Reserva cancelada" : confirmed || !entry ? "Reserva confirmada" : entry.status}</span>
       </div>
       <section className="reservation-overview">
         <div className="reservation-overview-item"><span><Ticket/></span><div><small>Código de reserva</small><b>{selectedBookingReference || "No disponible"}</b></div></div>
@@ -1154,13 +1244,25 @@ export default function App() {
           <section className="reservation-detail-card reservation-payment-card">
             <div className="reservation-card-title"><span><CreditCard/></span><div><h2>Información de pago</h2><p>Resumen del importe registrado</p></div></div>
             <div className="reservation-payment-row"><span>Medio de pago</span><b>{entry?.method || "No disponible"}</b></div>
-            <div className="reservation-payment-row"><span>Estado</span><b className={confirmed ? "payment-confirmed" : ""}>{entry?.status || "Registrada"}</b></div>
+            <div className="reservation-payment-row"><span>Estado del pago</span><b className={confirmed ? "payment-confirmed" : ""}>{entry?.status || "Registrado"}</b></div>
+            <div className="reservation-payment-row"><span>Estado de la reserva</span><b className={cancelled ? "payment-cancelled" : "payment-confirmed"}>{cancelled ? "Cancelada" : entry?.reservationStatus || "Confirmada"}</b></div>
             <div className="reservation-payment-total"><span>Total de la reserva</span><b>{entry ? money(entry.amount, entry.currency || "USD") : summaryParts[2] || "No disponible"}</b></div>
             <p className="reservation-demo-note">Reserva registrada en el sistema de demostración. Los pagos no se procesan mediante una entidad financiera.</p>
           </section>
           <section className="reservation-detail-card reservation-actions-card">
-            <h2>Documentación</h2>
+            <h2>Documentación y gestión</h2>
+            {entry && <div className={`reservation-cancellation-policy ${cancelled ? "is-cancelled" : ""}`}>
+              <b>Regla de cancelación</b>
+              <p>{cancelled
+                ? `Esta reserva fue cancelada${entry.cancellationDate ? ` el ${new Date(entry.cancellationDate).toLocaleDateString("es-AR")}` : ""}.`
+                : departureDaysRemaining === null
+                  ? "No se pudo verificar la fecha de salida. Contactá a la agencia para gestionar una cancelación."
+                  : departureDaysRemaining >= 7
+                    ? `Podés cancelar online hasta 7 días antes de la salida. Faltan ${departureDaysRemaining} días para el viaje.`
+                    : `La cancelación online ya no está disponible porque faltan ${departureDaysRemaining} días para la salida. Contactá a MundoGlobal Travel.`}</p>
+            </div>}
             {entry ? <><button className="primary-btn full" onClick={()=>downloadTravelDocument(entry)}><FileText size={16}/> Descargar comprobante</button><button className="outline-btn full" onClick={()=>printTravelDocument(entry)}><Ticket size={16}/> Imprimir / Guardar PDF</button></> : <p className="reservation-empty-note">No se encontró el comprobante completo de esta reserva.</p>}
+            {entry && !cancelled && <button type="button" className="reservation-cancel-button" onClick={()=>cancelReservation(entry)}><X size={15}/> Cancelar reserva</button>}
             <button className="reservation-back-button" onClick={()=>{setAccountSection("bookings");go("account");}}><ArrowLeft size={16}/> Volver a mis reservas</button>
           </section>
         </aside>
