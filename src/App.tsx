@@ -177,7 +177,7 @@ const enrichPackage = (item: Package): Package => {
     ? `${item.flightRoute.departureAirport} (${item.flightRoute.departureCode}) → ${item.flightRoute.arrivalAirport} (${item.flightRoute.arrivalCode}). ${item.flightRoute.note}`
     : "";
   const baseIncludes = item.flightRoute
-    ? [{ icon: "plane", title: `Vuelo ida y vuelta · ${item.flightRoute.departureCode} → ${item.flightRoute.arrivalCode}`, description: routeDescription }, ...rawIncludes.filter(include => include.icon !== "plane")]
+    ? [{ icon: "plane", title: `Tramo de ida · ${item.flightRoute.departureCode} → ${item.flightRoute.arrivalCode}`, description: routeDescription }, ...rawIncludes.filter(include => include.icon !== "plane")]
     : rawIncludes;
   const vehicleInclude = { icon: "car", title: "Alquiler de vehículo incluido", description: "Incluye alquiler de vehículo durante la estadía. Categoría, condiciones y disponibilidad a confirmar." };
   const vehicleIncludes = baseIncludes.filter(include => include.icon === "car" || include.title?.trim().toLocaleLowerCase() === vehicleInclude.title.toLocaleLowerCase());
