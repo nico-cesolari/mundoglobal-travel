@@ -3213,3 +3213,86 @@ body{zoom:.9;}
   .passenger-autofill-tools select,
   .passenger-tool-button{width:100%;min-height:39px}
 }
+
+
+/* Aeropuertos y escalas verificadas por paquete */
+.package-flight-route-section{
+  margin:22px 0;
+  padding:20px;
+  border:1px solid #dfe8f4;
+  border-radius:16px;
+  background:linear-gradient(145deg,#f8fbff 0%,#ffffff 80%);
+}
+.package-flight-route-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:17px;
+}
+.package-flight-route-status{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:800;
+}
+.package-flight-route-status.direct{background:#e8f7ee;color:#087a49}
+.package-flight-route-status.connection-required{background:#fff2df;color:#946000}
+.package-flight-route-status.date-to-confirm{background:#fff0e8;color:#a13d16}
+.package-flight-route-journey{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:17px;
+}
+.package-flight-route-airport{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  min-width:0;
+}
+.package-flight-route-airport small{
+  color:#1d5ec7;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.55px;
+}
+.package-flight-route-airport b{
+  color:#233b61;
+  font-size:12px;
+  line-height:1.45;
+}
+.package-flight-route-connector{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  color:#1e5bc1;
+  white-space:nowrap;
+}
+.package-flight-route-connector span{
+  color:#65758e;
+  font-size:9px;
+  font-weight:750;
+}
+.package-flight-route-note{
+  margin:16px 0 7px;
+  color:#405574;
+  font-size:10px;
+  line-height:1.6;
+}
+.package-flight-route-disclaimer{
+  display:block;
+  color:#8290a6;
+  font-size:9px;
+  line-height:1.5;
+}
+@media(max-width:640px){
+  .package-flight-route-section{padding:15px}
+  .package-flight-route-journey{grid-template-columns:1fr;gap:12px}
+  .package-flight-route-connector{flex-direction:row;justify-content:flex-start;padding-left:2px}
+  .package-flight-route-airport b{font-size:11px}
+}
