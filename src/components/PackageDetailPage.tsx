@@ -27,6 +27,7 @@ export type PackageDetailData = {
   country?: string;
   category?: string;
   price?: number;
+  priceApproximate?: boolean;
   oldPrice?: number;
   originalPrice?: number;
   currency?: string;
@@ -296,7 +297,7 @@ export function PackageDetailPage({
         {packageData.flags?.reservaOnline && <span className="package-online-badge"><CheckCircle2 size={13}/> Reserva 100% ON</span>}
       </div>
       {priceLabel && <div className="package-price-block">
-        <span>Desde</span>
+        <span>{packageData.priceApproximate ? "Desde aproximadamente" : "Desde"}</span>
         <strong>{priceLabel}</strong>
         <small>por persona{packageData.price ? " en base doble" : ""}</small>
         {originalPriceLabel && savings && <div className="package-saving-row"><del>{originalPriceLabel}</del><span>Ahorrá {money(savings, packageData.currency || "USD")}</span></div>}
