@@ -399,7 +399,7 @@ export function PackageDetailPage({
 
       {packageData.flightRoute && <section className="package-flight-route-section">
         <div className="package-flight-route-heading">
-          <span className="package-section-eyebrow">ITINERARIO AÉREO</span>
+          <span className="package-section-eyebrow">ITINERARIO AÉREO · IDA</span>
           <span className={`package-flight-route-status ${packageData.flightRoute.status}`}>
             {packageData.flightRoute.status === "direct" ? "Servicio sin escalas publicado" : packageData.flightRoute.status === "connection-required" ? "Requiere al menos una escala" : "Directo no confirmado para esta fecha"}
           </span>
@@ -416,7 +416,7 @@ export function PackageDetailPage({
           </div>
         </div>
         <p className="package-flight-route-note">{packageData.flightRoute.note}</p>
-        <small className="package-flight-route-disclaimer">La ficha muestra rutas y programación consultada, no disponibilidad en tiempo real. El itinerario final se confirma al cotizar y emitir.</small>
+        <small className="package-flight-route-disclaimer">La ficha muestra la ruta de ida y la programación consultada, no disponibilidad en tiempo real. El regreso se verifica por separado y el itinerario final se confirma al cotizar y emitir.</small>
       </section>}
 
       {includes.length > 0 && <section className="package-includes-section">
