@@ -68,6 +68,8 @@ type InquiryPayload = {
 
 type Props = {
   packageData: PackageDetailData;
+  reservationReference?: string;
+  onViewReservation?: () => void;
   packages: PackageDetailData[];
   isFavorite: boolean;
   onToggleFavorite: () => void;
@@ -138,6 +140,8 @@ const renderBoldText = (value: string) => {
 
 export function PackageDetailPage({
   packageData,
+  reservationReference,
+  onViewReservation,
   packages,
   isFavorite,
   onToggleFavorite,
@@ -309,11 +313,11 @@ export function PackageDetailPage({
         {packageData.departureDate && <span><CalendarDays size={16}/>{`Del ${formatDate(packageData.departureDate)}${packageData.returnDate ? ` al ${formatDate(packageData.returnDate)}` : ""}`}</span>}
         {(hasFlight || hasHotel) && <span>{hasFlight && <Plane size={16}/>} {hasFlight && hasHotel ? "Vuelo + Hotel" : hasFlight ? "Vuelo incluido" : "Hotel incluido"}</span>}
       </div>}
-      <button type="button" className="package-consult-button" onClick={() => packageData.flags?.reservaOnline ? onReserve() : setAvailabilityOpen(true)}>
-        {packageData.flags?.reservaOnline ? "Reservar ahora" : "Consultar disponibilidad"} <ArrowRight size={17}/>
+      <button type="button" className="package-consult-button" onClick={() => reservationReference ? onViewReservation?.() : packageData.flags?.reservaOnline ? onReserve() : setAvailabilityOpen(true)}>
+        {reservationReference ? "Ver mi reserva" : packageData.flags?.reservaOnline ? "Reservar ahora" : "Consultar disponibilidad"} <ArrowRight size={17}/>
       </button>
-      <p className="package-booking-caption">¡Reservá ahora y asegurá tu lugar en este destino soñado!</p>
-      {packageData.flags?.cancelacionGratuita && <div className="package-cancellation-note"><ShieldCheck size={17}/><span>Cancelación gratuita hasta 48 hs antes del viaje</span></div>}
+      <p className="package-booking-caption">{reservationReference ? "Ya tenés una reserva activa para esta salida. Consultá su detalle." : "¡Reservá ahora y asegurá tu lugar en este destino soñado!"}</p>
+      <div className="package-cancellation-note"><ShieldCheck size={17}/><span>Podés cancelar online hasta 7 días antes de la salida</span></div>
     </div>
     <div className="package-travel-peace">
       <span><ShieldCheck size={21}/></span>
