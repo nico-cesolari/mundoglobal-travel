@@ -161,7 +161,7 @@ export default function App() {
   const initialPackages = loadSavedPackages();
   const initialRoutePackage = initialPackages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug)) || packages.find(item => slugifyPackage(item.name) === (initialBookingSlug || initialSlug));
   const employeeSession = localStorage.getItem("mgt-employee-session") || "";
-  const initialPage: Page = (initialBookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "login" : window.location.pathname === "/employee" ? "employee" : "home";
+  const initialPage: Page = (initialBookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "login") : "home";
   const [page, setPage] = useState<Page>(() => initialPage);
   const [routeNotFound, setRouteNotFound] = useState(Boolean((initialSlug || initialBookingSlug) && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
@@ -346,8 +346,13 @@ export default function App() {
         window.history.replaceState({}, "", "/iniciar-sesion");
         setRouteNotFound(false); setActiveNav(""); setPage("login");
       } else if (window.location.pathname === "/employee") {
-        setRouteNotFound(false); setActiveNav("");
-        setPage("employee");
+        if (!localStorage.getItem("mgt-employee-session")) {
+          window.history.replaceState({}, "", "/iniciar-sesion");
+          setPage("login");
+        } else {
+          setRouteNotFound(false); setActiveNav("");
+          setPage("employee");
+        }
       } else {
         setRouteNotFound(false); setActiveNav("Inicio"); setPage("home");
       }
