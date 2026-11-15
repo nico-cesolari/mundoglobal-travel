@@ -89,7 +89,8 @@ const formatDate = (value?: string) => {
 
 const money = (value?: number, currency = "USD") => {
   if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return "";
-  return `${currency} ${value.toLocaleString("es-AR")}`;
+  const formatted = value.toLocaleString("es-AR", { maximumFractionDigits: 0 });
+  return currency === "ARS" ? `$ ${formatted}` : `${currency} ${formatted}`;
 };
 
 const durationNights = (item: PackageDetailData) => {
