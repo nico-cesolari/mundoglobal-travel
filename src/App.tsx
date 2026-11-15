@@ -942,7 +942,7 @@ export default function App() {
               <div><small>Tipo de viaje</small><b>{reservationPackage?.tripType || "Paquete turístico"}</b></div>
             </div>
             {reservationPackage?.description && <p className="reservation-description">{reservationPackage.description}</p>}
-            {reservationPackage?.includes?.length ? <div className="reservation-includes"><h3>Servicios incluidos en el paquete</h3><ul>{reservationPackage.includes.map((item,index)=><li key={item.title + "-" + index}><Check size={15}/><span><b>{item.title}</b>{item.description && <small>{item.description}</small>}</span></li>)}</ul></div> : null}
+            {reservationPackage?.includes?.length ? <div className="reservation-includes"><h3>Servicios incluidos en el paquete</h3><ul>{reservationPackage.includes.map((item,index)=><li key={(item.title || "servicio") + "-" + index}><Check size={15}/><span><b>{item.title}</b>{item.description && <small>{item.description}</small>}</span></li>)}</ul></div> : null}
           </section>
           <section className="reservation-detail-card">
             <div className="reservation-card-title"><span><Users/></span><div><h2>Datos de los pasajeros</h2><p>Personas registradas para esta reserva</p></div></div>
