@@ -386,3 +386,23 @@
 .package-installment-result span{color:#71819A;font-size:9px}
 .package-installments>small{grid-column:1/-1;color:#8793A7;font-size:8px;line-height:1.5}
 @media(max-width:640px){.package-installments{padding:12px}.package-installment-result strong{font-size:18px}}
+
+/* Hotel, fotografías y ubicación dentro del detalle del paquete */
+.package-hotel-section{grid-column:1/-1;margin:8px 0 28px}
+.package-hotel-heading{margin-bottom:16px}
+.package-hotel-heading h2{margin:7px 0;color:#172c51;font-size:clamp(21px,2.4vw,28px)}
+.package-hotel-heading p{margin:0;color:#71819a;font-size:12px;line-height:1.6}
+.package-hotel-card{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);overflow:hidden;border:1px solid #e2e9f3;border-radius:17px;background:#fff;box-shadow:0 10px 28px rgba(28,55,92,.06)}
+.package-hotel-photo{min-height:260px;background:#edf2f8}
+.package-hotel-photo img{display:block;width:100%;height:100%;min-height:260px;object-fit:cover}
+.package-hotel-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(20px,3vw,34px)}
+.package-hotel-label{display:inline-flex;align-items:center;gap:6px;color:#2456c7;font-size:9px;font-weight:850;letter-spacing:.08em}
+.package-hotel-copy h3{margin:12px 0 8px;color:#172c51;font-size:clamp(20px,2vw,25px)}
+.package-hotel-copy>p{display:flex;align-items:flex-start;gap:7px;margin:0 0 18px;color:#64748b;font-size:11px;line-height:1.55}
+.package-hotel-copy>p svg{flex:0 0 15px;color:#2456c7}
+.package-hotel-map-link{display:inline-flex;align-items:center;gap:8px;padding:11px 14px;border-radius:9px;background:#1e4fd8;color:#fff;text-decoration:none;font-size:10px;font-weight:800}
+.package-hotel-map-link:hover{background:#173fae}
+.package-hotel-copy>small{margin-top:14px;color:#8793a7;font-size:9px;line-height:1.55}
+.package-hotel-map{height:280px;margin-top:14px;overflow:hidden;border:1px solid #e2e9f3;border-radius:14px;background:#edf2f8}
+.package-hotel-map iframe{width:100%;height:100%;border:0}
+@media(max-width:700px){.package-hotel-card{grid-template-columns:1fr}.package-hotel-photo,.package-hotel-photo img{min-height:210px;height:210px}.package-hotel-copy{padding:20px}.package-hotel-map{height:230px}}
