@@ -567,6 +567,36 @@ export default function App() {
     setUser(name); localStorage.setItem("mgt-user", name); go("account"); setToast(`¡Bienvenido/a, ${name}!`);
   };
   const reserve = () => {
+    const mainPassengerComplete = Boolean(
+      passengerName.trim() &&
+      passengerDocument.trim() &&
+      passengerBirthDate &&
+      passengerNationality.trim() &&
+      passengerEmail.trim() &&
+      passengerPhone.trim()
+    );
+    const companionsComplete = additionalPassengers.every(passenger =>
+      passenger.fullName.trim() &&
+      passenger.documentNumber.trim() &&
+      passenger.birthDate &&
+      passenger.nationality.trim()
+    );
+    if (!mainPassengerComplete) {
+      setToast("Completá nombre, documento, nacimiento, nacionalidad, correo y teléfono del pasajero principal.");
+      return;
+    }
+    if (!companionsComplete || additionalPassengers.length + 1 !== totalTravelers) {
+      setToast("Completá los datos de todos los acompañantes antes de confirmar.");
+      return;
+    }
+    if (!paymentMethod.trim()) {
+      setToast("Seleccioná un medio de pago para registrar la reserva.");
+      return;
+    }
+    if (!selected.departureCity || !selected.departureDate || !selected.returnDate) {
+      setToast("Este paquete no tiene origen y fechas de salida completos. Consultá con la agencia.");
+      return;
+    }
     // Modo demostración: registra la reserva y muestra el comprobante descargable.
     completeReservation();
     setCheckoutConfirmed(true);
