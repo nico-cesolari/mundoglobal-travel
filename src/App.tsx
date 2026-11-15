@@ -30,7 +30,7 @@ type Package = {
   hotelName?: string; hotelLocation?: string; hotelImage?: string; transferIncluded?: boolean;
 };
 type BookingPassenger = { fullName: string; documentNumber: string; birthDate: string; nationality: string; };
-type IncomeEntry = { id: number; reference: string; client: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; travelers?: number; nights?: number; passengers?: BookingPassenger[]; };
+type IncomeEntry = { id: number; reference: string; client: string; contactEmail?: string; contactPhone?: string; destination?: string; departureCity?: string; departureDate?: string; returnDate?: string; amount: number; method: string; status: "Acreditado" | "Pendiente"; date: string; travelers?: number; nights?: number; passengers?: BookingPassenger[]; };
 const packages: Package[] = [
   { id: 1, name: "Cancún", country: "México", category: "Playas", tripType: "Turismo", price: 1299, oldPrice: 1799, rating: 4.8, reviews: "12.5k", days: 7, departureCity: "Buenos Aires, Argentina", departureDate: "2027-01-15", returnDate: "2027-01-21", tag: "Más elegido", image: "/images/cancun.jpg", focalPoint: {x:52,y:48}, hotelName: "Hotel Riu Cancun", hotelLocation: "Boulevard Kukulcan, Zona Hotelera, Cancún, México", hotelImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85", transferIncluded: true, description: "Playas de arena blanca, aguas turquesas y resorts All Inclusive para desconectar de todo." },
   { id: 4, name: "Roma", country: "Italia", category: "Cultura", tripType: "Turismo", price: 1479, oldPrice: 1899, rating: 4.7, reviews: "8.2k", days: 8, departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", image: "/images/roma.jpg", focalPoint: {x:50,y:50}, hotelName: "Hotel Artemide", hotelLocation: "Via Nazionale 22, Roma, Italia", hotelImage: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=85", transferIncluded: false, description: "Historia, arquitectura y sabores italianos en una ciudad que nunca deja de sorprender." },
@@ -103,6 +103,8 @@ const travelDocumentHtml = (entry: IncomeEntry) => {
   const amountPerInstallment = entry.amount / Math.max(1, installments);
   const rows = [
     ["Código de reserva", entry.reference], ["Pasajero principal", entry.client],
+    ...(entry.contactEmail ? [["Correo electrónico", entry.contactEmail] as [string,string]] : []),
+    ...(entry.contactPhone ? [["Teléfono de contacto", entry.contactPhone] as [string,string]] : []),
     ["Destino", entry.destination || "No indicado"], ["Origen", entry.departureCity || "No indicado"],
     ...(entry.travelers ? [["Pasajeros", String(entry.travelers)] as [string,string]] : []),
     ...(entry.nights ? [["Duración", `${entry.nights} noches`] as [string,string]] : []),
@@ -491,7 +493,7 @@ export default function App() {
     setReservationReference(id);
     const next = [...bookings, `${selected.name} · ${id} · ${money(selectedPrice * totalTravelers)} · Sale desde ${selected.departureCity} · Ida ${formatTravelDate(selected.departureDate)} · Vuelta ${formatTravelDate(selected.returnDate)}`];
     setBookings(next); localStorage.setItem("mgt-bookings", JSON.stringify(next));
-    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, destination: selected.name, departureCity: selected.departureCity, departureDate: selected.departureDate, returnDate: selected.returnDate, amount: selectedPrice * totalTravelers, method: paymentMethod === "Tarjeta de crédito" ? `Tarjeta de crédito · ${checkoutInstallments} cuota(s)` : (paymentMethod || "Medio de pago de demostración"), status: "Acreditado", date: todayISO, travelers: totalTravelers, nights: selected.nights ?? (selected.days ? selected.days - 1 : undefined), passengers } , ...items]);
+    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, contactEmail: passengerEmail.trim(), contactPhone: passengerPhone.trim(), destination: selected.name, departureCity: selected.departureCity, departureDate: selected.departureDate, returnDate: selected.returnDate, amount: selectedPrice * totalTravelers, method: paymentMethod === "Tarjeta de crédito" ? `Tarjeta de crédito · ${checkoutInstallments} cuota(s)` : (paymentMethod || "Medio de pago de demostración"), status: "Acreditado", date: todayISO, travelers: totalTravelers, nights: selected.nights ?? (selected.days ? selected.days - 1 : undefined), passengers } , ...items]);
     addNotification("Pago aprobado", `El pago de tu reserva ${id} para ${selected.name} fue aprobado (simulación).`, "payment");
     addNotification("Reserva confirmada", `Tu reserva para ${selected.name} (${id}) quedó confirmada.`, "booking");
   };
@@ -503,6 +505,8 @@ export default function App() {
       ["Código de reserva", reservationReference],
       ["Destino", `${selected.name} · ${selected.country}`],
       ["Pasajeros", String(totalTravelers)],
+      ["Correo electrónico", passengerEmail || "No informado"],
+      ["Teléfono de contacto", passengerPhone || "No informado"],
       ["Salida desde", selected.departureCity || "A confirmar"],
       ["Fecha de ida", selected.departureDate ? formatTravelDate(selected.departureDate) : "A confirmar"],
       ["Fecha de vuelta", selected.returnDate ? formatTravelDate(selected.returnDate) : "A confirmar"],
@@ -943,6 +947,10 @@ export default function App() {
             </div>
             {reservationPackage?.description && <p className="reservation-description">{reservationPackage.description}</p>}
             {reservationPackage?.includes?.length ? <div className="reservation-includes"><h3>Servicios incluidos en el paquete</h3><ul>{reservationPackage.includes.map((item,index)=><li key={(item.title || "servicio") + "-" + index}><Check size={15}/><span><b>{item.title}</b>{item.description && <small>{item.description}</small>}</span></li>)}</ul></div> : null}
+          </section>
+          <section className="reservation-detail-card">
+            <div className="reservation-card-title"><span><Mail/></span><div><h2>Datos de contacto</h2><p>Información para comunicarnos sobre tu reserva</p></div></div>
+            <div className="reservation-contact-grid"><div><small>Correo electrónico</small><b>{entry?.contactEmail || "No informado"}</b></div><div><small>Teléfono de contacto</small><b>{entry?.contactPhone || "No informado"}</b></div></div>
           </section>
           <section className="reservation-detail-card">
             <div className="reservation-card-title"><span><Users/></span><div><h2>Datos de los pasajeros</h2><p>Personas registradas para esta reserva</p></div></div>
