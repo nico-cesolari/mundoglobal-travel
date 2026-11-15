@@ -2980,3 +2980,15 @@ body{zoom:.9;}
   visibility:visible!important;
   opacity:1!important;
 }
+
+/* Colores diferenciados para las etiquetas de disponibilidad en Inicio */
+.destination-reference .destination-photo .destination-badge.destination-badge-scarcity{
+  background:#FEE4E2!important;
+  color:#B42318!important;
+  border:1px solid #FDA29B;
+}
+.destination-reference .destination-photo .destination-badge.destination-badge-validity{
+  background:#DCFCE7!important;
+  color:#166534!important;
+  border:1px solid #86EFAC;
+}
