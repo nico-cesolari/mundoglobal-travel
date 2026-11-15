@@ -394,7 +394,7 @@ export default function App() {
     (!origin.trim() || (p.departureCity ?? "").toLowerCase().includes(origin.trim().split(",")[0].toLowerCase())) &&
     (`${p.name} ${p.country}`.toLowerCase().includes(query.trim().split(",")[0].trim().toLowerCase())) &&
     (!p.price || (p.price >= minPrice && p.price <= maxPrice)) &&
-    (!onlyOffers || p.tag === "¡Oferta!") &&
+    (!onlyOffers || p.flags?.promo || p.tag === "¡Oferta!") &&
     (!topRatedOnly || (p.rating ?? 0) >= 4.8) &&
     (!date || !p.departureDate || p.departureDate >= date) && (!returnDate || !p.returnDate || p.returnDate <= returnDate)
   ), [category, query, origin, employeePackages, maxPrice, onlyOffers, topRatedOnly, date, returnDate]);
