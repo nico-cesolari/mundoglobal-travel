@@ -3051,3 +3051,27 @@ body{zoom:.9;}
 /* Etiqueta de precio estimado en tarjetas de catálogo */
 .price-line-main{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
 .price-line-main small{color:#71819a;font-size:9px;line-height:1.25;font-weight:650}
+
+/* Rango completo de fechas en las tarjetas de paquetes */
+.package-schedule-inline{
+  display:flex;
+  align-items:flex-start;
+  gap:5px;
+  margin:0 0 10px;
+  color:#526681;
+  font-size:9px;
+  line-height:1.4;
+  font-weight:650;
+}
+.package-schedule-inline svg{
+  flex:0 0 12px;
+  margin-top:1px;
+  color:#1e4fd8;
+}
+.package-date-range{
+  color:#526681;
+  font-weight:700;
+}
+.package-date-range svg{
+  flex:0 0 12px;
+}
