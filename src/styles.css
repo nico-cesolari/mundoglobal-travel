@@ -2578,7 +2578,7 @@ body{zoom:.9;}
 .file-upload-field input[type=file]::file-selector-button:hover{filter:brightness(1.08);box-shadow:0 5px 13px rgba(36,86,199,.25);transform:translateY(-1px);}
 .file-upload-field input[type=file]:hover{border-color:#a9bee6;background:#fbfcff;}
 .file-upload-field input[type=file]:focus-visible{outline:3px solid rgba(57,120,232,.2);outline-offset:2px;border-color:#3978e8;}
-.file-upload-field small{color:#7b8aa2;font-size:9px;}
+.file-upload-field small{color:#7b8aa2;font-size:9px;}.file-upload-selected{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 11px;border:1px solid #dce5f2;border-radius:9px;background:#fff;}.file-upload-selected>span{display:flex;align-items:center;gap:9px;min-width:0;color:#2450a4;}.file-upload-selected>span>span{display:flex;flex-direction:column;gap:3px;min-width:0;}.file-upload-selected b{overflow-wrap:anywhere;color:#344768;font-size:10px;}.file-upload-selected small{color:#7b8aa2;font-size:9px;}.file-upload-remove{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:30px;padding:0 10px;border:1px solid #f0caca;border-radius:8px;background:#fff7f7;color:#b42318;font-size:10px;font-weight:750;cursor:pointer;}.file-upload-remove:hover{background:#feecec;border-color:#e8aaaa;}
 .booking-list-copy{min-width:0;}
 .booking-document-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px;}
 .booking-document-actions button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:30px;padding:0 9px;border:1px solid #d9e4f5;border-radius:8px;background:#f7f9fe;color:#2450a4;font-size:9px;font-weight:750;}
