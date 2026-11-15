@@ -406,3 +406,6 @@
 .package-hotel-map{height:280px;margin-top:14px;overflow:hidden;border:1px solid #e2e9f3;border-radius:14px;background:#edf2f8}
 .package-hotel-map iframe{width:100%;height:100%;border:0}
 @media(max-width:700px){.package-hotel-card{grid-template-columns:1fr}.package-hotel-photo,.package-hotel-photo img{min-height:210px;height:210px}.package-hotel-copy{padding:20px}.package-hotel-map{height:230px}}
+.package-booking-meta>span{
+  line-height:1.4;
+}
