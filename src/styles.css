@@ -2943,3 +2943,16 @@ body{zoom:.9;}
   .package-photo-badges{top:8px;left:8px;gap:5px;max-width:calc(100% - 44px)}
   .package-scarcity-badge,.package-validity-badge{font-size:8px;padding:5px 7px}
 }
+
+
+/* Etiquetas de cupos y vigencia para las tarjetas de destinos del inicio */
+.destination-badge-scarcity{
+  background:#fff0e8;
+  color:#a13d16;
+}
+.destination-badge-validity{
+  background:rgba(7,29,72,.9);
+  color:#fff;
+}
+.destination-badge-scarcity svg,
+.destination-badge-validity svg{flex:0 0 auto}
