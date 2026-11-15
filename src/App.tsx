@@ -525,9 +525,9 @@ export default function App() {
       <div><div className="brand brand-light"><img className="brand-logo brand-logo-light" src="/images/mundoglobal_travel.svg" alt="MundoGlobal Travel" /></div><p>Tu mundo, nuestro destino.<br/>Viajá más lejos, viví más experiencias.</p><div className="socials"><Facebook/><Instagram/><Youtube/><Linkedin/></div></div>
       <div><b>Explorá</b><button onClick={() => go("results")}>Paquetes</button><button onClick={() => go("results")}>Destinos</button><button onClick={() => go("results")}>Ofertas</button></div>
       <div><b>Ayuda</b><button onClick={() => go("support")}>Preguntas frecuentes</button><button onClick={() => go("support")}>Contacto</button><button onClick={() => go("support")}>Asistencia al viajero</button></div>
-      <div><b>Medios de pago</b><div className="payment-tags"><span>VISA</span><span>mastercard</span><span>Transferencia</span></div><p className="secure-note"><ShieldCheck size={16}/> Compra segura y protegida</p><button className="footer-employee-link" onClick={() => go("employee")}>Acceso para empleados <ArrowRight size={13}/></button></div>
+      <div><b>Medios de pago</b><div className="payment-tags"><span>VISA</span><span>mastercard</span><span>Transferencia</span></div><p className="secure-note"><ShieldCheck size={16}/> Medios de pago ilustrativos</p><button className="footer-employee-link" onClick={() => go("employee")}>Acceso para empleados <ArrowRight size={13}/></button></div>
     </div>
-    <div className="footer-bottom"><span>© 2026 MundoGlobal Travel. Todos los derechos reservados.</span><span>Turismo · Privacidad · Cookies</span></div>
+    <div className="footer-bottom"><span>© 2026 MundoGlobal Travel · Proyecto académico</span><span>Simulación: pagos y reservas no comerciales</span></div>
   </footer>;
 
   const renderPackageCard = (p: Package, featured = false) => <article key={p.id} className={`package-card ${featured ? "featured" : ""}`}>
@@ -638,7 +638,7 @@ export default function App() {
     <div className="hero-copy">
       <span className="eyebrow hero-trust-badge"><Plane size={15} fill="currentColor"/> MundoGlobal Travel · Experiencia interactiva</span>
       <h1>El mundo está<br/><span className="hero-title-line">esperando <em>por vos<svg className="hero-brush" viewBox="0 0 220 18" preserveAspectRatio="none" aria-hidden="true"><path d="M3 12 C55 2 128 4 215 9 C158 13 65 17 3 12Z" fill="#F5B93A"/></svg></em></span></h1>
-      <p>Encontrá tu próximo viaje en un solo lugar: vuelos, hoteles y paquetes con atención personalizada.</p>
+      <p>Explorá paquetes, compará sus servicios y completá una reserva en una experiencia simple e intuitiva.</p>
       <div className="hero-buttons">
         <button className="yellow-btn" onClick={() => {setOnlyOffers(false);setCategory("Todos");go("results");}}>Explorar destinos <ArrowRight size={16}/></button>
         <button className="ghost-btn" onClick={() => {setCategory("Todos");setOnlyOffers(true);go("results");}}><Tag size={16}/> Ver ofertas</button>
