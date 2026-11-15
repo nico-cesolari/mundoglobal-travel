@@ -2697,3 +2697,18 @@ body{zoom:.9;}
     white-space: nowrap;
   }
 }
+
+
+/* Tarjetas de confianza: bloque cercano y visual en la portada */
+.trust-section{width:min(100% - 40px,1240px);margin:0 auto;padding:30px 0 34px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;background:transparent}
+.trust-card{min-width:0;min-height:178px;padding:22px 24px;border:1px solid #e4ebf5;border-radius:20px;background:#fff;box-shadow:0 7px 22px rgba(24,55,103,.09);display:flex;flex-direction:column;align-items:flex-start;transition:transform .2s ease,box-shadow .2s ease}
+.trust-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(24,55,103,.13)}
+.trust-stars{display:flex;align-items:center;gap:3px;color:#f6ad16;margin-bottom:10px}
+.trust-card h3{margin:0 0 6px;color:#1c3154;font-size:clamp(14px,1.25vw,17px);font-weight:800;line-height:1.3}
+.trust-card p{margin:0 0 18px;color:#71809a;font-size:12px;line-height:1.5}
+.trust-card-footer{display:flex;align-items:center;gap:11px;margin-top:auto}
+.trust-card-footer b{color:#263d60;font-size:12px;font-weight:750}
+.trust-icon{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:50%;color:#fff}
+.trust-icon-blue{background:#315fd0}.trust-icon-green{background:#13a56b}.trust-icon-purple{background:#8051e8}
+@media(max-width:850px){.trust-section{grid-template-columns:1fr;gap:12px;max-width:620px;padding:24px 0}.trust-card{min-height:0;padding:19px 21px}.trust-card p{margin-bottom:14px}}
+@media(max-width:520px){.trust-section{width:calc(100% - 30px);padding:18px 0 25px;gap:10px}.trust-card{padding:17px;border-radius:16px}.trust-card h3{font-size:14px}.trust-card p{font-size:11px}.trust-card-footer b{font-size:11px}}
