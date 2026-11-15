@@ -362,7 +362,7 @@ export default function App() {
   }, [employeePackages]);
 
   useEffect(() => {
-    if (window.location.pathname === "/employee-login") {
+    if (window.location.pathname === "/employee-login" || (window.location.pathname === "/employee" && !localStorage.getItem("mgt-employee-session"))) {
       window.history.replaceState({}, "", "/iniciar-sesion");
     }
   }, []);
