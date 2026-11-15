@@ -254,7 +254,9 @@ export default function App() {
   const [authEmail, setAuthEmail] = useState(() => readDraft("mgt-draft-auth-email"));
   const [authFullName, setAuthFullName] = useState(() => readDraft("mgt-draft-auth-name"));
   const [authPassword, setAuthPassword] = useState("");
+  const [authPasswordConfirm, setAuthPasswordConfirm] = useState("");
   const [authPasswordVisible, setAuthPasswordVisible] = useState(false);
+  const [authConfirmPasswordVisible, setAuthConfirmPasswordVisible] = useState(false);
   const [contactName, setContactName] = useState(() => readDraft("mgt-draft-contact-name"));
   const [contactEmail, setContactEmail] = useState(() => readDraft("mgt-draft-contact-email"));
   const [contactMessage, setContactMessage] = useState(() => readDraft("mgt-draft-contact-message"));
@@ -746,16 +748,21 @@ export default function App() {
       <p>{register ? "Completá tus datos para comenzar." : "Ingresá tus datos para continuar."}</p>
       <form onSubmit={event => {
         event.preventDefault();
-        if (!authEmail.trim() || !authPassword) { setToast("Completá tu correo y contraseña."); return; }
+        if (!authEmail.trim() || !authPassword || (register && !authPasswordConfirm)) { setToast("Completá todos los campos obligatorios."); return; }
+        if (register && authPassword !== authPasswordConfirm) { setToast("Las contraseñas no coinciden. Revisá ambos campos."); return; }
         if (register && authFullName.trim().length < 3) { setToast("Ingresá tu nombre y apellido."); return; }
         if (!register && authEmail.trim().toLowerCase() === "empleado@mundoglobal.com") {
           employeeLogin(authEmail, authPassword);
           setAuthPassword("");
+          setAuthPasswordConfirm("");
           setAuthEmail("");
           return;
         }
         login(authEmail, register ? authFullName : "");
         setAuthPassword("");
+        setAuthPasswordConfirm("");
+        setAuthPasswordVisible(false);
+        setAuthConfirmPasswordVisible(false);
         setAuthEmail("");
         setAuthFullName("");
         writeDraft("mgt-draft-auth-email", "");
@@ -763,7 +770,8 @@ export default function App() {
       }}>
         {register && <label>Nombre y apellido<input value={authFullName} onChange={event=>setAuthFullName(event.target.value)} autoComplete="name" required minLength={3} maxLength={80} placeholder="Tu nombre completo"/></label>}
         <label>Correo electrónico<div className="input-icon"><Mail/><input type="email" value={authEmail} onChange={event=>setAuthEmail(event.target.value)} autoComplete="email" required placeholder="tu@email.com"/></div></label>
-        <label>Contraseña<div className="input-icon"><LockKeyhole/><input type={authPasswordVisible ? "text" : "password"} value={authPassword} onChange={event=>setAuthPassword(event.target.value)} autoComplete={register ? "new-password" : "current-password"} required placeholder="Tu contraseña"/><button type="button" onClick={()=>setAuthPasswordVisible(visible=>!visible)} aria-label={authPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={authPasswordVisible}>{authPasswordVisible ? <EyeOff/> : <Eye/>}</button></div></label>
+        <label>Contraseña<div className="input-icon"><LockKeyhole/><input type={authPasswordVisible ? "text" : "password"} value={authPassword} onChange={event=>setAuthPassword(event.target.value)} autoComplete={register ? "new-password" : "current-password"} required placeholder="Tu contraseña"/><button type="button" onClick={()=>setAuthPasswordVisible(visible=>!visible)} aria-label={authPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={authPasswordVisible}>{authPasswordVisible ? <Eye/> : <EyeOff/>}</button></div></label>
+        {register && <label>Repetir contraseña<div className="input-icon"><LockKeyhole/><input type={authConfirmPasswordVisible ? "text" : "password"} value={authPasswordConfirm} onChange={event=>setAuthPasswordConfirm(event.target.value)} autoComplete="new-password" required placeholder="Volvé a escribir tu contraseña"/><button type="button" onClick={()=>setAuthConfirmPasswordVisible(visible=>!visible)} aria-label={authConfirmPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={authConfirmPasswordVisible}>{authConfirmPasswordVisible ? <Eye/> : <EyeOff/>}</button></div></label>
         <button className="primary-btn full auth-submit" type="submit">{register ? "Crear cuenta" : "Ingresar"} <ArrowRight size={17}/></button>
       </form>
       <div className="auth-switch">{register ? <>¿Ya tenés cuenta? <button type="button" onClick={()=>go("login")}>Iniciá sesión</button></> : <>¿Todavía no tenés cuenta? <button type="button" onClick={()=>go("register")}>Crear cuenta</button></>}</div>
