@@ -9,7 +9,7 @@ import {
   ChevronDown, MapPin, Clock3, Check, CheckCircle2, Hotel, BedDouble, Stethoscope,
   Luggage, CarFront, LockKeyhole, Mail, Eye, EyeOff, MessageCircle, Bell, SlidersHorizontal,
   Facebook, Instagram, Youtube, Linkedin, Ticket, LogOut, CircleHelp, Sparkles, Phone,
-  DollarSign, TrendingUp, Percent, Building2, ClipboardList, Wallet, Plus
+  DollarSign, TrendingUp, Percent, Building2, ClipboardList, Wallet, Plus, Download, FolderOpen
 } from "lucide-react";
 
 type Page = "home" | "results" | "detail" | "login" | "register" | "checkout" | "account" | "booking-detail" | "support" | "employee";
