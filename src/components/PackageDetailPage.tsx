@@ -173,7 +173,8 @@ export function PackageDetailPage({
   const infoSections = (packageData.infoSections || []).filter(item => item.title && item.description);
   const otherPackages = packages.filter(item => item.id !== packageData.id && item.image);
   const hasFlight = includes.some(item => (item.icon || "").toLowerCase() === "plane");
-  const hasHotel = includes.some(item => ["hotel", "bed"].includes((item.icon || "").toLowerCase()));\n  const hotelMapQuery = encodeURIComponent([packageData.hotelName, packageData.hotelLocation].filter(Boolean).join(", "));
+  const hasHotel = includes.some(item => ["hotel", "bed"].includes((item.icon || "").toLowerCase()));
+  const hotelMapQuery = encodeURIComponent([packageData.hotelName, packageData.hotelLocation].filter(Boolean).join(", "));
 
   useEffect(() => {
     const description = packageData.description || `Conocé el paquete ${packageData.name} de MundoGlobal Travel.`;
