@@ -3075,3 +3075,80 @@ body{zoom:.9;}
 .package-date-range svg{
   flex:0 0 12px;
 }
+
+
+/* Reglas de negocio: reservas duplicadas y cancelaciones */
+.package-already-reserved{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  width:max-content;
+  max-width:100%;
+  margin:5px 0 8px;
+  padding:6px 9px;
+  border-radius:999px;
+  background:#e8f7ee;
+  color:#087a49;
+  font-size:9px;
+  font-weight:800;
+}
+.booking-cancel-button,
+.reservation-cancel-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:34px;
+  padding:8px 11px;
+  border:1px solid #f1b8b8;
+  border-radius:8px;
+  background:#fff6f6;
+  color:#b42318;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease;
+}
+.booking-cancel-button:hover,
+.reservation-cancel-button:hover{
+  background:#feecec;
+  border-color:#e89a9a;
+}
+.booking-status-cancelled{
+  background:#fff0f0!important;
+  color:#b42318!important;
+}
+.reservation-status.cancelled{
+  background:#fff0f0;
+  color:#b42318;
+}
+.payment-cancelled{color:#b42318!important}
+.reservation-cancellation-policy{
+  width:100%;
+  padding:12px 13px;
+  border:1px solid #dce7fa;
+  border-radius:10px;
+  background:#f5f8ff;
+}
+.reservation-cancellation-policy b{
+  display:block;
+  margin-bottom:5px;
+  color:#244978;
+  font-size:10px;
+}
+.reservation-cancellation-policy p{
+  margin:0;
+  color:#5f708d;
+  font-size:9px;
+  line-height:1.55;
+}
+.reservation-cancellation-policy.is-cancelled{
+  border-color:#f1cccc;
+  background:#fff6f6;
+}
+.reservation-cancellation-policy.is-cancelled b,
+.reservation-cancellation-policy.is-cancelled p{color:#a52d2d}
+.reservation-actions-card .reservation-cancel-button{width:100%;min-height:42px;font-size:10px}
+@media(max-width:600px){
+  .booking-cancel-button{min-height:32px;padding:7px 9px;font-size:8px}
+}
