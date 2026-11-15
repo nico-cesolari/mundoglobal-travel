@@ -3047,3 +3047,7 @@ body{zoom:.9;}
   font-weight:500;
   line-height:1.5;
 }
+
+/* Etiqueta de precio estimado en tarjetas de catálogo */
+.price-line-main{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.price-line-main small{color:#71819a;font-size:9px;line-height:1.25;font-weight:650}
