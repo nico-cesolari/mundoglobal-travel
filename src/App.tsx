@@ -507,8 +507,8 @@ export default function App() {
       </button>
       <nav className={mobileMenu ? "nav-links open" : "nav-links"}>
         <button className={activeNav === "Inicio" ? "active" : ""} onClick={() => { setActiveNav("Inicio"); go("home"); }}>Inicio</button>
-        <button className={activeNav === "Paquetes" ? "active" : ""} onClick={() => { setActiveNav("Paquetes"); setCategory("Todos"); go("results"); }}>Paquetes</button>
-        <button className={activeNav === "Destinos" ? "active" : ""} onClick={() => { setActiveNav("Destinos"); setCategory("Ciudades"); go("results"); }}>Destinos</button>
+        <button className={activeNav === "Paquetes" ? "active" : ""} onClick={() => { setActiveNav("Paquetes"); setCategory("Todos"); setOnlyOffers(false); go("results"); }}>Paquetes</button>
+        <button className={activeNav === "Destinos" ? "active" : ""} onClick={() => { setActiveNav("Destinos"); setCategory("Ciudades"); setOnlyOffers(false); go("results"); }}>Destinos</button>
         <button className={activeNav === "Ofertas" ? "active" : ""} onClick={() => { setActiveNav("Ofertas"); setCategory("Todos"); setOnlyOffers(true); go("results"); }}>Ofertas</button>
         <button className={activeNav === "Contacto" ? "active" : ""} onClick={() => { setActiveNav("Contacto"); go("support"); }}>Contacto</button>
       </nav>
@@ -640,7 +640,7 @@ export default function App() {
       <h1>El mundo está<br/><span className="hero-title-line">esperando <em>por vos<svg className="hero-brush" viewBox="0 0 220 18" preserveAspectRatio="none" aria-hidden="true"><path d="M3 12 C55 2 128 4 215 9 C158 13 65 17 3 12Z" fill="#F5B93A"/></svg></em></span></h1>
       <p>Encontrá tu próximo viaje en un solo lugar: vuelos, hoteles y paquetes con atención personalizada.</p>
       <div className="hero-buttons">
-        <button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button>
+        <button className="yellow-btn" onClick={() => {setOnlyOffers(false);setCategory("Todos");go("results");}}>Explorar destinos <ArrowRight size={16}/></button>
         <button className="ghost-btn" onClick={() => {setCategory("Todos");setOnlyOffers(true);go("results");}}><Tag size={16}/> Ver ofertas</button>
       </div>
       <div className="hero-service-tabs" aria-label="Exploración del sitio">
@@ -653,7 +653,7 @@ export default function App() {
   </div>{renderSearchBar()}</section>
   <section className="section destinations-section">
     <div className="category-row destination-filters">
-      {[{name:"Todos",icon:null},{name:"Playas",icon:<Plane size={14}/>},{name:"Ciudades",icon:<Hotel size={14}/>},{name:"Aventuras",icon:<Sparkles size={14}/>},{name:"Cultura",icon:<Star size={14}/>}].map(item=><button type="button" key={item.name} className={category===item.name?"selected":""} onClick={()=>setCategory(item.name)}>{item.icon}{item.name}</button>)}
+      {[{name:"Todos",icon:null},{name:"Playas",icon:<Plane size={14}/>},{name:"Ciudades",icon:<Hotel size={14}/>},{name:"Aventuras",icon:<Sparkles size={14}/>},{name:"Cultura",icon:<Star size={14}/>}].map(item=><button type="button" key={item.name} className={category===item.name?"selected":""} onClick={()=>{setCategory(item.name);setOnlyOffers(false);}}>{item.icon}{item.name}</button>)}
     </div>
     <div className="destination-grid destination-reference">
       {employeePackages.filter(packageHasPhoto).map(p=><article className="destination-card" key={p.id}>
