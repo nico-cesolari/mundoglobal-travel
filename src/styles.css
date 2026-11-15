@@ -2638,3 +2638,62 @@ body{zoom:.9;}
 
 /* Separación visual del código de reserva respecto de las acciones. */
 .checkout-reservation-code{display:flex;flex-direction:column;align-items:center;gap:7px;margin:22px 0 24px;padding:15px 18px;border:1px solid #e4eaf2;border-radius:12px;background:#f8fafc}.checkout-reservation-code span{font-size:12px;color:#64748b}.checkout-reservation-code b{font-size:20px;letter-spacing:1.2px;color:#17345b}
+
+
+/* Buscador: una sola línea en desktop y botón al final */
+@media (min-width: 1024px) {
+  .search-panel {
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-panel > .search-field {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    border-right: 1px solid #e7edf5;
+    border-bottom: 0;
+  }
+
+  .search-panel > .search-field:last-of-type {
+    border-right: 0;
+  }
+
+  .search-panel > .search-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    width: auto;
+    min-width: max-content;
+    margin: 0;
+    padding: 0 28px;
+    align-self: center;
+    white-space: nowrap;
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 1023px) {
+  .search-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  .search-panel > .search-field {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .search-panel > .search-button {
+    width: 100%;
+    flex: 0 0 auto;
+    margin: 10px 0 0;
+    white-space: nowrap;
+  }
+}
