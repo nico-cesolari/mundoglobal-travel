@@ -15,6 +15,15 @@ export type PackageInclude = {
   description?: string;
 };
 
+export type PackageFlightRoute = {
+  departureAirport: string;
+  departureCode: string;
+  arrivalAirport: string;
+  arrivalCode: string;
+  status: "direct" | "connection-required" | "date-to-confirm";
+  note: string;
+};
+
 export type PackageInfoSection = {
   icon?: string;
   title?: string;
@@ -46,6 +55,7 @@ export type PackageDetailData = {
   reviews?: string;
   reviewCount?: number | string;
   departureCity?: string;
+  flightRoute?: PackageFlightRoute;
   departureDate?: string;
   returnDate?: string;
   includes?: PackageInclude[];
@@ -385,6 +395,28 @@ export function PackageDetailPage({
         <span className="package-section-eyebrow">DESCUBRÍ EL DESTINO</span>
         <h2>{packageData.descriptionTitle || `Tu próxima escapada a ${packageData.country || packageData.name}`}</h2>
         <p>{renderBoldText(packageData.description)}</p>
+      </section>}
+
+      {packageData.flightRoute && <section className="package-flight-route-section">
+        <div className="package-flight-route-heading">
+          <span className="package-section-eyebrow">ITINERARIO AÉREO</span>
+          <span className={`package-flight-route-status ${packageData.flightRoute.status}`}>
+            {packageData.flightRoute.status === "direct" ? "Servicio sin escalas publicado" : packageData.flightRoute.status === "connection-required" ? "Requiere al menos una escala" : "Directo no confirmado para esta fecha"}
+          </span>
+        </div>
+        <div className="package-flight-route-journey">
+          <div className="package-flight-route-airport">
+            <small>ORIGEN · {packageData.flightRoute.departureCode}</small>
+            <b>{packageData.flightRoute.departureAirport}</b>
+          </div>
+          <div className="package-flight-route-connector"><Plane size={20}/><span>{packageData.flightRoute.status === "direct" ? "Sin escalas" : packageData.flightRoute.status === "connection-required" ? "Con conexión" : "A confirmar"}</span></div>
+          <div className="package-flight-route-airport">
+            <small>DESTINO · {packageData.flightRoute.arrivalCode}</small>
+            <b>{packageData.flightRoute.arrivalAirport}</b>
+          </div>
+        </div>
+        <p className="package-flight-route-note">{packageData.flightRoute.note}</p>
+        <small className="package-flight-route-disclaimer">La ficha muestra rutas y programación consultada, no disponibilidad en tiempo real. El itinerario final se confirma al cotizar y emitir.</small>
       </section>}
 
       {includes.length > 0 && <section className="package-includes-section">
