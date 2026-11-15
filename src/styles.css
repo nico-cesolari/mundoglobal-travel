@@ -2794,3 +2794,9 @@ body{zoom:.9;}
   .reservation-passenger>div{padding:2px 0}
   .reservation-detail-aside{grid-template-columns:1fr}
 }
+
+.reservation-contact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.reservation-contact-grid>div{display:flex;flex-direction:column;gap:6px;min-width:0;padding:13px;border:1px solid #e9eef6;border-radius:10px;background:#fbfcff}
+.reservation-contact-grid small{font-size:9px;color:var(--muted)}
+.reservation-contact-grid b{font-size:11px;color:#243b60;overflow-wrap:anywhere}
+@media(max-width:580px){.reservation-contact-grid{grid-template-columns:1fr}}
