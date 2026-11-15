@@ -300,6 +300,7 @@ export function PackageDetailPage({
         <span>{packageData.priceApproximate ? "Desde aproximadamente" : "Desde"}</span>
         <strong>{priceLabel}</strong>
         <small>por persona{packageData.price ? " en base doble" : ""}</small>
+        {packageData.priceApproximate && <small className="package-price-estimate-note">Valor referencial consultado el 15/11/2026. Sujeto a cambios, impuestos y disponibilidad al momento de reservar.</small>}
         {originalPriceLabel && savings && <div className="package-saving-row"><del>{originalPriceLabel}</del><span>Ahorrá {money(savings, packageData.currency || "USD")}</span></div>}
         {typeof packageData.price === "number" && packageData.price > 0 && <div className="package-installments"><label htmlFor="package-installment-count">Opciones de pago</label><select id="package-installment-count" value={installmentCount} onChange={event => setInstallmentCount(Number(event.target.value))}><option value={1}>1 pago</option><option value={3}>3 cuotas</option><option value={6}>6 cuotas</option><option value={12}>12 cuotas</option></select><div className="package-installment-result"><strong>{money(installmentAmount, packageData.currency || "USD")}</strong><span>por cuota estimada</span></div><small>Simulación informativa dividida en partes iguales. La financiación, intereses y medios habilitados deben confirmarse al reservar.</small></div>}
       </div>}
