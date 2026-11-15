@@ -593,7 +593,7 @@ export default function App() {
 
   const renderPackageCard = (p: Package, featured = false) => <article key={p.id} className={`package-card ${featured ? "featured" : ""}`}>
     <div className="package-photo"><SmartImage className="package-smart-image" src={p.image} alt={p.name} preset="card-standard" ratio="4/3" fit="cover" focalPoint={p.focalPoint} safeArea={p.safeArea} priority={featured && p.id <= 4}/>
-      {(p.tag || p.fewSeats || p.validUntil) && <div className="package-photo-badges">{p.tag && <span className="offer-tag">{p.tag}</span>}{p.fewSeats && <span className="package-scarcity-badge"><Users size={11}/> Pocos cupos</span>}{p.validUntil && <span className="package-validity-badge"><CalendarDays size={11}/> Válido hasta {formatTravelDate(p.validUntil)}</span>}</div>}
+      {(p.tag || p.fewSeats || (p.validUntil && p.validUntil >= todayISO)) && <div className="package-photo-badges">{p.tag && <span className="offer-tag">{p.tag}</span>}{p.fewSeats && <span className="package-scarcity-badge"><Users size={11}/> Pocos cupos</span>}{p.validUntil && p.validUntil >= todayISO && <span className="package-validity-badge"><CalendarDays size={11}/> Válido hasta {formatTravelDate(p.validUntil)}</span>}</div>}
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
     <div className="package-info">
