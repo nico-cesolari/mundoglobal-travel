@@ -509,7 +509,7 @@ export default function App() {
         <button className={activeNav === "Inicio" ? "active" : ""} onClick={() => { setActiveNav("Inicio"); go("home"); }}>Inicio</button>
         <button className={activeNav === "Paquetes" ? "active" : ""} onClick={() => { setActiveNav("Paquetes"); setCategory("Todos"); go("results"); }}>Paquetes</button>
         <button className={activeNav === "Destinos" ? "active" : ""} onClick={() => { setActiveNav("Destinos"); setCategory("Ciudades"); go("results"); }}>Destinos</button>
-        <button className={activeNav === "Ofertas" ? "active" : ""} onClick={() => { setActiveNav("Ofertas"); setCategory("Todos"); go("results"); }}>Ofertas</button>
+        <button className={activeNav === "Ofertas" ? "active" : ""} onClick={() => { setActiveNav("Ofertas"); setCategory("Todos"); setOnlyOffers(true); go("results"); }}>Ofertas</button>
         <button className={activeNav === "Contacto" ? "active" : ""} onClick={() => { setActiveNav("Contacto"); go("support"); }}>Contacto</button>
       </nav>
       <div className="nav-actions">
@@ -636,18 +636,18 @@ export default function App() {
   const renderHome = () => <><section className="hero-shell"><div className="hero hero-reference">
     <div className="hero-art" aria-hidden="true"><SmartImage className="hero-smart-image" src="/images/hero-mundo.svg" alt="" preset="hero" ratio="auto" focalPoint={{x:72,y:50}} fit="cover" priority/></div>
     <div className="hero-copy">
-      <span className="eyebrow hero-trust-badge"><Plane size={15} fill="currentColor"/> Más de 2 millones de viajeros felices</span>
+      <span className="eyebrow hero-trust-badge"><Plane size={15} fill="currentColor"/> MundoGlobal Travel · Experiencia interactiva</span>
       <h1>El mundo está<br/><span className="hero-title-line">esperando <em>por vos<svg className="hero-brush" viewBox="0 0 220 18" preserveAspectRatio="none" aria-hidden="true"><path d="M3 12 C55 2 128 4 215 9 C158 13 65 17 3 12Z" fill="#F5B93A"/></svg></em></span></h1>
       <p>Encontrá tu próximo viaje en un solo lugar: vuelos, hoteles y paquetes con atención personalizada.</p>
       <div className="hero-buttons">
         <button className="yellow-btn" onClick={() => go("results")}>Explorar destinos <ArrowRight size={16}/></button>
-        <button className="ghost-btn" onClick={() => go("results")}><Tag size={16}/> Ver oferta</button>
+        <button className="ghost-btn" onClick={() => {setCategory("Todos");setOnlyOffers(true);go("results");}}><Tag size={16}/> Ver ofertas</button>
       </div>
-      <div className="hero-service-tabs" aria-label="Servicios de viaje">
-        <button className="active" type="button" onClick={() => go("results")}><Globe2 size={17}/> Paquetes</button>
-        <button type="button" onClick={() => go("results")}><Plane size={17}/> Vuelos</button>
-        <button type="button" onClick={() => go("results")}><Hotel size={17}/> Hoteles</button>
-        <button type="button" onClick={() => go("results")}><CarFront size={17}/> Autos</button>
+      <div className="hero-service-tabs" aria-label="Exploración del sitio">
+        <button className="active" type="button" onClick={() => {setOnlyOffers(false);setCategory("Todos");go("results");}}><Globe2 size={17}/> Paquetes</button>
+        <button type="button" onClick={() => {setCategory("Ciudades");setOnlyOffers(false);go("results");}}><MapPin size={17}/> Destinos</button>
+        <button type="button" onClick={() => {setCategory("Todos");setOnlyOffers(true);go("results");}}><Tag size={17}/> Ofertas</button>
+        <button type="button" onClick={() => go("support")}><Headphones size={17}/> Ayuda</button>
       </div>
     </div>
   </div>{renderSearchBar()}</section>
@@ -662,11 +662,11 @@ export default function App() {
       </article>)}
     </div>
   </section>
-  <section className="benefit-strip"><div><span><Plane/></span><b>Turnos y pagos<small>100% online</small></b></div><div><span><ShieldCheck/></span><b>Compra segura<small>Tus datos protegidos</small></b></div><div><span><Headphones/></span><b>Atención al cliente<small>Soporte 24/7</small></b></div><div><span><CreditCard/></span><b>Múltiples medios<small>de pago</small></b></div></section>
+  <section className="benefit-strip"><div><span><Globe2/></span><b>Destinos variados<small>Un catálogo en un solo lugar</small></b></div><div><span><CalendarDays/></span><b>Datos del viaje<small>Fechas y noches visibles</small></b></div><div><span><Headphones/></span><b>Canal de consultas<small>Contacto con el equipo</small></b></div><div><span><CreditCard/></span><b>Opciones de pago<small>Flujo de reserva simulado</small></b></div></section>
   <section className="section offers-section">
     <div className="offer-grid offer-reference">{employeePackages.filter(p=>p.flags?.promo || p.tag === "¡Oferta!").slice(0,3).map(p=>renderPackageCard(p,true))}</div>
   </section>
-  <section className="trust-section"><div className="trust-card"><div className="stars">★★★★★</div><h3>Miles de viajeros ya confían en nosotros</h3><p>Calidad y experiencias únicas en todo el mundo.</p><b>+50.000 viajeros</b></div><div className="trust-card"><div className="stars">★★★★★</div><h3>Los mejores precios del mercado</h3><p>Encontrá las mejores ofertas y ahorrá más.</p><b><ShieldCheck size={17}/> Compra segura</b></div><div className="trust-card"><div className="stars">★★★★★</div><h3>Atención personalizada</h3><p>Estamos para ayudarte en todo momento.</p><b><MessageCircle size={17}/> Chat 24/7</b></div></section>
+  <section className="trust-section"><div className="trust-card"><div className="stars"><Globe2 size={20}/></div><h3>Catálogo centralizado</h3><p>Explorá destinos, categorías y paquetes desde una misma plataforma.</p><b>Exploración sencilla</b></div><div className="trust-card"><div className="stars"><CalendarDays size={20}/></div><h3>Información organizada</h3><p>Consultá duración, fechas, servicios incluidos y valores de referencia.</p><b>Detalles del paquete</b></div><div className="trust-card"><div className="stars"><MessageCircle size={20}/></div><h3>Acompañamiento</h3><p>Accedé al canal de consultas y al seguimiento de tus reservas de prueba.</p><b>Atención centralizada</b></div></section>
   <section className="newsletter"><div className="newsletter-icon"><Mail/></div><div><h3>¿Buscás más ayuda?</h3><p>Suscribite y recibí las mejores ofertas en tu email.</p></div><form onSubmit={e=>{e.preventDefault();if(!newsletterEmail.trim())return;setToast("¡Gracias por suscribirte!");setNewsletterEmail("");}}><input type="email" value={newsletterEmail} onChange={e=>setNewsletterEmail(e.target.value)} required placeholder="Tu email aquí..."/><button className="yellow-btn">Suscribirme <ArrowRight size={15}/></button></form></section>
   </>;
 
