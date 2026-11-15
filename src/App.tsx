@@ -155,6 +155,30 @@ const demoIncomeEntries: IncomeEntry[] = [
   { id: 2, reference: "MG-20480", client: "Lucas Fernández", destination: "Roma", departureCity: "Buenos Aires, Argentina", departureDate: "2027-04-03", returnDate: "2027-04-10", amount: 2450, method: "Transferencia", status: "Pendiente", date: "12/11/2026" },
   { id: 4, reference: "MG-20478", client: "Tomás Romero", destination: "Camboriú", departureCity: "Córdoba, Argentina", departureDate: "2027-01-07", returnDate: "2027-01-14", amount: 795, method: "Tarjeta de débito", status: "Pendiente", date: "10/11/2026" }
 ];
+
+const loadSavedReservationEntries = (): IncomeEntry[] => {
+  const parseEntries = (key: string): IncomeEntry[] => {
+    try {
+      const parsed: unknown = JSON.parse(readDraft(key, "[]"));
+      return Array.isArray(parsed) ? (parsed as IncomeEntry[]).filter(item => item && typeof item.reference === "string") : [];
+    } catch {
+      return [];
+    }
+  };
+  const sources = [...parseEntries("mgt-income-entries"), ...parseEntries("mgt-reservations")];
+  const byReference = new Map<string, IncomeEntry>();
+  sources.forEach(item => {
+    const previous = byReference.get(item.reference);
+    const definedFields = Object.fromEntries(Object.entries(item).filter(([, value]) => value !== undefined && value !== null));
+    byReference.set(item.reference, { ...previous, ...definedFields } as IncomeEntry);
+  });
+  return [...byReference.values()];
+};
+
+const loadIncomeEntries = (): IncomeEntry[] => {
+  const savedEntries = loadSavedReservationEntries();
+  return savedEntries.length ? savedEntries : demoIncomeEntries;
+};
 const PACKAGE_PRICE_CATALOG_VERSION = "2026-11-15-realistic-v4";
 
 const PACKAGE_PRICE_OVERRIDES: Record<number, Partial<Package>> = {
@@ -215,7 +239,7 @@ export default function App() {
   const [focalEditPackageId, setFocalEditPackageId] = useState(1);
   const [employee, setEmployee] = useState(employeeSession);
   const [employeeTab, setEmployeeTab] = useState<"overview" | "packages" | "offers" | "quotes" | "income" | "messages" | "bookings" | "claims">("overview");
-  const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>(() => { const saved = readDraft("mgt-income-entries"); if (saved) { try { const parsed = JSON.parse(saved) as IncomeEntry[]; if (Array.isArray(parsed)) return parsed; } catch { /* Datos de demostración. */ } } return demoIncomeEntries; });
+  const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>(() => loadIncomeEntries());
   const [incomeConcept, setIncomeConcept] = useState(() => readDraft("mgt-draft-income-concept"));
   const [incomeAmount, setIncomeAmount] = useState(() => readDraft("mgt-draft-income-amount"));
   const [offerPackageId, setOfferPackageId] = useState(1);
@@ -368,7 +392,7 @@ export default function App() {
     localStorage.setItem("mgt-packages", JSON.stringify(employeePackages.filter(packageHasPhoto)));
   }, [employeePackages]);
   useEffect(() => { localStorage.setItem("mgt-favorites", JSON.stringify(favorites)); }, [favorites]);
-  useEffect(() => { localStorage.setItem("mgt-income-entries", JSON.stringify(incomeEntries)); }, [incomeEntries]);
+  useEffect(() => { localStorage.setItem("mgt-income-entries", JSON.stringify(incomeEntries)); localStorage.setItem("mgt-reservations", JSON.stringify(incomeEntries.filter(entry => entry.reference.startsWith("MGT-") || entry.reference.startsWith("MG-")))); }, [incomeEntries]);
   useEffect(() => { localStorage.setItem("mgt-staff-messages", JSON.stringify(staffMessages)); }, [staffMessages]);
 
   useEffect(() => {
@@ -537,9 +561,37 @@ export default function App() {
     const passengers: BookingPassenger[] = [{ fullName: cleanName, documentNumber: passengerDocument.trim(), birthDate: passengerBirthDate, nationality: passengerNationality.trim() }, ...additionalPassengers.map(p => ({ ...p, fullName: p.fullName.trim(), documentNumber: p.documentNumber.trim(), nationality: p.nationality.trim() }))];
     const id = `MGT-${Math.floor(100000 + Math.random() * 900000)}`;
     setReservationReference(id);
-    const next = [...bookings, `${selected.name} · ${id} · ${money(selectedPrice * totalTravelers, selected.currency)} · Sale desde ${selected.departureCity} · Ida ${formatTravelDate(selected.departureDate)} · Vuelta ${formatTravelDate(selected.returnDate)}`];
-    setBookings(next); localStorage.setItem("mgt-bookings", JSON.stringify(next));
-    setIncomeEntries(items => [{ id: Date.now(), reference: id, client: cleanName, contactEmail: passengerEmail.trim(), contactPhone: passengerPhone.trim(), destination: selected.name, departureCity: selected.departureCity, departureDate: selected.departureDate, returnDate: selected.returnDate, amount: selectedPrice * totalTravelers, currency: selected.currency || "USD", method: paymentMethod === "Tarjeta de crédito" ? `Tarjeta de crédito · ${checkoutInstallments} cuota(s)` : (paymentMethod || "Medio de pago de demostración"), status: "Acreditado", date: todayISO, travelers: totalTravelers, nights: selected.nights ?? (selected.days ? selected.days - 1 : undefined), passengers } , ...items]);
+    const reservationEntry: IncomeEntry = {
+      id: Date.now(),
+      reference: id,
+      client: cleanName,
+      contactEmail: passengerEmail.trim(),
+      contactPhone: passengerPhone.trim(),
+      destination: selected.name,
+      departureCity: selected.departureCity,
+      departureDate: selected.departureDate,
+      returnDate: selected.returnDate,
+      amount: selectedPrice * passengers.length,
+      currency: selected.currency || "USD",
+      method: paymentMethod === "Tarjeta de crédito" ? `Tarjeta de crédito · ${checkoutInstallments} cuota(s)` : (paymentMethod || "Medio de pago de demostración"),
+      status: "Acreditado",
+      date: todayISO,
+      travelers: passengers.length,
+      nights: selected.nights ?? (selected.days ? selected.days - 1 : undefined),
+      passengers
+    };
+    const next = [...bookings, `${selected.name} · ${id} · ${money(selectedPrice * passengers.length, selected.currency)} · Sale desde ${selected.departureCity} · Ida ${formatTravelDate(selected.departureDate)} · Vuelta ${formatTravelDate(selected.returnDate)}`];
+    setBookings(next);
+    try {
+      localStorage.setItem("mgt-bookings", JSON.stringify(next));
+      const storedEntries = loadSavedReservationEntries().filter(item => item.reference !== id);
+      const nextEntries = [reservationEntry, ...storedEntries];
+      localStorage.setItem("mgt-reservations", JSON.stringify(nextEntries));
+      localStorage.setItem("mgt-income-entries", JSON.stringify(nextEntries));
+    } catch {
+      setToast("La reserva se creó, pero no se pudo guardar todo el detalle en el navegador.");
+    }
+    setIncomeEntries(items => [reservationEntry, ...items.filter(item => item.reference !== id)]);
     addNotification("Pago aprobado", `El pago de tu reserva ${id} para ${selected.name} fue aprobado (simulación).`, "payment");
     addNotification("Reserva confirmada", `Tu reserva para ${selected.name} (${id}) quedó confirmada.`, "booking");
   };
@@ -1002,7 +1054,7 @@ export default function App() {
   </section></div></main>;
 
   const renderBookingDetail = () => {
-    const entry = incomeEntries.find(item => item.reference === selectedBookingReference);
+    const entry = incomeEntries.find(item => item.reference === selectedBookingReference) ?? loadSavedReservationEntries().find(item => item.reference === selectedBookingReference);
     const bookingSummary = bookings.find(item => item.split(" · ")[1] === selectedBookingReference);
     const summaryParts = bookingSummary?.split(" · ") ?? [];
     const destinationName = entry?.destination || summaryParts[0] || "Reserva";
@@ -1041,7 +1093,7 @@ export default function App() {
           </section>
           <section className="reservation-detail-card">
             <div className="reservation-card-title"><span><Mail/></span><div><h2>Datos de contacto</h2><p>Información para comunicarnos sobre tu reserva</p></div></div>
-            <div className="reservation-contact-grid"><div><small>Correo electrónico</small><b>{entry?.contactEmail || "No informado"}</b></div><div><small>Teléfono de contacto</small><b>{entry?.contactPhone || "No informado"}</b></div></div>
+            <div className="reservation-contact-grid"><div><small>Nombre del titular</small><b>{entry?.client || "No registrado"}</b></div><div><small>Correo electrónico</small><b>{entry?.contactEmail || "No informado"}</b></div><div><small>Teléfono de contacto</small><b>{entry?.contactPhone || "No informado"}</b></div></div>
           </section>
           <section className="reservation-detail-card">
             <div className="reservation-card-title"><span><Users/></span><div><h2>Datos de los pasajeros</h2><p>Personas registradas para esta reserva</p></div></div>
@@ -1063,7 +1115,7 @@ export default function App() {
           </section>
         </aside>
       </div>
-      {!entry && <div className="reservation-demo-note reservation-missing-note">Esta reserva fue guardada en una versión anterior y no contiene todos los datos detallados. Se muestran los datos básicos que siguen disponibles.</div>}
+      {!entry && <div className="reservation-demo-note reservation-missing-note">Esta reserva fue creada antes de la actualización del registro completo. Los datos que no se hayan guardado en ese momento no se pueden recuperar; las nuevas reservas conservarán pasajeros, contacto, origen, fecha y medio de pago.</div>}
     </main>;
   };
 
