@@ -3541,3 +3541,167 @@ body{zoom:.9;}
   .results-grid .package-card-facts svg{width:17px;height:17px;}
   .results-grid .package-photo .heart{width:40px;height:40px;}
 }
+
+
+/* Ajustes responsive de la barra de búsqueda y tarjetas de paquetes */
+.results-grid .package-card{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  height:100%;
+}
+.results-grid .package-info{
+  flex:1 1 auto;
+  min-width:0;
+}
+.results-grid .package-card-description{
+  position:relative;
+  z-index:1;
+  flex:0 0 auto;
+  overflow-wrap:anywhere;
+}
+.results-grid .offer-reserve{
+  position:relative;
+  z-index:2;
+  flex:0 0 48px;
+  margin-top:auto;
+  white-space:nowrap;
+}
+.search-panel{
+  grid-template-columns:minmax(160px,1fr) minmax(160px,1fr) auto auto auto auto;
+  gap:0;
+}
+.search-field.location-field{
+  flex:1 1 0;
+  min-width:160px;
+  padding:6px 12px;
+}
+.search-field.location-field .field-icon{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+}
+.search-field.location-field .search-field-copy{
+  flex:1 1 0;
+  min-width:0;
+}
+.search-field.location-field small{
+  font-size:13px;
+  line-height:1.2;
+  font-weight:600;
+  white-space:nowrap;
+}
+.search-field.location-field input{
+  display:block;
+  width:100%;
+  min-width:0;
+  padding:2px 0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#344768;
+  font-size:16px;
+  font-weight:600;
+}
+.search-field.location-field input::placeholder{
+  color:#94A3B8;
+  font-size:16px;
+  font-weight:500;
+  opacity:1;
+  text-overflow:ellipsis;
+}
+.search-field.date-range-field,
+.search-field.passenger-search-field,
+.search-field.accommodation-field{
+  flex:0 0 auto;
+  min-width:0;
+  padding-left:12px;
+  padding-right:12px;
+}
+.search-field.location-field .location-suggestions{
+  min-width:220px;
+}
+@media (min-width:1280px){
+  .search-field.location-field input{font-size:16px}
+  .search-field.location-field input::placeholder{font-size:16px}
+}
+@media (min-width:768px) and (max-width:1279px){
+  .search-panel{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    row-gap:8px;
+  }
+  .search-field.location-field{
+    min-width:0;
+    padding:6px 10px;
+  }
+  .search-field.location-field .field-icon{
+    width:40px;
+    height:40px;
+    flex-basis:40px;
+  }
+  .search-field.location-field input,
+  .search-field.location-field input::placeholder{
+    font-size:15px;
+  }
+  .search-field.date-range-field,
+  .search-field.passenger-search-field,
+  .search-field.accommodation-field{
+    border-right:1px solid #e7edf5;
+  }
+  .search-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .search-panel>.search-actions{
+    grid-column:1 / -1;
+    justify-content:flex-end;
+    padding:6px 10px 0;
+  }
+}
+@media (max-width:767px){
+  .search-panel,
+  .results-search .search-panel{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:6px;
+  }
+  .search-field.location-field,
+  .search-field.date-range-field,
+  .search-field.passenger-search-field,
+  .search-field.accommodation-field{
+    width:100%;
+    min-width:0;
+    flex:1 1 auto;
+    padding:9px 8px;
+    border-right:0;
+    border-bottom:1px solid #edf0f6;
+  }
+  .search-field.location-field .search-field-copy{
+    min-width:0;
+  }
+  .search-field.location-field input,
+  .search-field.location-field input::placeholder{
+    font-size:16px;
+  }
+  .search-field.location-field input{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .search-panel>.search-actions{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:6px;
+    padding:4px 0 0;
+  }
+  .search-panel .search-button{
+    width:100%;
+    min-height:46px;
+  }
+}
