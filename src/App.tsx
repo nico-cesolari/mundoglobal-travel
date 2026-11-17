@@ -894,7 +894,8 @@ export default function App() {
       <button type="button" className={`heart ${animatingFavorite === p.id ? "animate-heart" : ""} ${favorites.includes(p.id) ? "liked" : ""}`} onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(p.id); }} aria-label="Guardar favorito"><Heart size={18} fill={favorites.includes(p.id) ? "currentColor" : "none"}/></button>
     </div>
     <div className="package-info">
-      <div className="package-heading"><div><h3>{p.name}</h3><p>{p.country} <span>·</span> {p.category}</p></div></div>
+      <div className="package-heading"><div><h3>{p.name}</h3><p>{p.country} <span>·</span> {p.category}</p></div>{p.rating && <span className="package-card-rating"><Star size={16} fill="currentColor"/> {p.rating.toFixed(1)}</span>}</div>
+      {p.description && <p className="package-card-description">{p.description}</p>}
       {findExistingReservation(p) && <span className="package-already-reserved"><CheckCircle2 size={12}/> Ya tenés una reserva activa</span>}
       {(p.rating || (p.reviews && p.reviews !== "0")) && <div className="offer-rating"><Star size={13} fill="currentColor"/> {p.rating ? p.rating.toFixed(1) : ""} {p.reviews && p.reviews !== "0" ? <small>({p.reviews})</small> : null}{p.tag==="¡Oferta!" && discount(p)>0 && <span className="discount">{discount(p)}% OFF</span>}</div>}
       <div className="price-line"><div className="price-line-main">{p.priceApproximate && <small>Desde aproximadamente · por persona en base doble</small>}<strong>{money(p.price, p.currency)}</strong></div>{(p.originalPrice ?? p.oldPrice) && <del>{money(p.originalPrice ?? p.oldPrice, p.currency)}</del>}</div>
