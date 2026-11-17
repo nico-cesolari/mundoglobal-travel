@@ -988,25 +988,27 @@ export default function App() {
           <select value={accommodation} onChange={e => setAccommodation(e.target.value)}><option>Todos</option><option>All Inclusive</option><option>Media pensión</option><option>Solo alojamiento</option></select>
         </span>
       </label>
-      <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={17}/> Buscar</>}</button>
-      <button type="button" className="search-reset-button" onClick={() => {
-        setOrigin("");
-        setQuery("");
-        setDate("");
-        setReturnDate("");
-        setDraftDate("");
-        setDraftReturnDate("");
-        setAccommodation("Todos");
-        setTravelers(2);
-        setChildrenTravelers(0);
-        setInfantTravelers(0);
-        setDatePickerOpen(false);
-        setPassengerDropdownOpen(false);
-        setActiveLocationField(null);
-        setSearchSubmitted(false);
-        ["mgt-draft-origin", "mgt-draft-destination", "mgt-draft-search-date", "mgt-draft-search-return-date"].forEach(key => writeDraft(key, ""));
-        writeDraft("mgt-draft-travelers", "2");
-      }}><X size={15}/> Limpiar</button>
+      <div className="search-actions">
+        <button className={`primary-btn search-button ${isSearching ? "searching" : ""}`} onClick={submitSearch} disabled={isSearching}>{isSearching ? <><span className="search-spinner"/> Buscando...</> : <><Search size={20}/> Buscar</>}</button>
+        <button type="button" className="search-reset-button" aria-label="Limpiar filtros de búsqueda" disabled={!origin && !query && !date && !returnDate && accommodation === "Todos" && travelers === 2 && childrenTravelers === 0 && infantTravelers === 0} onClick={() => {
+          setOrigin("");
+          setQuery("");
+          setDate("");
+          setReturnDate("");
+          setDraftDate("");
+          setDraftReturnDate("");
+          setAccommodation("Todos");
+          setTravelers(2);
+          setChildrenTravelers(0);
+          setInfantTravelers(0);
+          setDatePickerOpen(false);
+          setPassengerDropdownOpen(false);
+          setActiveLocationField(null);
+          setSearchSubmitted(false);
+          ["mgt-draft-origin", "mgt-draft-destination", "mgt-draft-search-date", "mgt-draft-search-return-date"].forEach(key => writeDraft(key, ""));
+          writeDraft("mgt-draft-travelers", "2");
+        }}><X size={16}/> Limpiar</button>
+      </div>
     </div>;
   };
 
