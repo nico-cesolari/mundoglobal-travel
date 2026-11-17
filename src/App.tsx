@@ -113,16 +113,16 @@ const enrichPackage = (item: Package): Package => {
   const nights = item.nights ?? datesNights ?? (item.days && item.days > 1 ? item.days - 1 : undefined);
   const tripType = item.tripType;
   const approximateIncludes = item.priceApproximate && item.price ? [
-    { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Tarifa de referencia desde ${item.departureCity || "el origen indicado"}. Aerolínea, horarios, equipaje e impuestos finales sujetos a confirmación.` },
-    { icon: "hotel", title: nights ? `${item.hotelName || "Alojamiento"} · ${nights} noches` : "Alojamiento", description: "Habitación compartida en base doble. Régimen y condiciones según el hotel indicado." },
-    { icon: "shield", title: "Asistencia al viajero", description: "Cobertura y condiciones sujetas a confirmación antes de emitir." }
+    { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Vuelo desde ${item.departureCity || "el origen indicado"}. Horarios y disponibilidad a confirmar.` },
+    { icon: "hotel", title: nights ? `${item.hotelName || "Alojamiento"} · ${nights} noches` : "Alojamiento", description: "Habitación doble. Régimen según el hotel." },
+    { icon: "shield", title: "Asistencia al viajero", description: "Cobertura a confirmar." }
   ] : [];
   const baseIncludes = item.includes ?? (quote ? [
-    { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Cotización estimada por persona: ${money(quote.flight, item.currency || "USD")}.` },
-    { icon: "hotel", title: nights ? `Hotel · ${nights} noches` : "Alojamiento", description: `Cotización estimada por persona: ${money(quote.hotel, item.currency || "USD")}.` },
-    { icon: "shield", title: "Asistencia al viajero", description: `Cotización estimada por persona: ${money(quote.assistance, item.currency || "USD")}.` }
+    { icon: "plane", title: "Pasaje aéreo de ida y vuelta", description: `Estimado por persona: ${money(quote.flight, item.currency || "USD")}.` },
+    { icon: "hotel", title: nights ? `Hotel · ${nights} noches` : "Alojamiento", description: `Estimado por persona: ${money(quote.hotel, item.currency || "USD")}.` },
+    { icon: "shield", title: "Asistencia al viajero", description: `Estimado por persona: ${money(quote.assistance, item.currency || "USD")}.` }
   ] : approximateIncludes);
-  const vehicleInclude = { icon: "car", title: "Alquiler de vehículo incluido", description: "Incluye alquiler de vehículo durante la estadía. Categoría, condiciones y disponibilidad a confirmar." };
+  const vehicleInclude = { icon: "car", title: "Alquiler de vehículo incluido", description: "Vehículo durante la estadía. Categoría y disponibilidad a confirmar." };
   const vehicleIncludes = baseIncludes.filter(include => include.icon === "car" || include.title?.trim().toLocaleLowerCase() === vehicleInclude.title.toLocaleLowerCase());
   const includes = [
     ...baseIncludes.filter(include => include.icon !== "car" && include.title?.trim().toLocaleLowerCase() !== vehicleInclude.title.toLocaleLowerCase()),
@@ -130,7 +130,7 @@ const enrichPackage = (item: Package): Package => {
   ];
   const infoSections = item.infoSections ?? [
     ...(item.description ? [{ icon: "info", title: "Todos los detalles", description: item.description }] : []),
-    ...(item.departureCity && item.departureDate && item.returnDate ? [{ icon: "calendar", title: "Fechas y condiciones", description: `Salida desde ${item.departureCity}. Ida ${formatTravelDate(item.departureDate)} y regreso ${formatTravelDate(item.returnDate)}. El precio corresponde a esta salida publicada.` }] : [])
+    ...(item.departureCity && item.departureDate && item.returnDate ? [{ icon: "calendar", title: "Fechas y condiciones", description: `Salida desde ${item.departureCity}. Ida ${formatTravelDate(item.departureDate)} · Regreso ${formatTravelDate(item.returnDate)}.` }] : [])
   ];
   return {
     ...item,
