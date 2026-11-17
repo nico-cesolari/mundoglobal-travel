@@ -3531,3 +3531,67 @@ body{zoom:.9;}
     min-height:46px;
   }
 }
+
+/* Ritmo vertical del formulario de datos del pasajero principal */
+.checkout-box .passenger-fields-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:20px 24px;
+}
+.checkout-box .passenger-fields-grid>label{
+  display:flex;
+  min-width:0;
+  flex-direction:column;
+  gap:8px;
+  margin:0;
+  color:#263b5c;
+  font-size:15px;
+  font-weight:500;
+}
+.checkout-box .passenger-fields-grid>label input{
+  width:100%;
+  height:48px;
+  min-height:48px;
+  box-sizing:border-box;
+  margin:0;
+  padding:0 16px;
+  border:1px solid #E2E8F0;
+  border-radius:14px;
+}
+.checkout-box .passenger-fields-grid>label input:focus{
+  border-color:#3479e8;
+  box-shadow:0 0 0 3px #3479e81a;
+  outline:none;
+}
+.checkout-box .passenger-fields-grid>label input::placeholder{
+  color:#94A3B8;
+  opacity:1;
+}
+.checkout-box .passenger-fields-grid .passenger-form-hint{
+  grid-column:1 / -1;
+  width:100%;
+  max-width:70ch;
+  min-width:0;
+  margin:12px 0 0;
+  color:#64748B;
+  font-size:13px;
+  line-height:1.5;
+}
+.checkout-box .passenger-fields-grid .field-help,
+.checkout-box .passenger-fields-grid .field-error{
+  min-height:18px;
+  margin-top:6px;
+  font-size:12px;
+  line-height:1.5;
+}
+@media(max-width:767px){
+  .checkout-box .passenger-fields-grid{
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+  .checkout-box .passenger-fields-grid .passenger-form-hint{
+    grid-column:1;
+    margin-top:12px;
+  }
+}
+
