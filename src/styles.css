@@ -3213,3 +3213,12 @@ body{zoom:.9;}
   .passenger-autofill-tools select,
   .passenger-tool-button{width:100%;min-height:39px}
 }
+
+
+/* Capas del buscador: sugerencias y calendario siempre por encima de las tarjetas */
+.search-panel{position:relative;z-index:100;isolation:isolate}
+.search-panel .search-field{position:relative;z-index:1}
+.search-panel .location-field.location-focused{z-index:140}
+.search-panel .date-range-field{z-index:130}
+.search-panel .location-suggestions{z-index:160}
+.search-panel .search-calendar{z-index:170}
