@@ -150,22 +150,6 @@
 .package-other-open svg{transition:transform .2s ease}
 .package-other-open:hover{background:#EFF4FF;color:#1E4FD8}
 .package-other-open:hover svg{transform:translateX(2px)}
-.package-other-card-heading{display:flex;align-items:center;justify-content:space-between;gap:9px}
-.package-other-card-heading h3{margin:0;color:#1D3155;font-size:14px;font-weight:800}
-.package-other-card-heading>span{display:flex;align-items:center;gap:3px;color:#D79B17;font-size:9px;font-weight:800;white-space:nowrap}
-.package-other-card-heading>span svg{color:#F5B93A}
-.package-other-facts{display:flex;flex-wrap:wrap;gap:9px;margin:8px 0;color:#8090A8;font-size:9px}
-.package-other-facts>span{display:inline-flex;align-items:center;gap:4px}
-.package-other-facts svg{color:#1E4FD8}
-.package-other-price{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:9px 0}
-.package-other-price>b{color:#1C3975;font-size:12px}
-.package-other-price>small{color:#8090A8;font-size:9px}
-.package-other-price>span{padding:4px 7px;border-radius:999px;background:#E4F8EC;color:#12804E;font-size:8px;font-weight:800}
-.package-other-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;min-height:calc(1.5em * 3);margin:0;color:#71819A;font-size:9px;line-height:1.5}
-.package-other-open{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;min-height:48px;margin-top:auto;border:1.5px solid #1E4FD8;border-radius:14px;color:#1E4FD8;font-size:10px;font-weight:600;transition:background .2s,color .2s}
-.package-other-open svg{transition:transform .2s ease}
-.package-other-open:hover{background:#EFF4FF;color:#1E4FD8}
-.package-other-open:hover svg{transform:translateX(2px)}
 .package-help-banner{position:relative;display:flex;align-items:center;gap:17px;max-width:1120px;min-height:124px;margin:28px auto 15px;padding:24px 29px;overflow:hidden;border-radius:20px;background:linear-gradient(108deg,#0B2867 0%,#1E4FD8 100%);color:#fff}
 .package-help-icon{display:grid;place-items:center;width:52px;height:52px;flex:0 0 52px;border:1px solid rgba(255,255,255,.22);border-radius:50%;background:rgba(255,255,255,.12)}
 .package-help-copy{position:relative;z-index:1}
