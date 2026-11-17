@@ -441,10 +441,14 @@ export function PackageDetailPage({
                 <span className="package-other-country">{item.country || "Destino"}</span>
               </div>
               <div className="package-other-card-body">
-                <div className="package-other-card-heading"><h3>{item.name}</h3>{item.rating && item.rating > 0 && <span><Star size={13} fill="currentColor"/>{item.rating.toFixed(1)} {(item.reviewCount ?? item.reviews) && (item.reviewCount ?? item.reviews) !== "0" ? `(${item.reviewCount ?? item.reviews})` : ""}</span>}</div>
-                {(itemDays || itemHasHotel || itemHasFlight || item.mode) && <p className="package-other-facts">{itemDays && <span><CalendarDays size={13}/>{itemDays} días</span>}{itemHasHotel && <span><BedDouble size={13}/>Hotel</span>}{!itemHasHotel && itemHasFlight && <span><Plane size={13}/>Vuelo</span>}{item.mode && <span><Compass size={13}/>{item.mode}</span>}</p>}
-                {money(item.price, item.currency || "USD") && <div className="package-other-price"><b>Desde {money(item.price, item.currency || "USD")}</b><small>por persona</small>{saved && <span>Ahorrá {money(saved, item.currency || "USD")}</span>}</div>}
-                {item.description && <p className="package-other-description">{item.description}</p>}
+                <div className="package-other-card-header">
+                  <div className="package-other-card-heading"><h3>{item.name}</h3>{item.rating && item.rating > 0 && <span><Star size={13} fill="currentColor"/>{item.rating.toFixed(1)} {(item.reviewCount ?? item.reviews) && (item.reviewCount ?? item.reviews) !== "0" ? `(${item.reviewCount ?? item.reviews})` : ""}</span>}</div>
+                  {(itemDays || itemHasHotel || itemHasFlight || item.mode) && <p className="package-other-facts">{itemDays && <span><CalendarDays size={13}/>{itemDays} días</span>}{itemHasHotel && <span><BedDouble size={13}/>Hotel</span>}{!itemHasHotel && itemHasFlight && <span><Plane size={13}/>Vuelo</span>}{item.mode && <span><Compass size={13}/>{item.mode}</span>}</p>}
+                </div>
+                <div className="package-other-offer">
+                  {money(item.price, item.currency || "USD") && <div className="package-other-price"><b>Desde {money(item.price, item.currency || "USD")}</b><small>por persona</small>{saved && <span>Ahorrá {money(saved, item.currency || "USD")}</span>}</div>}
+                  {item.description && <p className="package-other-description">{item.description}</p>}
+                </div>
                 <button type="button" className="package-other-open" onClick={() => onOpenPackage(item)}>Ver paquete <ArrowRight size={15}/></button>
               </div>
             </article>;
