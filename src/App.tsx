@@ -276,6 +276,12 @@ export default function App() {
   const employeeSession = localStorage.getItem("mgt-employee-session") || "";
   const initialPage: Page = (initialBookingSlug || window.location.pathname === "/checkout" || window.location.pathname === "/reservar") ? "checkout" : initialSlug ? "detail" : window.location.pathname === "/paquetes" ? "results" : currentReservationReference() ? "booking-detail" : window.location.pathname === "/mi-cuenta" ? "account" : window.location.pathname === "/iniciar-sesion" ? "login" : window.location.pathname === "/crear-cuenta" ? "register" : window.location.pathname === "/contacto" ? "support" : window.location.pathname === "/employee-login" ? "login" : window.location.pathname === "/employee" ? (employeeSession ? "employee" : "login") : "home";
   const [page, setPage] = useState<Page>(() => initialPage);
+  const [wideSearchViewport, setWideSearchViewport] = useState(() => window.innerWidth >= 1280);
+  useEffect(() => {
+    const updateSearchViewport = () => setWideSearchViewport(window.innerWidth >= 1280);
+    window.addEventListener("resize", updateSearchViewport);
+    return () => window.removeEventListener("resize", updateSearchViewport);
+  }, []);
   const [routeNotFound, setRouteNotFound] = useState(Boolean((initialSlug || initialBookingSlug) && !initialRoutePackage));
   const [heroSlide, setHeroSlide] = useState(0);
   const [employeePackages, setEmployeePackages] = useState<Package[]>(initialPackages);
@@ -922,7 +928,7 @@ export default function App() {
         <span className="field-icon"><MapPin size={18}/></span>
         <span className="search-field-copy">
           <small>Origen</small>
-          <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onKeyDown={e => { if (e.key === "Escape") { setActiveLocationField(null); e.currentTarget.blur(); } }} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder="Desde dónde" aria-label="¿Desde dónde salís?" title="¿Desde dónde salís?" autoComplete="off" />
+          <input value={origin} onChange={e => setOrigin(e.target.value)} onFocus={() => setActiveLocationField("origin")} onKeyDown={e => { if (e.key === "Escape") { setActiveLocationField(null); e.currentTarget.blur(); } }} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "origin" ? null : current), 140)} placeholder={wideSearchViewport ? "¿Desde dónde salís?" : "Desde dónde"} aria-label="¿Desde dónde salís?" title="¿Desde dónde salís?" autoComplete="off" />
           {activeLocationField === "origin" && origin.trim().length > 0 && <div className="location-suggestions">
             {locationOptions.filter(place => place.toLowerCase().includes(origin.trim().toLowerCase())).slice(0,7).map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setOrigin(place); setActiveLocationField(null); }}>{place}</button>)}
           </div>}
@@ -932,7 +938,7 @@ export default function App() {
         <span className="field-icon"><MapPin size={18}/></span>
         <span className="search-field-copy">
           <small>Destino</small>
-          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onKeyDown={e => { if (e.key === "Escape") { setActiveLocationField(null); e.currentTarget.blur(); } }} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder="A dónde" aria-label="¿A dónde querés ir?" title="¿A dónde querés ir?" autoComplete="off" />
+          <input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setActiveLocationField("destination")} onKeyDown={e => { if (e.key === "Escape") { setActiveLocationField(null); e.currentTarget.blur(); } }} onBlur={() => window.setTimeout(() => setActiveLocationField(current => current === "destination" ? null : current), 140)} placeholder={wideSearchViewport ? "¿A dónde querés ir?" : "A dónde"} aria-label="¿A dónde querés ir?" title="¿A dónde querés ir?" autoComplete="off" />
           {activeLocationField === "destination" && query.trim().length > 0 && <div className="location-suggestions">
             {matches.length > 0 ? matches.map(place => <button type="button" key={place} onMouseDown={e => e.preventDefault()} onClick={() => { setQuery(place); setActiveLocationField(null); }}>{place}</button>) : <p>No encontramos coincidencias. Probá con otra ciudad o país.</p>}
           </div>}
