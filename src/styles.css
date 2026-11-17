@@ -3579,3 +3579,21 @@ body{zoom:.9;}
   .destination-reference .destination-heading h3{font-size:20px;}
   .destination-reference .destination-description{font-size:14px;}
 }
+
+.destination-reference .destination-country-badge{
+  position:absolute;
+  left:16px;
+  bottom:16px;
+  z-index:1;
+  display:inline-flex;
+  align-items:center;
+  max-width:calc(100% - 32px);
+  padding:7px 11px;
+  border:1px solid rgba(255,255,255,.3);
+  border-radius:999px;
+  background:rgba(15,23,42,.68);
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+  backdrop-filter:blur(8px);
+}
