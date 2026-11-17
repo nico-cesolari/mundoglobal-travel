@@ -406,7 +406,8 @@ export function PackageDetailPage({
         </div>
         <div className="package-hotel-map"><iframe title={`Mapa de ubicación de ${packageData.hotelName}`} src={`https://www.google.com/maps?q=${hotelMapQuery}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen/></div>
       </section>}
-\n      {infoSections.length > 0 && <section className="package-info-sections">
+
+      {infoSections.length > 0 && <section className="package-info-sections">
         <div className="package-section-heading-row"><div><h2>Antes de viajar, confirmá los detalles</h2><p>Información importante para preparar tu experiencia.</p></div><button type="button" onClick={() => setActiveInfo(infoSections[0])}>Ver más <ChevronRight size={16}/></button></div>
         <div className="package-info-card-grid">
           {infoSections.slice(0, 4).map((section, index) => {
