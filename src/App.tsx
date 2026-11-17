@@ -942,7 +942,7 @@ export default function App() {
         <span className="search-field-copy">
           <small>Fechas</small>
           <button type="button" className="date-range-trigger" aria-label="Seleccionar fechas de ida y vuelta" aria-expanded={datePickerOpen} onClick={() => { setDraftDate(date); setDraftReturnDate(returnDate); setDatePickerOpen(open => !open); }}>
-            {date && returnDate ? `${displayDate(date)} – ${displayDate(returnDate)}` : "Agregá fechas"}
+            {date ? `${displayDate(date)}${returnDate ? ` – ${displayDate(returnDate)}` : " · Solo ida"}` : "Agregá fechas"}
             <ChevronDown size={13}/>
           </button>
           {datePickerOpen && <div className="search-calendar" role="dialog" aria-label="Seleccionar fechas de viaje">
@@ -962,10 +962,10 @@ export default function App() {
                 else setDraftReturnDate(value);
               }}>{day}</button>;
             })}</div>
-            <p>{draftDate && !draftReturnDate ? "Ahora elegí la fecha de vuelta" : "Seleccioná ida y vuelta"}</p>
+            <p>{draftDate && !draftReturnDate ? "Podés aplicar esta fecha o elegir una fecha de vuelta" : "Elegí una fecha; la vuelta es opcional"}</p>
             <div className="search-calendar-actions">
               <button type="button" onClick={() => { setDraftDate(""); setDraftReturnDate(""); setDate(""); setReturnDate(""); setDatePickerOpen(false); }}>Limpiar</button>
-              <button type="button" disabled={!draftDate || !draftReturnDate} onClick={() => { setDate(draftDate); setReturnDate(draftReturnDate); setDatePickerOpen(false); }}>Aplicar fechas</button>
+              <button type="button" disabled={!draftDate} onClick={() => { setDate(draftDate); setReturnDate(draftReturnDate); setDatePickerOpen(false); }}>Aplicar fechas</button>
             </div>
           </div>}
         </span>
